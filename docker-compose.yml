@@ -1,0 +1,60 @@
+---
+version: "3.9"
+services:
+  hadoop-master:
+    image: yassern1/hadoop-spark-jupyter:1.0.3
+    container_name: cluster-master
+    hostname: hadoop-master
+    ports:
+      - 9870:9870
+      - 8088:8088
+      - 7077:7077
+      - 19888:19888
+      - 9000:9000
+      - 8080:8080
+      - 9092:9092     # Kafka
+      - 2181:2181     # Zookeeper
+    volumes:
+      - ./assets/:/shared_volume
+    networks:
+      - hadoop
+    tty: true
+    stdin_open: true
+  hadoop-slave1:
+    image: yassern1/hadoop-spark-jupyter:1.0.3
+    container_name: cluster-slave1
+    hostname: hadoop-slave1
+    ports:
+      - 8040:8042
+    networks:
+      - hadoop
+    tty: true
+    stdin_open: true
+  hadoop-slave2:
+    image: yassern1/hadoop-spark-jupyter:1.0.3
+    container_name: cluster-slave2
+    hostname: hadoop-slave2
+    ports:
+      - 8041:8042
+    networks:
+      - hadoop
+    tty: true
+    stdin_open: true
+  # ===============================
+  # KAFKA UI
+  # ===============================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    hostname: kafka-ui
+    networks:
+      - hadoop
+    ports:
+      - 8081:8080
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=hadoop-master:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=hadoop-master:2181  
+networks:
+  hadoop:
+    driver: bridge
