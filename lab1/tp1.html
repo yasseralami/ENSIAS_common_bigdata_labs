@@ -1,278 +1,1070 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TP1 — Cluster Hadoop, HDFS et MapReduce | ENSIAS 2026-2027</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#1E2761;--navy-dark:#141c4a;--gold:#E8B84B;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#64748b;--hint:#94a3b8;--success-bg:#ecfdf5;--success-text:#065f46;--success-border:#6ee7b7;--danger-bg:#fef2f2;--danger-text:#991b1b;--danger-border:#fca5a5;--info-bg:#eff6ff;--info-text:#1e40af;--info-border:#93c5fd;--warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fcd34d;--code-bg:#0f172a;--teal:#0f766e;--teal-bg:#e6f6f4}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-a{color:var(--info-text)}
-.site-header{background:var(--navy);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
-.header-inner{max-width:900px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
-.header-left{display:flex;align-items:center;gap:10px}
-.header-logo{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--navy)}
-.header-title{font-size:13px;font-weight:600;color:#fff}
-.header-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
-.header-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--navy)}
-.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
-.lab-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3068 100%);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
-.lab-hero::after{content:'1';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-family:'DM Serif Display',serif;font-size:120px;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
-.lab-tag{font-size:11px;font-weight:600;color:var(--gold);margin-bottom:.6rem}
-.lab-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,28px);color:#fff;margin-bottom:.5rem;font-weight:400}
-.lab-desc{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;max-width:580px;margin-bottom:1.1rem}
-.lab-meta{display:flex;gap:8px;flex-wrap:wrap}
-.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);padding:4px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.12)}
-.ident{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr 180px;gap:10px}
-.ident label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
-.ident input,.ident select{width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
-.progress-wrap{margin-bottom:1.25rem}
-.progress-bar{background:var(--border);border-radius:99px;height:6px;overflow:hidden;margin-bottom:4px}
-.progress-fill{height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .5s}
-.progress-label{font-size:11px;color:var(--muted);text-align:right}
-.intro-note{margin-bottom:1.25rem}
-.section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.section.locked{opacity:.55}
-.sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;width:100%;background:none;border:0;font:inherit;text-align:left;color:inherit}
-.sec-head:hover{background:var(--bg)}
-.section.locked .sec-head{cursor:not-allowed}
-.sec-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:var(--bg);color:var(--navy);border:1px solid var(--border)}
-.section.done .sec-num{background:var(--success-text);color:#fff;border-color:var(--success-text)}
-.section.open .sec-num{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sec-title{font-size:14px;font-weight:600;flex:1;line-height:1.35}
-.sec-time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
-.sec-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--warn-bg);color:var(--warn-text)}
-.section.done .sec-status{background:var(--success-bg);color:var(--success-text)}
-.section.locked .sec-status{background:var(--bg);color:var(--hint)}
-.sec-body{display:none;padding:4px 18px 18px;border-top:1px solid var(--border)}
-.section.open .sec-body{display:block}
-.sec-body p{font-size:13.5px;margin:12px 0}
-.sec-body h3{font-size:13px;font-weight:700;color:var(--navy);margin:18px 0 6px}
-.sec-body ul,.sec-body ol{font-size:13.5px;margin:8px 0 8px 20px}
-.sec-body li{margin:3px 0}
-code.i{font-family:'DM Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
-.cmd{margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid #1e293b}
-.cmd-head{display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px}
-.term{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;display:flex;align-items:center;gap:4px}
-.term.cs{background:#dbeafe;color:#1e3a8a}
-.term.cm{background:var(--gold);color:var(--navy)}
-.copy{font:inherit;font-size:11px;font-weight:600;color:#cbd5e1;background:transparent;border:1px solid #475569;border-radius:6px;padding:3px 9px;cursor:pointer;display:flex;align-items:center;gap:4px}
-.copy:hover{color:#fff;border-color:#94a3b8}
-.copy.ok{color:#6ee7b7;border-color:#6ee7b7}
-.cmd pre{background:var(--code-bg);color:#e2e8f0;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.7;margin:0}
-.cmd pre .c{color:#64748b}
-.expect{font-size:12.5px;background:var(--teal-bg);color:var(--teal);border-radius:8px;padding:8px 12px;margin:-2px 0 12px;display:flex;gap:8px}
-.expect i{margin-top:2px}
-.note{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0;display:flex;gap:9px;border:1px solid}
-.note i{font-size:17px;margin-top:1px}
-.note.info{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border)}
-.note.warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border)}
-.note.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
-table.t{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-table.t th,table.t td{border:1px solid var(--border);padding:6px 9px;text-align:left}
-table.t th{background:var(--bg);font-weight:600}
-.quiz{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin:16px 0}
-.quiz-tag{font-size:11px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;margin-bottom:6px}
-.quiz .q{font-size:13.5px;font-weight:600;margin:0 0 10px}
-.opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:9px 12px;margin:6px 0;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;color:var(--text)}
-.opt:hover:not(:disabled){border-color:var(--navy)}
-.opt.chosen{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
-.opt.right{background:var(--success-bg);border-color:var(--success-border)}
-.opt.wrong{background:var(--danger-bg);border-color:var(--danger-border)}
-.opt:disabled{cursor:default}
-.fb{font-size:13px;margin-top:8px;display:none;border-radius:9px;padding:9px 12px}
-.fb.wait{display:block;color:var(--muted);background:#fff;border:1px dashed var(--border)}
-.fb.ok{display:block;background:var(--success-bg);color:var(--success-text)}
-.fb.ko{display:block;background:var(--danger-bg);color:var(--danger-text)}
-.reflect{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:16px 0;background:#fffdf6}
-.reflect label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
-.reflect label .rn{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:6px}
-.reflect textarea{width:100%;min-height:90px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:#fff;color:var(--text)}
-.saved{font-size:11px;color:var(--hint);margin-top:3px}
-.done-btn{margin-top:14px;font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;border:0;background:var(--navy);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.done-btn:disabled{background:var(--hint);cursor:not-allowed}
-.done-hint{font-size:11.5px;color:var(--muted);margin-top:6px}
-.final{background:var(--card);border:2px solid var(--navy);border-radius:14px;padding:1.1rem 1.2rem;margin-top:1.5rem}
-.final h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:21px;color:var(--navy);margin-bottom:6px}
-.final p{font-size:13.5px;margin:6px 0}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.btn{font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--navy)}
-.btn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-.btn.ghost{background:#fff;color:var(--navy)}
-.btn.danger{background:#fff;color:var(--danger-text);border-color:var(--danger-border)}
-.export-msg{font-size:12.5px;margin-top:8px}
-footer{text-align:center;font-size:11px;color:var(--hint);margin-top:2.5rem}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media (max-width:640px){.ident{grid-template-columns:1fr}.sec-time{display:none}}
-@media (prefers-reduced-motion:reduce){.progress-fill{transition:none}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TP1 — Cluster Hadoop, HDFS et MapReduce | ENSIAS 2026-2027</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1E2761;
+      --navy-dark: #141c4a;
+      --gold: #E8B84B;
+      --bg: #f4f6ff;
+      --card: #fff;
+      --border: #dde3f5;
+      --text: #1a2040;
+      --muted: #64748b;
+      --hint: #94a3b8;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --success-border: #6ee7b7;
+      --danger-bg: #fef2f2;
+      --danger-text: #991b1b;
+      --danger-border: #fca5a5;
+      --info-bg: #eff6ff;
+      --info-text: #1e40af;
+      --info-border: #93c5fd;
+      --warn-bg: #fffbeb;
+      --warn-text: #92400e;
+      --warn-border: #fcd34d;
+      --code-bg: #0f172a;
+      --teal: #0f766e;
+      --teal-bg: #e6f6f4
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6
+    }
+
+    a {
+      color: var(--info-text)
+    }
+
+    .site-header {
+      background: var(--navy);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--gold)
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      background: var(--gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 14px;
+      color: var(--navy)
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .55);
+      margin-top: 1px
+    }
+
+    .header-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem
+    }
+
+    .lab-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a3068 100%);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .lab-hero::after {
+      content: '1';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 120px;
+      color: rgba(255, 255, 255, .05);
+      line-height: 1;
+      pointer-events: none
+    }
+
+    .lab-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .6rem
+    }
+
+    .lab-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 4vw, 28px);
+      color: #fff;
+      margin-bottom: .5rem;
+      font-weight: 400
+    }
+
+    .lab-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .75);
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 1.1rem
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .8);
+      background: rgba(255, 255, 255, .08);
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .ident {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px
+    }
+
+    .ident label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .ident input,
+    .ident select {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .progress-wrap {
+      margin-bottom: 1.25rem
+    }
+
+    .progress-bar {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: var(--navy);
+      border-radius: 99px;
+      transition: width .5s
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right
+    }
+
+    .intro-note {
+      margin-bottom: 1.25rem
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden
+    }
+
+    .section.locked {
+      opacity: .55
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      background: none;
+      border: 0;
+      font: inherit;
+      text-align: left;
+      color: inherit
+    }
+
+    .sec-head:hover {
+      background: var(--bg)
+    }
+
+    .section.locked .sec-head {
+      cursor: not-allowed
+    }
+
+    .sec-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--bg);
+      color: var(--navy);
+      border: 1px solid var(--border)
+    }
+
+    .section.done .sec-num {
+      background: var(--success-text);
+      color: #fff;
+      border-color: var(--success-text)
+    }
+
+    .section.open .sec-num {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .sec-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.35
+    }
+
+    .sec-time {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 3px
+    }
+
+    .sec-status {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--warn-bg);
+      color: var(--warn-text)
+    }
+
+    .section.done .sec-status {
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .section.locked .sec-status {
+      background: var(--bg);
+      color: var(--hint)
+    }
+
+    .sec-body {
+      display: none;
+      padding: 4px 18px 18px;
+      border-top: 1px solid var(--border)
+    }
+
+    .section.open .sec-body {
+      display: block
+    }
+
+    .sec-body p {
+      font-size: 13.5px;
+      margin: 12px 0
+    }
+
+    .sec-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 18px 0 6px
+    }
+
+    .sec-body ul,
+    .sec-body ol {
+      font-size: 13.5px;
+      margin: 8px 0 8px 20px
+    }
+
+    .sec-body li {
+      margin: 3px 0
+    }
+
+    code.i {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 5px
+    }
+
+    .cmd {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b
+    }
+
+    .cmd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 6px 10px
+    }
+
+    .term {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .term.cs {
+      background: #dbeafe;
+      color: #1e3a8a
+    }
+
+    .term.cm {
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .copy {
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: transparent;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 3px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .copy:hover {
+      color: #fff;
+      border-color: #94a3b8
+    }
+
+    .copy.ok {
+      color: #6ee7b7;
+      border-color: #6ee7b7
+    }
+
+    .cmd pre {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 0
+    }
+
+    .cmd pre .c {
+      color: #64748b
+    }
+
+    .expect {
+      font-size: 12.5px;
+      background: var(--teal-bg);
+      color: var(--teal);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: -2px 0 12px;
+      display: flex;
+      gap: 8px
+    }
+
+    .expect i {
+      margin-top: 2px
+    }
+
+    .note {
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      display: flex;
+      gap: 9px;
+      border: 1px solid
+    }
+
+    .note i {
+      font-size: 17px;
+      margin-top: 1px
+    }
+
+    .note.info {
+      background: var(--info-bg);
+      color: var(--info-text);
+      border-color: var(--info-border)
+    }
+
+    .note.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border)
+    }
+
+    .note.ok {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-color: var(--success-border)
+    }
+
+    table.t {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 10px 0
+    }
+
+    table.t th,
+    table.t td {
+      border: 1px solid var(--border);
+      padding: 6px 9px;
+      text-align: left
+    }
+
+    table.t th {
+      background: var(--bg);
+      font-weight: 600
+    }
+
+    .quiz {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0
+    }
+
+    .quiz-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px
+    }
+
+    .quiz .q {
+      font-size: 13.5px;
+      font-weight: 600;
+      margin: 0 0 10px
+    }
+
+    .opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin: 6px 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--text)
+    }
+
+    .opt:hover:not(:disabled) {
+      border-color: var(--navy)
+    }
+
+    .opt.chosen {
+      border-color: var(--navy);
+      box-shadow: inset 0 0 0 1px var(--navy)
+    }
+
+    .opt.right {
+      background: var(--success-bg);
+      border-color: var(--success-border)
+    }
+
+    .opt.wrong {
+      background: var(--danger-bg);
+      border-color: var(--danger-border)
+    }
+
+    .opt:disabled {
+      cursor: default
+    }
+
+    .fb {
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+      border-radius: 9px;
+      padding: 9px 12px
+    }
+
+    .fb.wait {
+      display: block;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed var(--border)
+    }
+
+    .fb.ok {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .fb.ko {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger-text)
+    }
+
+    .reflect {
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      background: #fffdf6
+    }
+
+    .reflect label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px
+    }
+
+    .reflect label .rn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-right: 6px
+    }
+
+    .reflect textarea {
+      width: 100%;
+      min-height: 90px;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .saved {
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 3px
+    }
+
+    .done-btn {
+      margin-top: 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 0;
+      background: var(--navy);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .done-btn:disabled {
+      background: var(--hint);
+      cursor: not-allowed
+    }
+
+    .done-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px
+    }
+
+    .final {
+      background: var(--card);
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      margin-top: 1.5rem
+    }
+
+    .final h2 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      font-size: 21px;
+      color: var(--navy);
+      margin-bottom: 6px
+    }
+
+    .final p {
+      font-size: 13.5px;
+      margin: 6px 0
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--navy)
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold)
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--navy)
+    }
+
+    .btn.danger {
+      background: #fff;
+      color: var(--danger-text);
+      border-color: var(--danger-border)
+    }
+
+    .export-msg {
+      font-size: 12.5px;
+      margin-top: 8px
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 2.5rem
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px
+    }
+
+    @media (max-width:640px) {
+      .ident {
+        grid-template-columns: 1fr
+      }
+
+      .sec-time {
+        display: none
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .progress-fill {
+        transition: none
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-left">
-      <div class="header-logo">BD</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-logo">BD</div>
+        <div>
+          <div class="header-title">Big Data &amp; Applications</div>
+          <div class="header-sub">ENSIAS · 2SCL &amp; IDF · 2026-2027</div>
+        </div>
+      </div>
+      <span class="header-badge">TP 1 / 7</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="lab-hero">
+      <div class="lab-tag">Semaine 1 · Stockage et calcul distribués</div>
+      <h1 class="lab-title">TP1 — Cluster Hadoop, HDFS et MapReduce</h1>
+      <p class="lab-desc">Démarrer un vrai cluster Hadoop de trois nœuds dans votre navigateur, stocker des fichiers
+        dans HDFS, observer leur découpage en blocs, puis exécuter vos premiers traitements MapReduce, jusqu'à adapter
+        vous-même un job Python.</p>
+      <div class="lab-meta">
+        <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>2 h</span>
+        <span class="meta-chip"><i class="ti ti-brand-github" aria-hidden="true"></i>GitHub Codespaces</span>
+        <span class="meta-chip"><i class="ti ti-database" aria-hidden="true"></i>HDFS</span>
+        <span class="meta-chip"><i class="ti ti-arrows-split" aria-hidden="true"></i>MapReduce</span>
+        <span class="meta-chip"><i class="ti ti-brand-python" aria-hidden="true"></i>Hadoop Streaming</span>
+      </div>
+    </div>
+
+    <div class="ident">
       <div>
-        <div class="header-title">Big Data &amp; Applications</div>
-        <div class="header-sub">ENSIAS · 2SCL &amp; IDF · 2026-2027</div>
+        <label for="nom">Nom(s) et prénom(s)</label>
+        <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+      </div>
+      <div>
+        <label for="filiere">Filière</label>
+        <select id="filiere">
+          <option value="">Choisir…</option>
+          <option>2SCL</option>
+          <option>IDF</option>
+        </select>
       </div>
     </div>
-    <span class="header-badge">TP 1 / 7</span>
-  </div>
-</header>
 
-<main class="container">
-
-  <div class="lab-hero">
-    <div class="lab-tag">Semaine 1 · Stockage et calcul distribués</div>
-    <h1 class="lab-title">TP1 — Cluster Hadoop, HDFS et MapReduce</h1>
-    <p class="lab-desc">Démarrer un vrai cluster Hadoop de trois nœuds dans votre navigateur, stocker des fichiers dans HDFS, observer leur découpage en blocs, puis exécuter vos premiers traitements MapReduce, jusqu'à adapter vous-même un job Python.</p>
-    <div class="lab-meta">
-      <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>2 h</span>
-      <span class="meta-chip"><i class="ti ti-brand-github" aria-hidden="true"></i>GitHub Codespaces</span>
-      <span class="meta-chip"><i class="ti ti-database" aria-hidden="true"></i>HDFS</span>
-      <span class="meta-chip"><i class="ti ti-arrows-split" aria-hidden="true"></i>MapReduce</span>
-      <span class="meta-chip"><i class="ti ti-brand-python" aria-hidden="true"></i>Hadoop Streaming</span>
-    </div>
-  </div>
-
-  <div class="ident">
-    <div>
-      <label for="nom">Nom(s) et prénom(s)</label>
-      <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
-    </div>
-    <div>
-      <label for="filiere">Filière</label>
-      <select id="filiere">
-        <option value="">Choisir…</option>
-        <option>2SCL</option>
-        <option>IDF</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
-    <div class="progress-label" id="plabel">0 / 8 sections terminées</div>
-  </div>
-
-  <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et exportées à la fin du TP.</div></div>
-
-  <!-- ============ SECTION 0 ============ -->
-  <section class="section" data-sec="0">
-    <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Démarrer l'environnement</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>GitHub Codespaces vous donne une machine Linux dans le navigateur, avec VS Code, un terminal et Docker. Le cluster Hadoop tourne dans trois conteneurs Docker sur cette machine.</p>
-
-      <h3>1. Créer votre Codespace</h3>
-      <ol>
-        <li>Ouvrez le dépôt du cours sur GitHub (lien donné par l'enseignant).</li>
-        <li>Cliquez sur le bouton vert <strong>Code</strong>, onglet <strong>Codespaces</strong>, puis <strong>Create codespace on main</strong>.</li>
-        <li>Attendez la fin de la préparation : la première fois, comptez 3 à 5 minutes (décompression des données et téléchargement des images Docker).</li>
-      </ol>
-      <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>Votre quota Codespaces gratuit est limité. <strong>Arrêtez toujours votre Codespace en fin de séance</strong> (dernière section). Activez le GitHub Student Developer Pack pour disposer de plus d'heures.</div></div>
-
-      <h3>2. Deux terminaux, deux mondes</h3>
-      <p>Dans ce TP, chaque commande porte une étiquette qui indique où la taper :</p>
-      <table class="t">
-        <tr><th>Étiquette</th><th>Invite affichée</th><th>Sert à</th></tr>
-        <tr><td><span class="term cs" style="display:inline-flex"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span></td><td><code class="i">@votre-nom ➜ /workspaces/…</code></td><td>commandes <code class="i">docker</code> et <code class="i">git</code></td></tr>
-        <tr><td><span class="term cm" style="display:inline-flex"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span></td><td><code class="i">root@hadoop-master:~#</code></td><td>commandes <code class="i">hdfs</code>, <code class="i">hadoop</code>, <code class="i">yarn</code></td></tr>
-      </table>
-
-      <h3>3. Lancer le cluster</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose up -d
-docker ps</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Vous devez voir les conteneurs <code class="i">cluster-master</code>, <code class="i">cluster-slave1</code>, <code class="i">cluster-slave2</code> et <code class="i">kafka-ui</code> avec le statut <strong>Up</strong>.</span></div>
-
-      <h3>4. Démarrer HDFS et YARN, puis entrer dans le maître</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker exec -it cluster-master ./start-hadoop.sh
-docker exec -it cluster-master bash</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code class="i">root@hadoop-master</code> : vous êtes dans le conteneur maître.</span></div>
-
-      <h3>5. Ouvrir les interfaces web</h3>
-      <p>En bas de VS Code, onglet <strong>Ports</strong> : cliquez sur l'icône <i class="ti ti-world" aria-label="globe"></i> du port <strong>9870</strong> (HDFS) puis du port <strong>8088</strong> (YARN). Gardez ces deux onglets ouverts pendant tout le TP.</p>
-
-      <div class="quiz" data-q="q0" data-answer="c">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Quelle est la différence entre lancer les conteneurs un par un avec <code class="i">docker run</code> et utiliser <code class="i">docker-compose up -d</code> ?</p>
-        <button class="opt" type="button" data-v="a">Aucune : c'est la même commande sous un autre nom</button>
-        <button class="opt" type="button" data-v="b">docker-compose est plus lent car il télécharge davantage d'images</button>
-        <button class="opt" type="button" data-v="c">docker-compose lit un fichier de configuration et crée en une commande tous les services, avec leur réseau et leurs volumes</button>
-        <div class="fb" data-ok="Exactement. Le fichier docker-compose.yml décrit toute l'infrastructure : une seule commande la reproduit à l'identique. C'est le principe de l'Infrastructure as Code." data-ko="La bonne réponse est la dernière : docker-compose lit docker-compose.yml et crée tous les services, le réseau et les volumes en une commande. C'est l'Infrastructure as Code."></div>
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="pfill"></div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      <div class="progress-label" id="plabel">0 / 8 sections terminées</div>
     </div>
-  </section>
 
-  <!-- ============ SECTION 1 ============ -->
-  <section class="section" data-sec="1">
-    <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Observer la structure du cluster</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Le cluster est défini dans <code class="i">docker-compose.yml</code> : un conteneur maître et deux esclaves, reliés par un réseau Docker nommé <code class="i">hadoop</code>. Vérifions ce qui tourne réellement sur chacun.</p>
+    <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i>
+      <div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le
+        bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont
+        <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à
+        l'enseignant à la fin du TP.</div>
+    </div>
 
-      <h3>1. Les processus Java du maître</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>jps</code></pre></div>
+    <!-- ============ SECTION 0 ============ -->
+    <section class="section" data-sec="0">
+      <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Démarrer
+          l'environnement</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>GitHub Codespaces vous donne une machine Linux dans le navigateur, avec VS Code, un terminal et Docker. Le
+          cluster Hadoop tourne dans trois conteneurs Docker sur cette machine.</p>
 
-      <h3>2. Les processus des esclaves</h3>
-      <p>Ouvrez un <strong>second terminal</strong> (bouton <code class="i">+</code> du panneau des terminaux) : il s'ouvre côté Codespace.</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker exec cluster-slave1 jps
-docker exec cluster-slave2 jps</code></pre></div>
+        <h3>1. Créer votre Codespace</h3>
+        <ol>
+          <li>Ouvrez le dépôt du cours sur GitHub (lien donné par l'enseignant).</li>
+          <li>Cliquez sur le bouton vert <strong>Code</strong>, onglet <strong>Codespaces</strong>, puis <strong>Create
+              codespace on main</strong>.</li>
+          <li>Attendez la fin de la préparation : la première fois, comptez 3 à 5 minutes (décompression des données et
+            téléchargement des images Docker).</li>
+        </ol>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>Votre quota Codespaces gratuit est limité. <strong>Arrêtez toujours votre Codespace en fin de
+              séance</strong> (dernière section). Activez le GitHub Student Developer Pack pour disposer de plus
+            d'heures.</div>
+        </div>
 
-      <h3>3. L'état du cluster vu par HDFS et YARN</h3>
-      <p>Revenez au premier terminal (celui du maître) :</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfsadmin -report | grep -E "Live datanodes|^Name:|^Configured Capacity"
-yarn node -list</code></pre></div>
-      <p>Dans l'interface HDFS (port 9870), ouvrez l'onglet <strong>Datanodes</strong> ; dans l'interface YARN (port 8088), ouvrez <strong>Nodes</strong>.</p>
+        <h3>2. Deux terminaux, deux mondes</h3>
+        <p>Dans ce TP, chaque commande porte une étiquette qui indique où la taper :</p>
+        <table class="t">
+          <tr>
+            <th>Étiquette</th>
+            <th>Invite affichée</th>
+            <th>Sert à</th>
+          </tr>
+          <tr>
+            <td><span class="term cs" style="display:inline-flex"><i class="ti ti-terminal-2"
+                  aria-hidden="true"></i>Codespace</span></td>
+            <td><code class="i">@votre-nom ➜ /workspaces/…</code></td>
+            <td>commandes <code class="i">docker</code> et <code class="i">git</code></td>
+          </tr>
+          <tr>
+            <td><span class="term cm" style="display:inline-flex"><i class="ti ti-server"
+                  aria-hidden="true"></i>cluster-master</span></td>
+            <td><code class="i">root@hadoop-master:~#</code></td>
+            <td>commandes <code class="i">hdfs</code>, <code class="i">hadoop</code>, <code class="i">yarn</code></td>
+          </tr>
+        </table>
 
-      <div class="reflect"><label for="r1"><span class="rn">R1</span>Pour chaque conteneur (cluster-master, cluster-slave1, cluster-slave2), listez les processus affichés par <code class="i">jps</code> et déduisez son rôle dans HDFS et dans YARN.</label><textarea id="r1" data-label="R1 — Processus et rôle de chaque conteneur"></textarea><div class="saved"></div></div>
+        <h3>3. Lancer le cluster</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose up -d
+docker ps</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Vous devez voir les conteneurs <code
+              class="i">cluster-master</code>, <code class="i">cluster-slave1</code>, <code
+              class="i">cluster-slave2</code> et <code class="i">kafka-ui</code> avec le statut
+            <strong>Up</strong>.</span></div>
 
-      <div class="reflect"><label for="r2"><span class="rn">R2</span>Combien de DataNodes sont actifs ? Comparez leur capacité (« Configured Capacity »). Ces conteneurs sont-ils sur des machines physiques différentes ? Qu'en déduisez-vous sur la tolérance aux pannes matérielles de ce cluster ?</label><textarea id="r2" data-label="R2 — DataNodes actifs et tolérance aux pannes matérielles"></textarea><div class="saved"></div></div>
+        <h3>4. Démarrer HDFS et YARN, puis entrer dans le maître</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker exec -it cluster-master ./start-hadoop.sh
+docker exec -it cluster-master bash</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code
+              class="i">root@hadoop-master</code> : vous êtes dans le conteneur maître.</span></div>
 
-      <div class="quiz" data-q="q1" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Quel processus stocke physiquement les blocs de données sur un nœud ?</p>
-        <button class="opt" type="button" data-v="a">Le NameNode</button>
-        <button class="opt" type="button" data-v="b">Le DataNode</button>
-        <button class="opt" type="button" data-v="c">Le ResourceManager</button>
-        <div class="fb" data-ok="Correct. Les DataNodes stockent les blocs ; le NameNode ne garde que les métadonnées (arborescence et localisation des blocs)." data-ko="C'est le DataNode. Le NameNode ne stocke que les métadonnées, et le ResourceManager gère les ressources de calcul pour YARN."></div>
+        <h3>5. Ouvrir les interfaces web</h3>
+        <p>En bas de VS Code, onglet <strong>Ports</strong> : cliquez sur l'icône <i class="ti ti-world"
+            aria-label="globe"></i> du port <strong>9870</strong> (HDFS) puis du port <strong>8088</strong> (YARN).
+          Gardez ces deux onglets ouverts pendant tout le TP.</p>
+
+        <div class="quiz" data-q="q0" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Quelle est la différence entre lancer les conteneurs un par un avec <code
+              class="i">docker run</code> et utiliser <code class="i">docker-compose up -d</code> ?</p>
+          <button class="opt" type="button" data-v="a">Aucune : c'est la même commande sous un autre nom</button>
+          <button class="opt" type="button" data-v="b">docker-compose est plus lent car il télécharge davantage
+            d'images</button>
+          <button class="opt" type="button" data-v="c">docker-compose lit un fichier de configuration et crée en une
+            commande tous les services, avec leur réseau et leurs volumes</button>
+          <div class="fb"
+            data-ok="Exactement. Le fichier docker-compose.yml décrit toute l'infrastructure : une seule commande la reproduit à l'identique. C'est le principe de l'Infrastructure as Code."
+            data-ko="La bonne réponse est la dernière : docker-compose lit docker-compose.yml et crée tous les services, le réseau et les volumes en une commande. C'est l'Infrastructure as Code.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 2 ============ -->
-  <section class="section" data-sec="2">
-    <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">Manipuler des fichiers dans HDFS</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>25 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Le dossier <code class="i">assets/</code> du dépôt est monté dans le maître sous <code class="i">/shared_volume</code>. Il contient <code class="i">purchases.txt</code> (plus de 200 Mo d'achats dans une chaîne de magasins) et <code class="i">alice.txt</code> (le livre <em>Alice au pays des merveilles</em>).</p>
-      <div class="note info"><i class="ti ti-folder" aria-hidden="true"></i><div>Dans HDFS, un chemin qui ne commence pas par <code class="i">/</code> est relatif à votre répertoire personnel <code class="i">/user/root</code>.</div></div>
+    <!-- ============ SECTION 1 ============ -->
+    <section class="section" data-sec="1">
+      <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Observer la structure
+          du cluster</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Le cluster est défini dans <code class="i">docker-compose.yml</code> : un conteneur maître et deux esclaves,
+          reliés par un réseau Docker nommé <code class="i">hadoop</code>. Vérifions ce qui tourne réellement sur
+          chacun.</p>
 
-      <h3>1. Créer l'arborescence</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -mkdir -p /user/root
+        <h3>1. Les processus Java du maître</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>jps</code></pre>
+        </div>
+
+        <h3>2. Les processus des esclaves</h3>
+        <p>Ouvrez un <strong>second terminal</strong> (bouton <code class="i">+</code> du panneau des terminaux) : il
+          s'ouvre côté Codespace.</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker exec cluster-slave1 jps
+docker exec cluster-slave2 jps</code></pre>
+        </div>
+
+        <h3>3. L'état du cluster vu par HDFS et YARN</h3>
+        <p>Revenez au premier terminal (celui du maître) :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfsadmin -report | grep -E "Live datanodes|^Name:|^Configured Capacity"
+yarn node -list</code></pre>
+        </div>
+        <p>Dans l'interface HDFS (port 9870), ouvrez l'onglet <strong>Datanodes</strong> ; dans l'interface YARN (port
+          8088), ouvrez <strong>Nodes</strong>.</p>
+
+        <div class="reflect"><label for="r1"><span class="rn">R1</span>Pour chaque conteneur (cluster-master,
+            cluster-slave1, cluster-slave2), listez les processus affichés par <code class="i">jps</code> et déduisez
+            son rôle dans HDFS et dans YARN.</label><textarea id="r1"
+            data-label="R1 — Processus et rôle de chaque conteneur"></textarea>
+          <div class="saved"></div>
+        </div>
+
+        <div class="reflect"><label for="r2"><span class="rn">R2</span>Combien de DataNodes sont actifs ? Comparez leur
+            capacité (« Configured Capacity »). Ces conteneurs sont-ils sur des machines physiques différentes ? Qu'en
+            déduisez-vous sur la tolérance aux pannes matérielles de ce cluster ?</label><textarea id="r2"
+            data-label="R2 — DataNodes actifs et tolérance aux pannes matérielles"></textarea>
+          <div class="saved"></div>
+        </div>
+
+        <div class="quiz" data-q="q1" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Quel processus stocke physiquement les blocs de données sur un nœud ?</p>
+          <button class="opt" type="button" data-v="a">Le NameNode</button>
+          <button class="opt" type="button" data-v="b">Le DataNode</button>
+          <button class="opt" type="button" data-v="c">Le ResourceManager</button>
+          <div class="fb"
+            data-ok="Correct. Les DataNodes stockent les blocs ; le NameNode ne garde que les métadonnées (arborescence et localisation des blocs)."
+            data-ko="C'est le DataNode. Le NameNode ne stocke que les métadonnées, et le ResourceManager gère les ressources de calcul pour YARN.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 2 ============ -->
+    <section class="section" data-sec="2">
+      <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">Manipuler des
+          fichiers dans HDFS</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>25
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Le dossier <code class="i">assets/</code> du dépôt est monté dans le maître sous <code
+            class="i">/shared_volume</code>. Il contient <code class="i">purchases.txt</code> (plus de 200 Mo d'achats
+          dans une chaîne de magasins) et <code class="i">alice.txt</code> (le livre <em>Alice au pays des
+            merveilles</em>).</p>
+        <div class="note info"><i class="ti ti-folder" aria-hidden="true"></i>
+          <div>Dans HDFS, un chemin qui ne commence pas par <code class="i">/</code> est relatif à votre répertoire
+            personnel <code class="i">/user/root</code>.</div>
+        </div>
+
+        <h3>1. Créer l'arborescence</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -mkdir -p /user/root
 hdfs dfs -mkdir -p input web_input
-hdfs dfs -ls</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Deux dossiers : <code class="i">/user/root/input</code> et <code class="i">/user/root/web_input</code>.</span></div>
+hdfs dfs -ls</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Deux dossiers : <code
+              class="i">/user/root/input</code> et <code class="i">/user/root/web_input</code>.</span></div>
 
-      <h3>2. Copier les fichiers de la machine locale vers HDFS</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -put /shared_volume/purchases.txt input/
+        <h3>2. Copier les fichiers de la machine locale vers HDFS</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -put /shared_volume/purchases.txt input/
 hdfs dfs -copyFromLocal /shared_volume/alice.txt web_input/
-hdfs dfs -ls -R -h</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La copie de <code class="i">purchases.txt</code> prend quelques secondes. Dans la liste, le chiffre affiché juste après les droits est le <strong>facteur de réplication</strong>.</span></div>
+hdfs dfs -ls -R -h</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La copie de <code
+              class="i">purchases.txt</code> prend quelques secondes. Dans la liste, le chiffre affiché juste après les
+            droits est le <strong>facteur de réplication</strong>.</span></div>
 
-      <h3>3. Lire un fichier</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -cat input/purchases.txt | head -5
-hdfs dfs -tail web_input/alice.txt</code></pre></div>
-      <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>N'utilisez jamais <code class="i">-cat</code> seul sur un fichier de 200 Mo : il afficherait des millions de lignes. Ajoutez toujours <code class="i">| head</code>. Si cela arrive, appuyez sur <strong>Ctrl + C</strong>.</div></div>
+        <h3>3. Lire un fichier</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -cat input/purchases.txt | head -5
+hdfs dfs -tail web_input/alice.txt</code></pre>
+        </div>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>N'utilisez jamais <code class="i">-cat</code> seul sur un fichier de 200 Mo : il afficherait des millions
+            de lignes. Ajoutez toujours <code class="i">| head</code>. Si cela arrive, appuyez sur <strong>Ctrl +
+              C</strong>.</div>
+        </div>
 
-      <h3>4. Droits, copies, déplacements</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code><span class="c"># Observer puis modifier les droits</span>
+        <h3>4. Droits, copies, déplacements</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code><span class="c"># Observer puis modifier les droits</span>
 hdfs dfs -ls web_input
 hdfs dfs -chmod go-r web_input/alice.txt
 hdfs dfs -ls web_input
@@ -282,108 +1074,203 @@ hdfs dfs -cp web_input/alice.txt alice_copie.txt
 hdfs dfs -mkdir archive
 hdfs dfs -mv alice_copie.txt archive/
 hdfs dfs -ls -R archive
-hdfs dfs -rm -r archive</code></pre></div>
+hdfs dfs -rm -r archive</code></pre>
+        </div>
 
-      <h3>5. Récupérer un fichier de HDFS vers la machine locale</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -get web_input/alice.txt /shared_volume/alice_copie.txt
-hdfs dfs -du -h</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le fichier <code class="i">alice_copie.txt</code> apparaît dans le dossier <code class="i">assets/</code> de l'explorateur de fichiers du Codespace.</span></div>
+        <h3>5. Récupérer un fichier de HDFS vers la machine locale</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -get web_input/alice.txt /shared_volume/alice_copie.txt
+hdfs dfs -du -h</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le fichier <code
+              class="i">alice_copie.txt</code> apparaît dans le dossier <code class="i">assets/</code> de l'explorateur
+            de fichiers du Codespace.</span></div>
 
-      <div class="reflect"><label for="r3"><span class="rn">R3</span>Quels droits affichait <code class="i">alice.txt</code> avant et après <code class="i">chmod go-r</code> ? Expliquez chaque partie de la chaîne de droits.</label><textarea id="r3" data-label="R3 — Droits avant et après chmod"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r3"><span class="rn">R3</span>Quels droits affichait <code
+              class="i">alice.txt</code> avant et après <code class="i">chmod go-r</code> ? Expliquez chaque partie de
+            la chaîne de droits.</label><textarea id="r3" data-label="R3 — Droits avant et après chmod"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="reflect"><label for="r4"><span class="rn">R4</span>Pourquoi <code class="i">alice_copie.txt</code> apparaît-il dans l'explorateur du Codespace alors que vous l'avez récupéré depuis le conteneur maître ? (Aidez-vous du fichier <code class="i">docker-compose.yml</code>.)</label><textarea id="r4" data-label="R4 — Volume partagé"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r4"><span class="rn">R4</span>Pourquoi <code class="i">alice_copie.txt</code>
+            apparaît-il dans l'explorateur du Codespace alors que vous l'avez récupéré depuis le conteneur maître ?
+            (Aidez-vous du fichier <code class="i">docker-compose.yml</code>.)</label><textarea id="r4"
+            data-label="R4 — Volume partagé"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q2" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Dans le résultat de <code class="i">hdfs dfs -ls</code>, que signifie le chiffre affiché juste après les droits d'un fichier ?</p>
-        <button class="opt" type="button" data-v="a">Le numéro de version du fichier</button>
-        <button class="opt" type="button" data-v="b">Le facteur de réplication : le nombre de copies de chaque bloc dans le cluster</button>
-        <button class="opt" type="button" data-v="c">Le nombre de blocs du fichier</button>
-        <div class="fb" data-ok="Correct. Chaque bloc du fichier existe en autant d'exemplaires, sur des DataNodes différents : c'est ce qui permet de tolérer la panne d'un nœud." data-ko="C'est le facteur de réplication : chaque bloc existe en autant d'exemplaires, sur des DataNodes différents. Le nombre de blocs, lui, se voit avec hdfs fsck (section suivante)."></div>
+        <div class="quiz" data-q="q2" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans le résultat de <code class="i">hdfs dfs -ls</code>, que signifie le chiffre affiché juste
+            après les droits d'un fichier ?</p>
+          <button class="opt" type="button" data-v="a">Le numéro de version du fichier</button>
+          <button class="opt" type="button" data-v="b">Le facteur de réplication : le nombre de copies de chaque bloc
+            dans le cluster</button>
+          <button class="opt" type="button" data-v="c">Le nombre de blocs du fichier</button>
+          <div class="fb"
+            data-ok="Correct. Chaque bloc du fichier existe en autant d'exemplaires, sur des DataNodes différents : c'est ce qui permet de tolérer la panne d'un nœud."
+            data-ko="C'est le facteur de réplication : chaque bloc existe en autant d'exemplaires, sur des DataNodes différents. Le nombre de blocs, lui, se voit avec hdfs fsck (section suivante).">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 3 ============ -->
-  <section class="section" data-sec="3">
-    <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Où sont stockés mes blocs ?</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>HDFS découpe chaque fichier en blocs de taille fixe, puis copie chaque bloc sur plusieurs DataNodes. Observons-le sur <code class="i">purchases.txt</code>.</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code><span class="c"># Paramètres du cluster : taille de bloc (en octets) et facteur de réplication</span>
+    <!-- ============ SECTION 3 ============ -->
+    <section class="section" data-sec="3">
+      <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Où sont stockés mes
+          blocs ?</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>HDFS découpe chaque fichier en blocs de taille fixe, puis copie chaque bloc sur plusieurs DataNodes.
+          Observons-le sur <code class="i">purchases.txt</code>.</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code><span class="c"># Paramètres du cluster : taille de bloc (en octets) et facteur de réplication</span>
 hdfs getconf -confKey dfs.blocksize
 hdfs getconf -confKey dfs.replication
 
 <span class="c"># Taille exacte du fichier, puis ses blocs et leur emplacement</span>
 hdfs dfs -du input/purchases.txt
-hdfs fsck /user/root/input/purchases.txt -files -blocks -locations</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Chaque ligne commençant par un numéro (0., 1., …) décrit un bloc : sa taille (<code class="i">len=</code>) et la liste des DataNodes qui en stockent une copie.</span></div>
-      <p>Vérifiez aussi dans l'interface HDFS : <strong>Utilities → Browse the file system → user → root → input</strong>, cliquez sur <code class="i">purchases.txt</code> et parcourez les onglets <em>Block 0</em>, <em>Block 1</em>…</p>
+hdfs fsck /user/root/input/purchases.txt -files -blocks -locations</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Chaque ligne commençant par un numéro (0.,
+            1., …) décrit un bloc : sa taille (<code class="i">len=</code>) et la liste des DataNodes qui en stockent
+            une copie.</span></div>
+        <p>Vérifiez aussi dans l'interface HDFS : <strong>Utilities → Browse the file system → user → root →
+            input</strong>, cliquez sur <code class="i">purchases.txt</code> et parcourez les onglets <em>Block 0</em>,
+          <em>Block 1</em>…</p>
 
-      <div class="reflect"><label for="r5"><span class="rn">R5</span>En combien de blocs <code class="i">purchases.txt</code> est-il découpé ? Retrouvez ce nombre <strong>par le calcul</strong> à partir de la taille du fichier. Pourquoi le dernier bloc est-il plus petit ? Quel espace disque total le fichier occupe-t-il dans le cluster ?</label><textarea id="r5" data-label="R5 — Nombre de blocs et espace total"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r5"><span class="rn">R5</span>En combien de blocs <code
+              class="i">purchases.txt</code> est-il découpé ? Retrouvez ce nombre <strong>par le calcul</strong> à
+            partir de la taille du fichier. Pourquoi le dernier bloc est-il plus petit ? Quel espace disque total le
+            fichier occupe-t-il dans le cluster ?</label><textarea id="r5"
+            data-label="R5 — Nombre de blocs et espace total"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="reflect"><label for="r6"><span class="rn">R6</span>Pourquoi HDFS utilise-t-il des blocs de 128 Mo, alors qu'un système de fichiers classique utilise des blocs de 4 Ko ? Donnez deux raisons.</label><textarea id="r6" data-label="R6 — Pourquoi des blocs de 128 Mo"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r6"><span class="rn">R6</span>Pourquoi HDFS utilise-t-il des blocs de 128 Mo,
+            alors qu'un système de fichiers classique utilise des blocs de 4 Ko ? Donnez deux raisons.</label><textarea
+            id="r6" data-label="R6 — Pourquoi des blocs de 128 Mo"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q3" data-answer="c">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Un fichier de 300 Mo est stocké avec des blocs de 128 Mo et un facteur de réplication de 3. Combien de copies de blocs sont stockées dans le cluster ?</p>
-        <button class="opt" type="button" data-v="a">3</button>
-        <button class="opt" type="button" data-v="b">6</button>
-        <button class="opt" type="button" data-v="c">9</button>
-        <div class="fb" data-ok="Exact : 300 Mo donnent 3 blocs (128 + 128 + 44 Mo), chacun copié 3 fois, soit 9 copies de blocs pour environ 900 Mo d'espace disque." data-ko="300 Mo donnent 3 blocs (128 + 128 + 44 Mo), chacun copié 3 fois : 9 copies de blocs, pour environ 900 Mo d'espace disque."></div>
+        <div class="quiz" data-q="q3" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Un fichier de 300 Mo est stocké avec des blocs de 128 Mo et un facteur de réplication de 3.
+            Combien de copies de blocs sont stockées dans le cluster ?</p>
+          <button class="opt" type="button" data-v="a">3</button>
+          <button class="opt" type="button" data-v="b">6</button>
+          <button class="opt" type="button" data-v="c">9</button>
+          <div class="fb"
+            data-ok="Exact : 300 Mo donnent 3 blocs (128 + 128 + 44 Mo), chacun copié 3 fois, soit 9 copies de blocs pour environ 900 Mo d'espace disque."
+            data-ko="300 Mo donnent 3 blocs (128 + 128 + 44 Mo), chacun copié 3 fois : 9 copies de blocs, pour environ 900 Mo d'espace disque.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 4 ============ -->
-  <section class="section" data-sec="4">
-    <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Lancer des jobs MapReduce fournis avec Hadoop</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Gardez l'interface YARN (port 8088) ouverte : chaque job y apparaît comme une <strong>application</strong>, avec son état et sa progression.</p>
+    <!-- ============ SECTION 4 ============ -->
+    <section class="section" data-sec="4">
+      <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Lancer des jobs
+          MapReduce fournis avec Hadoop</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Gardez l'interface YARN (port 8088) ouverte : chaque job y apparaît comme une <strong>application</strong>,
+          avec son état et sa progression.</p>
 
-      <h3>1. Calcul de π (démonstration du parallélisme)</h3>
-      <p>Hadoop estime π par une méthode de Monte-Carlo : il tire des points au hasard, répartis entre plusieurs tâches map. Le premier paramètre est le nombre de maps, le second le nombre de points par map.</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 1000
-hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 10 10000</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La dernière ligne affiche <code class="i">Estimated value of Pi is …</code>. Relevez les deux valeurs.</span></div>
+        <h3>1. Calcul de π (démonstration du parallélisme)</h3>
+        <p>Hadoop estime π par une méthode de Monte-Carlo : il tire des points au hasard, répartis entre plusieurs
+          tâches map. Le premier paramètre est le nombre de maps, le second le nombre de points par map.</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 1000
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 10 10000</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La dernière ligne affiche <code
+              class="i">Estimated value of Pi is …</code>. Relevez les deux valeurs.</span></div>
 
-      <h3>2. WordCount Java, le « Hello World » de MapReduce</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hadoop jar /shared_volume/wordcountJob.jar /user/root/web_input/alice.txt /user/root/output/wordcount_java</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>À la fin, repérez dans les compteurs affichés les lignes <code class="i">Launched map tasks</code> et <code class="i">Launched reduce tasks</code>.</span></div>
-      <p>Affichez les 10 mots les plus fréquents :</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -ls output/wordcount_java
-hdfs dfs -cat output/wordcount_java/part-r-00000 | sort -k2 -nr | head -10</code></pre></div>
-      <p>Relancez maintenant <strong>exactement</strong> la même commande <code class="i">hadoop jar /shared_volume/wordcountJob.jar …</code> et observez ce qui se passe.</p>
+        <h3>2. WordCount Java, le « Hello World » de MapReduce</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hadoop jar /shared_volume/wordcountJob.jar /user/root/web_input/alice.txt /user/root/output/wordcount_java</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>À la fin, repérez dans les compteurs
+            affichés les lignes <code class="i">Launched map tasks</code> et <code
+              class="i">Launched reduce tasks</code>.</span></div>
+        <p>Affichez les 10 mots les plus fréquents :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -ls output/wordcount_java
+hdfs dfs -cat output/wordcount_java/part-r-00000 | sort -k2 -nr | head -10</code></pre>
+        </div>
+        <p>Relancez maintenant <strong>exactement</strong> la même commande <code
+            class="i">hadoop jar /shared_volume/wordcountJob.jar …</code> et observez ce qui se passe.</p>
 
-      <div class="reflect"><label for="r7"><span class="rn">R7</span>Donnez les deux valeurs de π obtenues et expliquez pourquoi la seconde est plus précise. Combien de tâches map et reduce le WordCount a-t-il lancées ?</label><textarea id="r7" data-label="R7 — Pi et nombre de tâches du WordCount"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r7"><span class="rn">R7</span>Donnez les deux valeurs de π obtenues et
+            expliquez pourquoi la seconde est plus précise. Combien de tâches map et reduce le WordCount a-t-il lancées
+            ?</label><textarea id="r7" data-label="R7 — Pi et nombre de tâches du WordCount"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="reflect"><label for="r8"><span class="rn">R8</span>Pourquoi la seconde exécution du WordCount échoue-t-elle ? Pourquoi, selon vous, Hadoop a-t-il été conçu ainsi ? Comment relancer le job ?</label><textarea id="r8" data-label="R8 — Échec de la seconde exécution"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r8"><span class="rn">R8</span>Pourquoi la seconde exécution du WordCount
+            échoue-t-elle ? Pourquoi, selon vous, Hadoop a-t-il été conçu ainsi ? Comment relancer le job
+            ?</label><textarea id="r8" data-label="R8 — Échec de la seconde exécution"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q4" data-answer="a">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Dans un WordCount, que fait la phase <em>reduce</em> ?</p>
-        <button class="opt" type="button" data-v="a">Elle additionne les 1 reçus pour chaque mot et produit le nombre total d'occurrences</button>
-        <button class="opt" type="button" data-v="b">Elle découpe le texte en mots</button>
-        <button class="opt" type="button" data-v="c">Elle copie les résultats sur les trois DataNodes</button>
-        <div class="fb" data-ok="Exact. Le map découpe et émet (mot, 1) ; le shuffle regroupe les paires par mot ; le reduce additionne." data-ko="Le découpage en mots est le rôle du map. Le reduce reçoit toutes les paires (mot, 1) d'un même mot, regroupées par le shuffle, et les additionne."></div>
+        <div class="quiz" data-q="q4" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans un WordCount, que fait la phase <em>reduce</em> ?</p>
+          <button class="opt" type="button" data-v="a">Elle additionne les 1 reçus pour chaque mot et produit le nombre
+            total d'occurrences</button>
+          <button class="opt" type="button" data-v="b">Elle découpe le texte en mots</button>
+          <button class="opt" type="button" data-v="c">Elle copie les résultats sur les trois DataNodes</button>
+          <div class="fb"
+            data-ok="Exact. Le map découpe et émet (mot, 1) ; le shuffle regroupe les paires par mot ; le reduce additionne."
+            data-ko="Le découpage en mots est le rôle du map. Le reduce reçoit toutes les paires (mot, 1) d'un même mot, regroupées par le shuffle, et les additionne.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 5 ============ -->
-  <section class="section" data-sec="5">
-    <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">MapReduce en Python avec Hadoop Streaming</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Hadoop Streaming permet d'écrire le mapper et le reducer dans <strong>n'importe quel langage</strong> : chaque script lit des lignes sur l'entrée standard et écrit des paires <code class="i">clé&lt;TAB&gt;valeur</code> sur la sortie standard. Ouvrez <code class="i">assets/mapper.py</code> et <code class="i">assets/reducer.py</code> dans l'explorateur du Codespace et lisez-les.</p>
+    <!-- ============ SECTION 5 ============ -->
+    <section class="section" data-sec="5">
+      <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">MapReduce en Python
+          avec Hadoop Streaming</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Hadoop Streaming permet d'écrire le mapper et le reducer dans <strong>n'importe quel langage</strong> :
+          chaque script lit des lignes sur l'entrée standard et écrit des paires <code
+            class="i">clé&lt;TAB&gt;valeur</code> sur la sortie standard. Ouvrez <code class="i">assets/mapper.py</code>
+          et <code class="i">assets/reducer.py</code> dans l'explorateur du Codespace et lisez-les.</p>
 
-      <h3>1. Simuler MapReduce sans Hadoop</h3>
-      <p>Avec de simples « tuyaux » Linux, on reproduit les trois phases sur les 50 premières lignes du livre :</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>cd /shared_volume
+        <h3>1. Simuler MapReduce sans Hadoop</h3>
+        <p>Avec de simples « tuyaux » Linux, on reproduit les trois phases sur les 50 premières lignes du livre :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>cd /shared_volume
 
 <span class="c"># Phase map seule</span>
 head -50 alice.txt | python3 mapper.py | head -8
@@ -394,303 +1281,477 @@ head -50 alice.txt | python3 mapper.py | sort | python3 reducer.py | head -8
 <span class="c"># Même chose SANS le tri : comparez</span>
 head -50 alice.txt | python3 mapper.py | python3 reducer.py | head -8
 
-cd ~</code></pre></div>
+cd ~</code></pre>
+        </div>
 
-      <h3>2. Exécuter le même code sur le cluster</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar \
+        <h3>2. Exécuter le même code sur le cluster</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar \
   -files /shared_volume/mapper.py,/shared_volume/reducer.py \
   -mapper "python3 mapper.py" \
   -reducer "python3 reducer.py" \
   -input /user/root/web_input/alice.txt \
-  -output /user/root/output/wordcount_python</code></pre></div>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -cat output/wordcount_python/part-00000 | sort -k2 -nr | head -10</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le classement doit être identique à celui du WordCount Java : même algorithme, autre langage.</span></div>
+  -output /user/root/output/wordcount_python</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -cat output/wordcount_python/part-00000 | sort -k2 -nr | head -10</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le classement doit être identique à celui
+            du WordCount Java : même algorithme, autre langage.</span></div>
 
-      <div class="reflect"><label for="r9"><span class="rn">R9</span>Dans la simulation locale, quelle commande joue le rôle de la phase <em>shuffle</em> ? Que se passe-t-il sans elle, et pourquoi ? Appuyez-vous sur le code de <code class="i">reducer.py</code>.</label><textarea id="r9" data-label="R9 — Rôle du tri (shuffle)"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r9"><span class="rn">R9</span>Dans la simulation locale, quelle commande joue
+            le rôle de la phase <em>shuffle</em> ? Que se passe-t-il sans elle, et pourquoi ? Appuyez-vous sur le code
+            de <code class="i">reducer.py</code>.</label><textarea id="r9"
+            data-label="R9 — Rôle du tri (shuffle)"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q5" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Pourquoi le reducer Python peut-il additionner les valeurs « tant que la clé ne change pas » ?</p>
-        <button class="opt" type="button" data-v="a">Parce que Python traite les lignes plus vite que Java</button>
-        <button class="opt" type="button" data-v="b">Parce que Hadoop trie et regroupe les paires par clé avant de les envoyer au reducer</button>
-        <button class="opt" type="button" data-v="c">Parce que chaque reducer ne reçoit qu'une seule ligne</button>
-        <div class="fb" data-ok="Exact. La phase shuffle and sort garantit que toutes les paires d'une même clé arrivent consécutivement au même reducer." data-ko="C'est la phase shuffle and sort : Hadoop trie les paires par clé, si bien que toutes les valeurs d'une même clé arrivent consécutivement au même reducer."></div>
+        <div class="quiz" data-q="q5" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi le reducer Python peut-il additionner les valeurs « tant que la clé ne change pas » ?
+          </p>
+          <button class="opt" type="button" data-v="a">Parce que Python traite les lignes plus vite que Java</button>
+          <button class="opt" type="button" data-v="b">Parce que Hadoop trie et regroupe les paires par clé avant de les
+            envoyer au reducer</button>
+          <button class="opt" type="button" data-v="c">Parce que chaque reducer ne reçoit qu'une seule ligne</button>
+          <div class="fb"
+            data-ok="Exact. La phase shuffle and sort garantit que toutes les paires d'une même clé arrivent consécutivement au même reducer."
+            data-ko="C'est la phase shuffle and sort : Hadoop trie les paires par clé, si bien que toutes les valeurs d'une même clé arrivent consécutivement au même reducer.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 6 ============ -->
-  <section class="section" data-sec="6">
-    <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">À vous de jouer : total des ventes par magasin</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Chaque ligne de <code class="i">purchases.txt</code> contient 6 champs séparés par des tabulations :</p>
-      <table class="t">
-        <tr><th>[0] date</th><th>[1] heure</th><th>[2] magasin</th><th>[3] catégorie</th><th>[4] montant</th><th>[5] paiement</th></tr>
-        <tr><td>2012-01-01</td><td>09:00</td><td>San Jose</td><td>Men's Clothing</td><td>214.05</td><td>Amex</td></tr>
-      </table>
-      <p>Objectif : calculer le <strong>total des ventes de chaque magasin</strong>. Le reducer est fourni (<code class="i">assets/ventes/reducer_ventes.py</code>). À vous de compléter <strong>les deux lignes marquées TODO</strong> dans <code class="i">assets/ventes/mapper_ventes.py</code>, en ouvrant le fichier dans l'éditeur du Codespace.</p>
+    <!-- ============ SECTION 6 ============ -->
+    <section class="section" data-sec="6">
+      <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">À vous de jouer :
+          total des ventes par magasin</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Chaque ligne de <code class="i">purchases.txt</code> contient 6 champs séparés par des tabulations :</p>
+        <table class="t">
+          <tr>
+            <th>[0] date</th>
+            <th>[1] heure</th>
+            <th>[2] magasin</th>
+            <th>[3] catégorie</th>
+            <th>[4] montant</th>
+            <th>[5] paiement</th>
+          </tr>
+          <tr>
+            <td>2012-01-01</td>
+            <td>09:00</td>
+            <td>San Jose</td>
+            <td>Men's Clothing</td>
+            <td>214.05</td>
+            <td>Amex</td>
+          </tr>
+        </table>
+        <p>Objectif : calculer le <strong>total des ventes de chaque magasin</strong>. Le reducer est fourni (<code
+            class="i">assets/ventes/reducer_ventes.py</code>). À vous de compléter <strong>les deux lignes marquées
+            TODO</strong> dans <code class="i">assets/ventes/mapper_ventes.py</code>, en ouvrant le fichier dans
+          l'éditeur du Codespace.</p>
 
-      <h3>1. Tester localement sur 1 000 lignes</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>cd /shared_volume/ventes
+        <h3>1. Tester localement sur 1 000 lignes</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>cd /shared_volume/ventes
 head -1000 /shared_volume/purchases.txt | python3 mapper_ventes.py | head -5
 head -1000 /shared_volume/purchases.txt | python3 mapper_ventes.py | sort | python3 reducer_ventes.py | head -5
-cd ~</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le mapper doit afficher des lignes du type <code class="i">San Jose	214.05</code>. S'il affiche <code class="i">None	None</code>, les deux lignes TODO ne sont pas encore complétées.</span></div>
+cd ~</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le mapper doit afficher des lignes du type
+            <code class="i">San Jose	214.05</code>. S'il affiche <code class="i">None	None</code>, les deux lignes TODO
+            ne sont pas encore complétées.</span></div>
 
-      <h3>2. Lancer le job sur le cluster, sur le fichier complet</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar \
+        <h3>2. Lancer le job sur le cluster, sur le fichier complet</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar \
   -files /shared_volume/ventes/mapper_ventes.py,/shared_volume/ventes/reducer_ventes.py \
   -mapper "python3 mapper_ventes.py" \
   -reducer "python3 reducer_ventes.py" \
   -input /user/root/input/purchases.txt \
-  -output /user/root/output/ventes_magasin</code></pre></div>
-      <p>Pendant l'exécution, suivez l'application dans l'interface YARN, et relevez à la fin les compteurs <code class="i">Launched map tasks</code> et <code class="i">Launched reduce tasks</code>. Puis affichez les 5 magasins qui vendent le plus :</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -cat output/ventes_magasin/part-00000 | sort -t$'\t' -k2 -nr | head -5</code></pre></div>
-      <div class="note info"><i class="ti ti-refresh" aria-hidden="true"></i><div>Vous devez relancer le job après une correction ? Supprimez d'abord la sortie précédente : <code class="i">hdfs dfs -rm -r output/ventes_magasin</code>.</div></div>
+  -output /user/root/output/ventes_magasin</code></pre>
+        </div>
+        <p>Pendant l'exécution, suivez l'application dans l'interface YARN, et relevez à la fin les compteurs <code
+            class="i">Launched map tasks</code> et <code class="i">Launched reduce tasks</code>. Puis affichez les 5
+          magasins qui vendent le plus :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -cat output/ventes_magasin/part-00000 | sort -t$'\t' -k2 -nr | head -5</code></pre>
+        </div>
+        <div class="note info"><i class="ti ti-refresh" aria-hidden="true"></i>
+          <div>Vous devez relancer le job après une correction ? Supprimez d'abord la sortie précédente : <code
+              class="i">hdfs dfs -rm -r output/ventes_magasin</code>.</div>
+        </div>
 
-      <div class="reflect"><label for="r10"><span class="rn">R10</span>Recopiez vos deux lignes complétées. Donnez les 3 magasins qui vendent le plus, avec leur total. Combien de tâches map ont été lancées, et quel lien faites-vous avec votre réponse R5 ?</label><textarea id="r10" data-label="R10 — Mapper complété, top 3 et nombre de maps"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r10"><span class="rn">R10</span>Recopiez vos deux lignes complétées. Donnez les
+            3 magasins qui vendent le plus, avec leur total. Combien de tâches map ont été lancées, et quel lien
+            faites-vous avec votre réponse R5 ?</label><textarea id="r10"
+            data-label="R10 — Mapper complété, top 3 et nombre de maps"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="reflect"><label for="r11"><span class="rn">R11</span>Que faudrait-il changer pour obtenir le total des ventes par <strong>moyen de paiement</strong> ? Et pour obtenir le <strong>nombre</strong> d'achats par magasin plutôt que leur montant ? Quel est l'équivalent de ce job en SQL ?</label><textarea id="r11" data-label="R11 — Variantes et équivalent SQL"></textarea><div class="saved"></div></div>
+        <div class="reflect"><label for="r11"><span class="rn">R11</span>Que faudrait-il changer pour obtenir le total
+            des ventes par <strong>moyen de paiement</strong> ? Et pour obtenir le <strong>nombre</strong> d'achats par
+            magasin plutôt que leur montant ? Quel est l'équivalent de ce job en SQL ?</label><textarea id="r11"
+            data-label="R11 — Variantes et équivalent SQL"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q6" data-answer="c">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Dans un job MapReduce, qu'est-ce qui détermine la manière dont les données sont regroupées ?</p>
-        <button class="opt" type="button" data-v="a">Le nombre de DataNodes</button>
-        <button class="opt" type="button" data-v="b">La taille des blocs HDFS</button>
-        <button class="opt" type="button" data-v="c">La clé émise par le mapper</button>
-        <div class="fb" data-ok="Exact : choisir la clé, c'est choisir le regroupement, comme la colonne d'un GROUP BY en SQL." data-ko="C'est la clé émise par le mapper : toutes les paires de même clé sont regroupées vers le même reducer, comme avec un GROUP BY en SQL."></div>
+        <div class="quiz" data-q="q6" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans un job MapReduce, qu'est-ce qui détermine la manière dont les données sont regroupées ?</p>
+          <button class="opt" type="button" data-v="a">Le nombre de DataNodes</button>
+          <button class="opt" type="button" data-v="b">La taille des blocs HDFS</button>
+          <button class="opt" type="button" data-v="c">La clé émise par le mapper</button>
+          <div class="fb"
+            data-ok="Exact : choisir la clé, c'est choisir le regroupement, comme la colonne d'un GROUP BY en SQL."
+            data-ko="C'est la clé émise par le mapper : toutes les paires de même clé sont regroupées vers le même reducer, comme avec un GROUP BY en SQL.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 7 ============ -->
-  <section class="section" data-sec="7">
-    <button class="sec-head" type="button"><span class="sec-num">7</span><span class="sec-title">Synthèse, rendu et arrêt</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <div class="reflect"><label for="r12"><span class="rn">R12</span>En 5 lignes maximum : quelles sont les principales différences entre ce cluster pédagogique et un cluster Hadoop de production dans une banque ou chez un opérateur logistique ?</label><textarea id="r12" data-label="R12 — Synthèse : cluster pédagogique et cluster de production"></textarea><div class="saved"></div></div>
+    <!-- ============ SECTION 7 ============ -->
+    <section class="section" data-sec="7">
+      <button class="sec-head" type="button"><span class="sec-num">7</span><span class="sec-title">Synthèse, rendu et
+          arrêt</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <div class="reflect"><label for="r12"><span class="rn">R12</span>En 5 lignes maximum : quelles sont les
+            principales différences entre ce cluster pédagogique et un cluster Hadoop de production dans une banque ou
+            chez un opérateur logistique ?</label><textarea id="r12"
+            data-label="R12 — Synthèse : cluster pédagogique et cluster de production"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <h3>Arrêter proprement</h3>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>exit</code></pre></div>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose stop</code></pre></div>
-      <p>Exportez ensuite vos réponses avec le bouton ci-dessous, puis <strong>arrêtez votre Codespace</strong> : sur github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>.</p>
+        <h3>Arrêter proprement</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>exit</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose stop</code></pre>
+        </div>
+        <p>Envoyez ensuite vos réponses avec le bouton ci-dessous, puis <strong>arrêtez votre Codespace</strong> : sur
+          github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>.</p>
 
-      <div class="quiz" data-q="q7" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Quelle limite de MapReduce, observée aujourd'hui, Spark cherche-t-il à lever (TP de la semaine 3) ?</p>
-        <button class="opt" type="button" data-v="a">L'absence de tolérance aux pannes</button>
-        <button class="opt" type="button" data-v="b">Les écritures sur disque entre les étapes, qui ralentissent les traitements en plusieurs étapes</button>
-        <button class="opt" type="button" data-v="c">L'impossibilité de traiter des fichiers texte</button>
-        <div class="fb" data-ok="Exact. MapReduce écrit ses résultats intermédiaires sur disque ; Spark les garde en mémoire, ce qui accélère fortement les traitements en plusieurs étapes." data-ko="MapReduce tolère très bien les pannes. Sa limite principale est l'écriture sur disque entre chaque étape ; Spark garde les données intermédiaires en mémoire."></div>
+        <div class="quiz" data-q="q7" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Quelle limite de MapReduce, observée aujourd'hui, Spark cherche-t-il à lever (TP de la semaine 3)
+            ?</p>
+          <button class="opt" type="button" data-v="a">L'absence de tolérance aux pannes</button>
+          <button class="opt" type="button" data-v="b">Les écritures sur disque entre les étapes, qui ralentissent les
+            traitements en plusieurs étapes</button>
+          <button class="opt" type="button" data-v="c">L'impossibilité de traiter des fichiers texte</button>
+          <div class="fb"
+            data-ok="Exact. MapReduce écrit ses résultats intermédiaires sur disque ; Spark les garde en mémoire, ce qui accélère fortement les traitements en plusieurs étapes."
+            data-ko="MapReduce tolère très bien les pannes. Sa limite principale est l'écriture sur disque entre chaque étape ; Spark garde les données intermédiaires en mémoire.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ BONUS ============ -->
-  <section class="section bonus" data-sec="bonus">
-    <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star" aria-hidden="true"></i></span><span class="sec-title">Pour aller plus loin (facultatif) : l'API Java de HDFS</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">Bonus</span></button>
-    <div class="sec-body">
-      <p>Les commandes <code class="i">hdfs dfs</code> s'appuient sur une API Java, la classe <code class="i">FileSystem</code>, que les applications utilisent pour lire et écrire dans HDFS. L'application <code class="i">hadoop-hdfs-app.jar</code> fournie en montre quatre opérations. Syntaxe : <code class="i">hadoop jar hadoop-hdfs-app.jar &lt;opération&gt; &lt;dossier&gt; &lt;fichier&gt;</code>.</p>
-      <table class="t">
-        <tr><th>Opération</th><th>Méthode Java utilisée</th><th>Effet</th></tr>
-        <tr><td>status</td><td><code class="i">getFileStatus(path)</code></td><td>taille, propriétaire, droits, réplication</td></tr>
-        <tr><td>info</td><td><code class="i">getFileBlockLocations(...)</code></td><td>emplacement de chaque bloc</td></tr>
-        <tr><td>read</td><td><code class="i">open(path)</code></td><td>lecture du début du fichier</td></tr>
-        <tr><td>write</td><td><code class="i">create(path)</code></td><td>création d'un fichier</td></tr>
-      </table>
-      <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hadoop jar /shared_volume/hadoop-hdfs-app.jar status /user/root/web_input alice.txt
+    <!-- ============ BONUS ============ -->
+    <section class="section bonus" data-sec="bonus">
+      <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star"
+            aria-hidden="true"></i></span><span class="sec-title">Pour aller plus loin (facultatif) : l'API Java de
+          HDFS</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">Bonus</span></button>
+      <div class="sec-body">
+        <p>Les commandes <code class="i">hdfs dfs</code> s'appuient sur une API Java, la classe <code
+            class="i">FileSystem</code>, que les applications utilisent pour lire et écrire dans HDFS. L'application
+          <code class="i">hadoop-hdfs-app.jar</code> fournie en montre quatre opérations. Syntaxe : <code
+            class="i">hadoop jar hadoop-hdfs-app.jar &lt;opération&gt; &lt;dossier&gt; &lt;fichier&gt;</code>.</p>
+        <table class="t">
+          <tr>
+            <th>Opération</th>
+            <th>Méthode Java utilisée</th>
+            <th>Effet</th>
+          </tr>
+          <tr>
+            <td>status</td>
+            <td><code class="i">getFileStatus(path)</code></td>
+            <td>taille, propriétaire, droits, réplication</td>
+          </tr>
+          <tr>
+            <td>info</td>
+            <td><code class="i">getFileBlockLocations(...)</code></td>
+            <td>emplacement de chaque bloc</td>
+          </tr>
+          <tr>
+            <td>read</td>
+            <td><code class="i">open(path)</code></td>
+            <td>lecture du début du fichier</td>
+          </tr>
+          <tr>
+            <td>write</td>
+            <td><code class="i">create(path)</code></td>
+            <td>création d'un fichier</td>
+          </tr>
+        </table>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hadoop jar /shared_volume/hadoop-hdfs-app.jar status /user/root/web_input alice.txt
 hadoop jar /shared_volume/hadoop-hdfs-app.jar info /user/root/input purchases.txt
 hadoop jar /shared_volume/hadoop-hdfs-app.jar read /user/root/web_input alice.txt
 hadoop jar /shared_volume/hadoop-hdfs-app.jar write /user/root hello.txt
-hdfs dfs -cat hello.txt</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Comparez la sortie de <code class="i">info</code> avec celle de <code class="i">hdfs fsck</code> (section 3) : ce sont les mêmes informations, obtenues par programme.</span></div>
+hdfs dfs -cat hello.txt</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Comparez la sortie de <code
+              class="i">info</code> avec celle de <code class="i">hdfs fsck</code> (section 3) : ce sont les mêmes
+            informations, obtenues par programme.</span></div>
+      </div>
+    </section>
+
+    <!-- ============ RENDU ============ -->
+    <div class="final">
+      <h2>Rendre votre travail</h2>
+      <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R12 et vos résultats aux questions de
+        validation sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en
+        compte. Envoyez <strong>avant la fin de la séance</strong>.</p>
+      <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si
+        vous changez de poste ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
+      <div class="btn-row">
+        <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à
+          l'enseignant</button>
+        <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger
+          une copie</button>
+        <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes
+          réponses</button>
+      </div>
+      <div class="export-msg" id="exportmsg" role="status"></div>
     </div>
-  </section>
 
-  <!-- ============ RENDU ============ -->
-  <div class="final">
-    <h2>Rendre votre travail</h2>
-    <p>Le bouton ci-dessous télécharge un fichier <code class="i">TP1_reponses_….md</code> contenant vos réponses R1 à R12 et vos résultats aux questions de validation. Déposez-le sur la plateforme indiquée par l'enseignant <strong>avant la fin de la séance</strong>.</p>
-    <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si vous changez de poste ou videz les données du navigateur, elles seront perdues : exportez régulièrement.</p>
-    <div class="btn-row">
-      <button class="btn primary" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Exporter mes réponses</button>
-      <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes réponses</button>
+    <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i>
+      <div>
+        <strong>En cas de problème</strong>
+        <ul style="margin:6px 0 0 18px">
+          <li><code class="i">`.': No such file or directory</code> : le répertoire personnel n'existe pas. Lancez <code
+              class="i">hdfs dfs -mkdir -p /user/root</code>.</li>
+          <li><code class="i">Name node is in safe mode</code> : HDFS vient de démarrer et vérifie ses blocs. Attendez
+            30 secondes et réessayez.</li>
+          <li><code class="i">Output directory … already exists</code> : supprimez le dossier de sortie avec <code
+              class="i">hdfs dfs -rm -r &lt;dossier&gt;</code>.</li>
+          <li><code class="i">docker: command not found</code> : vous êtes dans le terminal du maître. Utilisez le
+            terminal Codespace.</li>
+          <li><code class="i">hdfs: command not found</code> : vous êtes dans le terminal Codespace. Entrez dans le
+            maître avec <code class="i">docker exec -it cluster-master bash</code>.</li>
+          <li>Un port n'apparaît pas dans l'onglet Ports : vérifiez avec <code class="i">jps</code> que le service
+            tourne, puis ajoutez le port à la main.</li>
+        </ul>
+      </div>
     </div>
-    <div class="export-msg" id="exportmsg" role="status"></div>
-  </div>
 
-  <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i><div>
-    <strong>En cas de problème</strong>
-    <ul style="margin:6px 0 0 18px">
-      <li><code class="i">`.': No such file or directory</code> : le répertoire personnel n'existe pas. Lancez <code class="i">hdfs dfs -mkdir -p /user/root</code>.</li>
-      <li><code class="i">Name node is in safe mode</code> : HDFS vient de démarrer et vérifie ses blocs. Attendez 30 secondes et réessayez.</li>
-      <li><code class="i">Output directory … already exists</code> : supprimez le dossier de sortie avec <code class="i">hdfs dfs -rm -r &lt;dossier&gt;</code>.</li>
-      <li><code class="i">docker: command not found</code> : vous êtes dans le terminal du maître. Utilisez le terminal Codespace.</li>
-      <li><code class="i">hdfs: command not found</code> : vous êtes dans le terminal Codespace. Entrez dans le maître avec <code class="i">docker exec -it cluster-master bash</code>.</li>
-      <li>Un port n'apparaît pas dans l'onglet Ports : vérifiez avec <code class="i">jps</code> que le service tourne, puis ajoutez le port à la main.</li>
-    </ul>
-  </div></div>
+    <footer>ENSIAS · Big Data &amp; Applications · 2SCL &amp; IDF · 2026-2027</footer>
+  </main>
 
-  <footer>ENSIAS · Big Data &amp; Applications · 2SCL &amp; IDF · 2026-2027</footer>
-</main>
+  <script>
+    (function () {
+      // Adresse du script Google fournie par l'enseignant (voir le guide enseignant)
+      var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwIGriq5SYt4FccF6Wh2qLGHvatUwBrD9V6FztLf00nsNja4cugPbmVPeUNeYM1wVoi/exec';
+      var TP = 'TP1';
+      var KEY = 'ensias-bd-tp1-v1';
+      var TOTAL = 8;
+      var state = { done: [], quiz: {}, text: {}, nom: '', filiere: '' };
 
-<script>
-(function(){
-  var KEY = 'ensias-bd-tp1-v1';
-  var TOTAL = 8;
-  var state = {done:[], quiz:{}, text:{}, nom:'', filiere:''};
+      function load() { try { var s = localStorage.getItem(KEY); if (s) { var p = JSON.parse(s); state = Object.assign(state, p); } } catch (e) { } }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; } }
+      load();
 
-  function load(){ try{ var s = localStorage.getItem(KEY); if(s){ var p = JSON.parse(s); state = Object.assign(state, p); } }catch(e){} }
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
-  load();
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
+      var bonus = document.querySelector('.section.bonus');
 
-  var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
-  var bonus = document.querySelector('.section.bonus');
+      function isDone(i) { return state.done.indexOf(i) !== -1; }
+      function unlocked(i) { return i === 0 || isDone(i - 1); }
 
-  function isDone(i){ return state.done.indexOf(i) !== -1; }
-  function unlocked(i){ return i === 0 || isDone(i-1); }
-
-  function refresh(){
-    sections.forEach(function(sec, i){
-      sec.classList.toggle('done', isDone(i));
-      sec.classList.toggle('locked', !unlocked(i));
-      var st = sec.querySelector('.sec-status');
-      st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
-      sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
-      var btn = sec.querySelector('.done-btn');
-      var quizzes = sec.querySelectorAll('.quiz');
-      var allAnswered = Array.prototype.every.call(quizzes, function(q){ return state.quiz[q.dataset.q]; });
-      if(btn){
-        btn.disabled = !allAnswered || isDone(i);
-        btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
-        var hint = sec.querySelector('.done-hint');
-        if(hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+      function refresh() {
+        sections.forEach(function (sec, i) {
+          sec.classList.toggle('done', isDone(i));
+          sec.classList.toggle('locked', !unlocked(i));
+          var st = sec.querySelector('.sec-status');
+          st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
+          sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
+          var btn = sec.querySelector('.done-btn');
+          var quizzes = sec.querySelectorAll('.quiz');
+          var allAnswered = Array.prototype.every.call(quizzes, function (q) { return state.quiz[q.dataset.q]; });
+          if (btn) {
+            btn.disabled = !allAnswered || isDone(i);
+            btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
+            var hint = sec.querySelector('.done-hint');
+            if (hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+          }
+        });
+        var n = state.done.length;
+        document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
+        document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
       }
-    });
-    var n = state.done.length;
-    document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
-    document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
-  }
 
-  function openSection(sec){
-    sections.concat([bonus]).forEach(function(s){ if(s !== sec) s.classList.remove('open'); });
-    sec.classList.add('open');
-    refresh();
-  }
-
-  sections.forEach(function(sec, i){
-    sec.querySelector('.sec-head').addEventListener('click', function(){
-      if(!unlocked(i)) return;
-      if(sec.classList.contains('open')){ sec.classList.remove('open'); refresh(); }
-      else { openSection(sec); }
-    });
-    var btn = sec.querySelector('.done-btn');
-    if(btn) btn.addEventListener('click', function(){
-      if(!isDone(i)) state.done.push(i);
-      save();
-      sec.classList.remove('open');
-      if(sections[i+1]){ openSection(sections[i+1]); sections[i+1].scrollIntoView({behavior:'smooth', block:'start'}); }
-      refresh();
-    });
-  });
-  bonus.querySelector('.sec-head').addEventListener('click', function(){
-    if(bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
-  });
-
-  // Questions de validation (réponse révélée après 3 s)
-  document.querySelectorAll('.quiz').forEach(function(q){
-    var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
-    var opts = q.querySelectorAll('.opt');
-    function reveal(choice, instant){
-      opts.forEach(function(o){ o.disabled = true; if(o.dataset.v === choice) o.classList.add('chosen'); });
-      function show(){
-        opts.forEach(function(o){ if(o.dataset.v === answer) o.classList.add('right'); else if(o.dataset.v === choice) o.classList.add('wrong'); });
-        var ok = choice === answer;
-        fb.className = 'fb ' + (ok ? 'ok' : 'ko');
-        fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+      function openSection(sec) {
+        sections.concat([bonus]).forEach(function (s) { if (s !== sec) s.classList.remove('open'); });
+        sec.classList.add('open');
         refresh();
       }
-      if(instant) show();
-      else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
-    }
-    opts.forEach(function(o){
-      o.addEventListener('click', function(){
-        if(state.quiz[id]) return;
-        state.quiz[id] = {choice:o.dataset.v, correct:o.dataset.v === answer};
-        save();
-        reveal(o.dataset.v, false);
+
+      sections.forEach(function (sec, i) {
+        sec.querySelector('.sec-head').addEventListener('click', function () {
+          if (!unlocked(i)) return;
+          if (sec.classList.contains('open')) { sec.classList.remove('open'); refresh(); }
+          else { openSection(sec); }
+        });
+        var btn = sec.querySelector('.done-btn');
+        if (btn) btn.addEventListener('click', function () {
+          if (!isDone(i)) state.done.push(i);
+          save();
+          sec.classList.remove('open');
+          if (sections[i + 1]) { openSection(sections[i + 1]); sections[i + 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          refresh();
+        });
       });
-    });
-    if(state.quiz[id]) reveal(state.quiz[id].choice, true);
-  });
+      bonus.querySelector('.sec-head').addEventListener('click', function () {
+        if (bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
+      });
 
-  // Réponses écrites
-  document.querySelectorAll('.reflect textarea').forEach(function(t){
-    var info = t.parentNode.querySelector('.saved');
-    t.value = state.text[t.id] || '';
-    var timer;
-    t.addEventListener('input', function(){
-      state.text[t.id] = t.value;
-      clearTimeout(timer);
-      timer = setTimeout(function(){ info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
-    });
-  });
+      // Questions de validation (réponse révélée après 3 s)
+      document.querySelectorAll('.quiz').forEach(function (q) {
+        var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
+        var opts = q.querySelectorAll('.opt');
+        function reveal(choice, instant) {
+          opts.forEach(function (o) { o.disabled = true; if (o.dataset.v === choice) o.classList.add('chosen'); });
+          function show() {
+            opts.forEach(function (o) { if (o.dataset.v === answer) o.classList.add('right'); else if (o.dataset.v === choice) o.classList.add('wrong'); });
+            var ok = choice === answer;
+            fb.className = 'fb ' + (ok ? 'ok' : 'ko');
+            fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+            refresh();
+          }
+          if (instant) show();
+          else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
+        }
+        opts.forEach(function (o) {
+          o.addEventListener('click', function () {
+            if (state.quiz[id]) return;
+            state.quiz[id] = { choice: o.dataset.v, correct: o.dataset.v === answer };
+            save();
+            reveal(o.dataset.v, false);
+          });
+        });
+        if (state.quiz[id]) reveal(state.quiz[id].choice, true);
+      });
 
-  // Identité
-  var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
-  nom.value = state.nom || ''; fil.value = state.filiere || '';
-  nom.addEventListener('input', function(){ state.nom = nom.value; save(); });
-  fil.addEventListener('change', function(){ state.filiere = fil.value; save(); });
+      // Réponses écrites
+      document.querySelectorAll('.reflect textarea').forEach(function (t) {
+        var info = t.parentNode.querySelector('.saved');
+        t.value = state.text[t.id] || '';
+        var timer;
+        t.addEventListener('input', function () {
+          state.text[t.id] = t.value;
+          clearTimeout(timer);
+          timer = setTimeout(function () { info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
+        });
+      });
 
-  // Boutons Copier
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click', function(){
-      var text = b.closest('.cmd').querySelector('pre').innerText.trim();
-      function done(){ b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function(){ b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
-      if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
-      function fallback(){ var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){} document.body.removeChild(ta); }
-    });
-  });
+      // Identité
+      var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
+      nom.value = state.nom || ''; fil.value = state.filiere || '';
+      nom.addEventListener('input', function () { state.nom = nom.value; save(); });
+      fil.addEventListener('change', function () { state.filiere = fil.value; save(); });
 
-  // Export
-  document.getElementById('export').addEventListener('click', function(){
-    var msg = document.getElementById('exportmsg');
-    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
-    var qs = Object.keys(state.quiz).sort();
-    var score = qs.filter(function(k){ return state.quiz[k].correct; }).length;
-    var lines = ['# TP1 — Cluster Hadoop, HDFS et MapReduce', '',
-      '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
-      '- **Export** : ' + new Date().toLocaleString('fr-FR'),
-      '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
-      '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
-    document.querySelectorAll('.reflect textarea').forEach(function(t){
-      lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
-    });
-    var blob = new Blob([lines.join('\n')], {type:'text/markdown;charset=utf-8'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'TP1_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    msg.style.color = 'var(--success-text)';
-    msg.textContent = 'Fichier téléchargé. Déposez-le sur la plateforme indiquée par l\'enseignant.';
-  });
+      // Boutons Copier
+      document.querySelectorAll('.copy').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = b.closest('.cmd').querySelector('pre').innerText.trim();
+          function done() { b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function () { b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
+          if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+          function fallback() { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } document.body.removeChild(ta); }
+        });
+      });
 
-  document.getElementById('reset').addEventListener('click', function(){
-    if(!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
-    try{ localStorage.removeItem(KEY); }catch(e){}
-    location.reload();
-  });
+      // Envoi direct à l'enseignant (Google Sheets via Apps Script)
+      document.getElementById('send').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
+        if (ENDPOINT.indexOf('http') !== 0) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
+        var qs = Object.keys(state.quiz);
+        var data = {
+          tp: TP, date: new Date().toLocaleString('fr-FR'), nom: state.nom.trim(), filiere: state.filiere || '',
+          sections: state.done.length + ' / ' + TOTAL,
+          score: qs.filter(function (k) { return state.quiz[k].correct; }).length + ' / ' + qs.length
+        };
+        document.querySelectorAll('.reflect textarea').forEach(function (t) { data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
+        var btn = this; btn.disabled = true;
+        msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
+        fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+          .then(function () { msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
+          .catch(function () { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
+          .then(function () { btn.disabled = false; });
+      });
 
-  // Ouvrir la première section non terminée
-  var first = sections.find(function(s, i){ return !isDone(i) && unlocked(i); });
-  if(first) first.classList.add('open');
-  refresh();
-})();
-</script>
+      // Export
+      document.getElementById('export').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
+        var qs = Object.keys(state.quiz).sort();
+        var score = qs.filter(function (k) { return state.quiz[k].correct; }).length;
+        var lines = ['# TP1 — Cluster Hadoop, HDFS et MapReduce', '',
+          '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
+          '- **Export** : ' + new Date().toLocaleString('fr-FR'),
+          '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
+          '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
+        document.querySelectorAll('.reflect textarea').forEach(function (t) {
+          lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
+        });
+        var blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'TP1_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        msg.style.color = 'var(--success-text)';
+        msg.textContent = 'Copie téléchargée sur votre ordinateur.';
+      });
+
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        location.reload();
+      });
+
+      // Ouvrir la première section non terminée
+      var first = sections.find(function (s, i) { return !isDone(i) && unlocked(i); });
+      if (first) first.classList.add('open');
+      refresh();
+    })();
+  </script>
 </body>
+
 </html>
