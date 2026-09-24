@@ -821,6 +821,7 @@
           <option value="">Choisir…</option>
           <option>2SCL</option>
           <option>IDF</option>
+          <option>BI&A</option>
         </select>
       </div>
     </div>
@@ -836,7 +837,8 @@
       <div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le
         bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont
         <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à
-        l'enseignant à la fin du TP.</div>
+        l'enseignant à la fin du TP.
+      </div>
     </div>
 
     <!-- ============ SECTION 0 ============ -->
@@ -1146,7 +1148,8 @@ hdfs fsck /user/root/input/purchases.txt -files -blocks -locations</code></pre>
             une copie.</span></div>
         <p>Vérifiez aussi dans l'interface HDFS : <strong>Utilities → Browse the file system → user → root →
             input</strong>, cliquez sur <code class="i">purchases.txt</code> et parcourez les onglets <em>Block 0</em>,
-          <em>Block 1</em>…</p>
+          <em>Block 1</em>…
+        </p>
 
         <div class="reflect"><label for="r5"><span class="rn">R5</span>En combien de blocs <code
               class="i">purchases.txt</code> est-il découpé ? Retrouvez ce nombre <strong>par le calcul</strong> à
@@ -1490,7 +1493,8 @@ cd ~</code></pre>
         <p>Les commandes <code class="i">hdfs dfs</code> s'appuient sur une API Java, la classe <code
             class="i">FileSystem</code>, que les applications utilisent pour lire et écrire dans HDFS. L'application
           <code class="i">hadoop-hdfs-app.jar</code> fournie en montre quatre opérations. Syntaxe : <code
-            class="i">hadoop jar hadoop-hdfs-app.jar &lt;opération&gt; &lt;dossier&gt; &lt;fichier&gt;</code>.</p>
+            class="i">hadoop jar hadoop-hdfs-app.jar &lt;opération&gt; &lt;dossier&gt; &lt;fichier&gt;</code>.
+        </p>
         <table class="t">
           <tr>
             <th>Opération</th>

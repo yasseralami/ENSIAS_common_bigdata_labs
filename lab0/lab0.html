@@ -1,777 +1,1956 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 0 — Diagnostiquer un besoin Big Data | ENSIAS 2026-2027</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#1E2761;--navy-dark:#141c4a;--gold:#E8B84B;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#64748b;--hint:#94a3b8;--success-bg:#ecfdf5;--success-text:#065f46;--success-border:#6ee7b7;--danger-bg:#fef2f2;--danger-text:#991b1b;--danger-border:#fca5a5;--info-bg:#eff6ff;--info-text:#1e40af;--info-border:#93c5fd;--warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fcd34d;--code-bg:#0f172a;--teal:#0f766e;--teal-bg:#e6f6f4}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-a{color:var(--info-text)}
-.site-header{background:var(--navy);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
-.header-inner{max-width:900px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
-.header-left{display:flex;align-items:center;gap:10px}
-.header-logo{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--navy)}
-.header-title{font-size:13px;font-weight:600;color:#fff}
-.header-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
-.header-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--navy)}
-.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
-.lab-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3068 100%);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
-.lab-hero::after{content:'0';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-family:'DM Serif Display',serif;font-size:120px;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
-.lab-tag{font-size:11px;font-weight:600;color:var(--gold);margin-bottom:.6rem}
-.lab-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,28px);color:#fff;margin-bottom:.5rem;font-weight:400}
-.lab-desc{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;max-width:580px;margin-bottom:1.1rem}
-.lab-meta{display:flex;gap:8px;flex-wrap:wrap}
-.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);padding:4px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.12)}
-.ident{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr 180px;gap:10px}
-.ident label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
-.ident input,.ident select{width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
-.progress-wrap{margin-bottom:1.25rem}
-.progress-bar{background:var(--border);border-radius:99px;height:6px;overflow:hidden;margin-bottom:4px}
-.progress-fill{height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .5s}
-.progress-label{font-size:11px;color:var(--muted);text-align:right}
-.intro-note{margin-bottom:1.25rem}
-.section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.section.locked{opacity:.55}
-.sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;width:100%;background:none;border:0;font:inherit;text-align:left;color:inherit}
-.sec-head:hover{background:var(--bg)}
-.section.locked .sec-head{cursor:not-allowed}
-.sec-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:var(--bg);color:var(--navy);border:1px solid var(--border)}
-.section.done .sec-num{background:var(--success-text);color:#fff;border-color:var(--success-text)}
-.section.open .sec-num{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sec-title{font-size:14px;font-weight:600;flex:1;line-height:1.35}
-.sec-time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
-.sec-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--warn-bg);color:var(--warn-text)}
-.section.done .sec-status{background:var(--success-bg);color:var(--success-text)}
-.section.locked .sec-status{background:var(--bg);color:var(--hint)}
-.sec-body{display:none;padding:4px 18px 18px;border-top:1px solid var(--border)}
-.section.open .sec-body{display:block}
-.sec-body p{font-size:13.5px;margin:12px 0}
-.sec-body h3{font-size:13px;font-weight:700;color:var(--navy);margin:18px 0 6px}
-.sec-body ul,.sec-body ol{font-size:13.5px;margin:8px 0 8px 20px}
-.sec-body li{margin:3px 0}
-code.i{font-family:'DM Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
-.cmd{margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid #1e293b}
-.cmd-head{display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px}
-.term{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;display:flex;align-items:center;gap:4px}
-.term.cs{background:#dbeafe;color:#1e3a8a}
-.term.cm{background:var(--gold);color:var(--navy)}
-.copy{font:inherit;font-size:11px;font-weight:600;color:#cbd5e1;background:transparent;border:1px solid #475569;border-radius:6px;padding:3px 9px;cursor:pointer;display:flex;align-items:center;gap:4px}
-.copy:hover{color:#fff;border-color:#94a3b8}
-.copy.ok{color:#6ee7b7;border-color:#6ee7b7}
-.cmd pre{background:var(--code-bg);color:#e2e8f0;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.7;margin:0}
-.cmd pre .c{color:#64748b}
-.expect{font-size:12.5px;background:var(--teal-bg);color:var(--teal);border-radius:8px;padding:8px 12px;margin:-2px 0 12px;display:flex;gap:8px}
-.expect i{margin-top:2px}
-.note{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0;display:flex;gap:9px;border:1px solid}
-.note i{font-size:17px;margin-top:1px}
-.note.info{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border)}
-.note.warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border)}
-.note.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
-table.t{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-table.t th,table.t td{border:1px solid var(--border);padding:6px 9px;text-align:left}
-table.t th{background:var(--bg);font-weight:600}
-.quiz{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin:16px 0}
-.quiz-tag{font-size:11px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;margin-bottom:6px}
-.quiz .q{font-size:13.5px;font-weight:600;margin:0 0 10px}
-.opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:9px 12px;margin:6px 0;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;color:var(--text)}
-.opt:hover:not(:disabled){border-color:var(--navy)}
-.opt.chosen{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
-.opt.right{background:var(--success-bg);border-color:var(--success-border)}
-.opt.wrong{background:var(--danger-bg);border-color:var(--danger-border)}
-.opt:disabled{cursor:default}
-.fb{font-size:13px;margin-top:8px;display:none;border-radius:9px;padding:9px 12px}
-.fb.wait{display:block;color:var(--muted);background:#fff;border:1px dashed var(--border)}
-.fb.ok{display:block;background:var(--success-bg);color:var(--success-text)}
-.fb.ko{display:block;background:var(--danger-bg);color:var(--danger-text)}
-.reflect{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:16px 0;background:#fffdf6}
-.reflect label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
-.reflect label .rn{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:6px}
-.reflect textarea{width:100%;min-height:90px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:#fff;color:var(--text)}
-.saved{font-size:11px;color:var(--hint);margin-top:3px}
-.done-btn{margin-top:14px;font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;border:0;background:var(--navy);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.done-btn:disabled{background:var(--hint);cursor:not-allowed}
-.done-hint{font-size:11.5px;color:var(--muted);margin-top:6px}
-.final{background:var(--card);border:2px solid var(--navy);border-radius:14px;padding:1.1rem 1.2rem;margin-top:1.5rem}
-.final h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:21px;color:var(--navy);margin-bottom:6px}
-.final p{font-size:13.5px;margin:6px 0}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.btn{font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--navy)}
-.btn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-.btn.ghost{background:#fff;color:var(--navy)}
-.btn.danger{background:#fff;color:var(--danger-text);border-color:var(--danger-border)}
-.export-msg{font-size:12.5px;margin-top:8px}
-footer{text-align:center;font-size:11px;color:var(--hint);margin-top:2.5rem}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media (max-width:640px){.ident{grid-template-columns:1fr}.sec-time{display:none}}
-@media (prefers-reduced-motion:reduce){.progress-fill{transition:none}}
-.src{font-size:11.5px;color:var(--muted);margin:-4px 0 12px}
-.calc{background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:10px;padding:10px 14px;margin:12px 0}
-.calc .lbl{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
-.calc .f{font-family:'DM Mono',monospace;font-size:13px}
-.scen{border:1px solid var(--border);border-radius:12px;padding:14px;margin:16px 0;background:#fff}
-.scen-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.fil{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px}
-.fil.idf{background:#dbeafe;color:#1e3a8a}
-.fil.scl{background:var(--teal-bg);color:var(--teal)}
-.scen-title{font-size:14px;font-weight:700;color:var(--navy)}
-.scen p{margin:8px 0}
-.vchk{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
-.v{font:inherit;font-size:12.5px;padding:6px 11px;border-radius:99px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer}
-.v:hover:not(:disabled){border-color:var(--navy)}
-.v.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
-.v.none.sel{background:var(--muted);border-color:var(--muted)}
-.v:disabled{cursor:default}
-.vhint{font-size:11.5px;color:var(--muted)}
-.scen .reflect{margin:12px 0 8px}
-.reveal-btn{font:inherit;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.reveal-btn:disabled{border-color:var(--border);color:var(--hint);cursor:not-allowed}
-.scen-fb{font-size:13px;margin-top:10px;display:none;border-radius:9px;padding:9px 12px}
-.scen-fb.wait{display:block;color:var(--muted);border:1px dashed var(--border)}
-.scen-fb.ok{display:block;background:var(--success-bg);color:var(--success-text)}
-.scen-fb.part{display:block;background:var(--warn-bg);color:var(--warn-text)}
-.expl{display:none;font-size:13px;margin-top:8px;padding:9px 12px;border-left:3px solid var(--gold);background:#fffdf6;border-radius:0 9px 9px 0}
-.expl.show{display:block}
-.env{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
-.env label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
-.env select,.envpb{width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
-.envpb{min-height:60px;resize:vertical}
-@media (max-width:640px){.env{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 0 — Diagnostiquer un besoin Big Data | ENSIAS 2026-2027</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1E2761;
+      --navy-dark: #141c4a;
+      --gold: #E8B84B;
+      --bg: #f4f6ff;
+      --card: #fff;
+      --border: #dde3f5;
+      --text: #1a2040;
+      --muted: #64748b;
+      --hint: #94a3b8;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --success-border: #6ee7b7;
+      --danger-bg: #fef2f2;
+      --danger-text: #991b1b;
+      --danger-border: #fca5a5;
+      --info-bg: #eff6ff;
+      --info-text: #1e40af;
+      --info-border: #93c5fd;
+      --warn-bg: #fffbeb;
+      --warn-text: #92400e;
+      --warn-border: #fcd34d;
+      --code-bg: #0f172a;
+      --teal: #0f766e;
+      --teal-bg: #e6f6f4
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6
+    }
+
+    a {
+      color: var(--info-text)
+    }
+
+    .site-header {
+      background: var(--navy);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--gold)
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      background: var(--gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 14px;
+      color: var(--navy)
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .55);
+      margin-top: 1px
+    }
+
+    .header-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem
+    }
+
+    .lab-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a3068 100%);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .lab-hero::after {
+      content: '0';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 120px;
+      color: rgba(255, 255, 255, .05);
+      line-height: 1;
+      pointer-events: none
+    }
+
+    .lab-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .6rem
+    }
+
+    .lab-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 4vw, 28px);
+      color: #fff;
+      margin-bottom: .5rem;
+      font-weight: 400
+    }
+
+    .lab-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .75);
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 1.1rem
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .8);
+      background: rgba(255, 255, 255, .08);
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .ident {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px
+    }
+
+    .ident label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .ident input,
+    .ident select {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .progress-wrap {
+      margin-bottom: 1.25rem
+    }
+
+    .progress-bar {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: var(--navy);
+      border-radius: 99px;
+      transition: width .5s
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right
+    }
+
+    .intro-note {
+      margin-bottom: 1.25rem
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden
+    }
+
+    .section.locked {
+      opacity: .55
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      background: none;
+      border: 0;
+      font: inherit;
+      text-align: left;
+      color: inherit
+    }
+
+    .sec-head:hover {
+      background: var(--bg)
+    }
+
+    .section.locked .sec-head {
+      cursor: not-allowed
+    }
+
+    .sec-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--bg);
+      color: var(--navy);
+      border: 1px solid var(--border)
+    }
+
+    .section.done .sec-num {
+      background: var(--success-text);
+      color: #fff;
+      border-color: var(--success-text)
+    }
+
+    .section.open .sec-num {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .sec-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.35
+    }
+
+    .sec-time {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 3px
+    }
+
+    .sec-status {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--warn-bg);
+      color: var(--warn-text)
+    }
+
+    .section.done .sec-status {
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .section.locked .sec-status {
+      background: var(--bg);
+      color: var(--hint)
+    }
+
+    .sec-body {
+      display: none;
+      padding: 4px 18px 18px;
+      border-top: 1px solid var(--border)
+    }
+
+    .section.open .sec-body {
+      display: block
+    }
+
+    .sec-body p {
+      font-size: 13.5px;
+      margin: 12px 0
+    }
+
+    .sec-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 18px 0 6px
+    }
+
+    .sec-body ul,
+    .sec-body ol {
+      font-size: 13.5px;
+      margin: 8px 0 8px 20px
+    }
+
+    .sec-body li {
+      margin: 3px 0
+    }
+
+    code.i {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 5px
+    }
+
+    .cmd {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b
+    }
+
+    .cmd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 6px 10px
+    }
+
+    .term {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .term.cs {
+      background: #dbeafe;
+      color: #1e3a8a
+    }
+
+    .term.cm {
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .copy {
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: transparent;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 3px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .copy:hover {
+      color: #fff;
+      border-color: #94a3b8
+    }
+
+    .copy.ok {
+      color: #6ee7b7;
+      border-color: #6ee7b7
+    }
+
+    .cmd pre {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 0
+    }
+
+    .cmd pre .c {
+      color: #64748b
+    }
+
+    .expect {
+      font-size: 12.5px;
+      background: var(--teal-bg);
+      color: var(--teal);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: -2px 0 12px;
+      display: flex;
+      gap: 8px
+    }
+
+    .expect i {
+      margin-top: 2px
+    }
+
+    .note {
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      display: flex;
+      gap: 9px;
+      border: 1px solid
+    }
+
+    .note i {
+      font-size: 17px;
+      margin-top: 1px
+    }
+
+    .note.info {
+      background: var(--info-bg);
+      color: var(--info-text);
+      border-color: var(--info-border)
+    }
+
+    .note.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border)
+    }
+
+    .note.ok {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-color: var(--success-border)
+    }
+
+    table.t {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 10px 0
+    }
+
+    table.t th,
+    table.t td {
+      border: 1px solid var(--border);
+      padding: 6px 9px;
+      text-align: left
+    }
+
+    table.t th {
+      background: var(--bg);
+      font-weight: 600
+    }
+
+    .quiz {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0
+    }
+
+    .quiz-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px
+    }
+
+    .quiz .q {
+      font-size: 13.5px;
+      font-weight: 600;
+      margin: 0 0 10px
+    }
+
+    .opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin: 6px 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--text)
+    }
+
+    .opt:hover:not(:disabled) {
+      border-color: var(--navy)
+    }
+
+    .opt.chosen {
+      border-color: var(--navy);
+      box-shadow: inset 0 0 0 1px var(--navy)
+    }
+
+    .opt.right {
+      background: var(--success-bg);
+      border-color: var(--success-border)
+    }
+
+    .opt.wrong {
+      background: var(--danger-bg);
+      border-color: var(--danger-border)
+    }
+
+    .opt:disabled {
+      cursor: default
+    }
+
+    .fb {
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+      border-radius: 9px;
+      padding: 9px 12px
+    }
+
+    .fb.wait {
+      display: block;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed var(--border)
+    }
+
+    .fb.ok {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .fb.ko {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger-text)
+    }
+
+    .reflect {
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      background: #fffdf6
+    }
+
+    .reflect label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px
+    }
+
+    .reflect label .rn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-right: 6px
+    }
+
+    .reflect textarea {
+      width: 100%;
+      min-height: 90px;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .saved {
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 3px
+    }
+
+    .done-btn {
+      margin-top: 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 0;
+      background: var(--navy);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .done-btn:disabled {
+      background: var(--hint);
+      cursor: not-allowed
+    }
+
+    .done-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px
+    }
+
+    .final {
+      background: var(--card);
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      margin-top: 1.5rem
+    }
+
+    .final h2 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      font-size: 21px;
+      color: var(--navy);
+      margin-bottom: 6px
+    }
+
+    .final p {
+      font-size: 13.5px;
+      margin: 6px 0
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--navy)
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold)
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--navy)
+    }
+
+    .btn.danger {
+      background: #fff;
+      color: var(--danger-text);
+      border-color: var(--danger-border)
+    }
+
+    .export-msg {
+      font-size: 12.5px;
+      margin-top: 8px
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 2.5rem
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px
+    }
+
+    @media (max-width:640px) {
+      .ident {
+        grid-template-columns: 1fr
+      }
+
+      .sec-time {
+        display: none
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .progress-fill {
+        transition: none
+      }
+    }
+
+    .src {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin: -4px 0 12px
+    }
+
+    .calc {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 12px 0
+    }
+
+    .calc .lbl {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 4px
+    }
+
+    .calc .f {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px
+    }
+
+    .scen {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0;
+      background: #fff
+    }
+
+    .scen-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px
+    }
+
+    .fil {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px
+    }
+
+    .fil.idf {
+      background: #dbeafe;
+      color: #1e3a8a
+    }
+
+    .fil.scl {
+      background: var(--teal-bg);
+      color: var(--teal)
+    }
+
+    .scen-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy)
+    }
+
+    .scen p {
+      margin: 8px 0
+    }
+
+    .vchk {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 4px
+    }
+
+    .v {
+      font: inherit;
+      font-size: 12.5px;
+      padding: 6px 11px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer
+    }
+
+    .v:hover:not(:disabled) {
+      border-color: var(--navy)
+    }
+
+    .v.sel {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .v.none.sel {
+      background: var(--muted);
+      border-color: var(--muted)
+    }
+
+    .v:disabled {
+      cursor: default
+    }
+
+    .vhint {
+      font-size: 11.5px;
+      color: var(--muted)
+    }
+
+    .scen .reflect {
+      margin: 12px 0 8px
+    }
+
+    .reveal-btn {
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--navy);
+      background: #fff;
+      color: var(--navy);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .reveal-btn:disabled {
+      border-color: var(--border);
+      color: var(--hint);
+      cursor: not-allowed
+    }
+
+    .scen-fb {
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+      border-radius: 9px;
+      padding: 9px 12px
+    }
+
+    .scen-fb.wait {
+      display: block;
+      color: var(--muted);
+      border: 1px dashed var(--border)
+    }
+
+    .scen-fb.ok {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .scen-fb.part {
+      display: block;
+      background: var(--warn-bg);
+      color: var(--warn-text)
+    }
+
+    .expl {
+      display: none;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 9px 12px;
+      border-left: 3px solid var(--gold);
+      background: #fffdf6;
+      border-radius: 0 9px 9px 0
+    }
+
+    .expl.show {
+      display: block
+    }
+
+    .env {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 12px 0
+    }
+
+    .env label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .env select,
+    .envpb {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .envpb {
+      min-height: 60px;
+      resize: vertical
+    }
+
+    @media (max-width:640px) {
+      .env {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-left">
-      <div class="header-logo">BD</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-logo">BD</div>
+        <div>
+          <div class="header-title">Big Data &amp; Applications</div>
+          <div class="header-sub">ENSIAS · 2SCL &amp; IDF · 2026-2027</div>
+        </div>
+      </div>
+      <span class="header-badge">Lab 0 / 6</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="lab-hero">
+      <div class="lab-tag">Semaine 1 · Introduction au Big Data</div>
+      <h1 class="lab-title">Lab 0 — Diagnostiquer un besoin Big Data</h1>
+      <p class="lab-desc">Avant de choisir une technologie, il faut savoir si le problème la justifie. Vous allez
+        raisonner par ordres de grandeur sur des chiffres réels, puis diagnostiquer six situations tirées de la finance
+        et de la logistique, dont certaines ne relèvent pas du Big Data.</p>
+      <div class="lab-meta">
+        <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>1 h 15 environ</span>
+        <span class="meta-chip"><i class="ti ti-world" aria-hidden="true"></i>Navigateur uniquement</span>
+        <span class="meta-chip"><i class="ti ti-calculator" aria-hidden="true"></i>3 calculs</span>
+        <span class="meta-chip"><i class="ti ti-list-check" aria-hidden="true"></i>6 scénarios IDF et 2SCL</span>
+      </div>
+    </div>
+
+    <div class="ident">
       <div>
-        <div class="header-title">Big Data &amp; Applications</div>
-        <div class="header-sub">ENSIAS · 2SCL &amp; IDF · 2026-2027</div>
+        <label for="nom">Nom et prénom</label>
+        <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+      </div>
+      <div>
+        <label for="filiere">Filière</label>
+        <select id="filiere">
+          <option value="">Choisir…</option>
+          <option>2SCL</option>
+          <option>IDF</option>
+          <option>BI&A</option>
+        </select>
       </div>
     </div>
-    <span class="header-badge">Lab 0 / 6</span>
-  </div>
-</header>
 
-<main class="container">
-
-  <div class="lab-hero">
-    <div class="lab-tag">Semaine 1 · Introduction au Big Data</div>
-    <h1 class="lab-title">Lab 0 — Diagnostiquer un besoin Big Data</h1>
-    <p class="lab-desc">Avant de choisir une technologie, il faut savoir si le problème la justifie. Vous allez raisonner par ordres de grandeur sur des chiffres réels, puis diagnostiquer six situations tirées de la finance et de la logistique, dont certaines ne relèvent pas du Big Data.</p>
-    <div class="lab-meta">
-      <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>1 h 15 environ</span>
-      <span class="meta-chip"><i class="ti ti-world" aria-hidden="true"></i>Navigateur uniquement</span>
-      <span class="meta-chip"><i class="ti ti-calculator" aria-hidden="true"></i>3 calculs</span>
-      <span class="meta-chip"><i class="ti ti-list-check" aria-hidden="true"></i>6 scénarios IDF et 2SCL</span>
-    </div>
-  </div>
-
-  <div class="ident">
-    <div>
-      <label for="nom">Nom et prénom</label>
-      <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
-    </div>
-    <div>
-      <label for="filiere">Filière</label>
-      <select id="filiere">
-        <option value="">Choisir…</option>
-        <option>2SCL</option>
-        <option>IDF</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
-    <div class="progress-label" id="plabel">0 / 5 sections terminées</div>
-  </div>
-
-  <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont enregistrées automatiquement dans ce navigateur et envoyées à l'enseignant à la fin du lab. Une calculatrice suffit pour les calculs.</div></div>
-
-  <!-- ============ SECTION 1 ============ -->
-  <section class="section" data-sec="1">
-    <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Du problème à l'architecture</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Face à une quantité croissante de données, deux stratégies existent :</p>
-      <table class="t">
-        <tr><th>Stratégie</th><th>Principe</th><th>Limite</th></tr>
-        <tr><td><strong>Scalabilité verticale</strong> (scale-up)</td><td>Renforcer une seule machine : plus de mémoire, de processeurs, de disques.</td><td>Plafond physique et coût qui croît plus vite que la capacité.</td></tr>
-        <tr><td><strong>Scalabilité horizontale</strong> (scale-out)</td><td>Répartir données et calculs sur plusieurs machines ordinaires.</td><td>Complexité : coordination, réseau, pannes à gérer.</td></tr>
-      </table>
-      <p>Une architecture distribuée n'est donc pas un progrès « par défaut » : elle se justifie lorsqu'au moins une contrainte dépasse ce qu'une machine bien dimensionnée peut assurer.</p>
-      <ul>
-        <li>le <strong>volume</strong> à stocker ou à lire est trop important pour une machine ou pour le délai exigé ;</li>
-        <li>le <strong>débit</strong> d'arrivée des données ou le <strong>délai de réponse</strong> exigé dépasse ses capacités ;</li>
-        <li>la <strong>diversité des formats</strong> empêche de tout ranger dans un schéma relationnel unique.</li>
-      </ul>
-      <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>Un grand nombre de lignes n'est pas à lui seul un argument. Des dizaines de millions de lignes structurées, traitées périodiquement, restent le terrain normal d'une base relationnelle bien indexée.</div></div>
-
-      <div class="quiz" data-q="q1" data-answer="c">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Un assureur veut analyser une fois par an 5 ans d'historique de sinistres, soit 50 millions de dossiers structurés, pour recalibrer ses tarifs. Quel diagnostic est le plus juste ?</p>
-        <button class="opt" type="button" data-v="a">Un cluster distribué est indispensable dès que l'on dépasse 10 millions de lignes</button>
-        <button class="opt" type="button" data-v="b">SQL n'est pas adapté à l'analyse actuarielle : il faut une base NoSQL</button>
-        <button class="opt" type="button" data-v="c">Une base relationnelle bien dimensionnée suffit probablement ; rien n'impose ici une architecture distribuée</button>
-        <div class="fb" data-ok="Exact. Le volume reste à l'échelle d'une machine, les données sont structurées et le traitement est annuel : aucune des trois contraintes n'est dépassée." data-ko="La bonne réponse est la dernière. 50 millions de dossiers structurés, analysés une fois par an, restent à la portée d'une base relationnelle bien dimensionnée. Le nombre de lignes seul ne justifie pas un cluster, et SQL convient parfaitement à ce type d'analyse."></div>
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="pfill"></div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      <div class="progress-label" id="plabel">0 / 5 sections terminées</div>
     </div>
-  </section>
 
-  <!-- ============ SECTION 2 ============ -->
-  <section class="section" data-sec="2">
-    <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">Les V appliqués</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Les « V » servent à <strong>caractériser</strong> un besoin, c'est-à-dire à dire quelle contrainte domine. Un cas réel en combine souvent plusieurs, avec des poids différents.</p>
-      <table class="t">
-        <tr><th>V</th><th>Ce qu'il mesure</th><th>Question à se poser</th></tr>
-        <tr><td><strong>Volume</strong></td><td>Quantité de données à stocker et à lire</td><td>Tient-elle sur une machine, et peut-on la lire dans le délai exigé ?</td></tr>
-        <tr><td><strong>Vélocité</strong></td><td>Rythme d'arrivée des données et délai exigé entre l'arrivée et la décision</td><td>Faut-il réagir en secondes, en minutes, ou un traitement nocturne suffit-il ?</td></tr>
-        <tr><td><strong>Variété</strong></td><td>Hétérogénéité des formats : tables, fichiers, documents, images, messages, capteurs</td><td>Peut-on tout ranger dans un schéma relationnel unique ?</td></tr>
-        <tr><td><strong>Véracité</strong></td><td>Fiabilité incertaine des données : erreurs, trous, doublons, capteurs défaillants</td><td>Que se passe-t-il si une donnée est fausse ou manquante ?</td></tr>
-        <tr><td><strong>Valeur</strong></td><td>Enjeu métier de l'exploitation des données</td><td>Quelle décision ou quel gain justifie l'investissement ?</td></tr>
-      </table>
-      <div class="calc"><div class="lbl">Repère chiffré — Valeur</div>
-        <div>En 2024, les pertes liées à la fraude sur les cartes de paiement ont atteint <strong>33,41 milliards de dollars</strong> dans le monde, pour un volume de cartes de 51 920 milliards de dollars.</div></div>
-      <p class="src">Source : Nilson Report, communiqué du 7 janvier 2026.</p>
-
-      <div class="quiz" data-q="q2" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Un transitaire reçoit chaque jour les fichiers EDI de ses clients, des photos de lettres de voiture signées et des courriels de réclamation, qu'il veut exploiter ensemble. Quel V caractérise d'abord ce besoin ?</p>
-        <button class="opt" type="button" data-v="a">Le Volume</button>
-        <button class="opt" type="button" data-v="b">La Variété</button>
-        <button class="opt" type="button" data-v="c">La Vélocité</button>
-        <div class="fb" data-ok="Exact. Fichiers structurés, images et texte libre : c'est l'hétérogénéité des formats qui pose problème, pas la quantité ni la vitesse." data-ko="C'est la Variété. Le besoin combine des fichiers structurés (EDI), des images et du texte libre ; rien n'indique un volume ou un débit hors norme."></div>
-      </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i>
+      <div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le
+        bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont
+        enregistrées automatiquement dans ce navigateur et envoyées à l'enseignant à la fin du lab. Une calculatrice
+        suffit pour les calculs.</div>
     </div>
-  </section>
 
-  <!-- ============ SECTION 3 ============ -->
-  <section class="section" data-sec="3">
-    <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Raisonner par ordres de grandeur</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Un ingénieur data ne dit pas « c'est beaucoup » : il calcule. Trois calculs simples suffisent souvent à trancher. Donnez vos résultats avec leur unité et arrondissez raisonnablement.</p>
-      <div class="calc"><div class="lbl">Rappel</div><div class="f">1 an ≈ 365 × 24 × 3 600 ≈ 31,5 millions de secondes<br>1 Go = 1 000 Mo ; 1 To = 1 000 Go ; 1 Mo = 10⁶ octets</div></div>
-
-      <h3>Calcul 1 — Le débit d'un réseau de paiement</h3>
-      <p>Visa a traité <strong>257,5 milliards de transactions</strong> sur ses réseaux au cours de l'exercice clos au 30 septembre 2025.</p>
-      <p class="src">Source : Visa, rapport annuel 2025.</p>
-      <p>Au Maroc, en 2024, on compte <strong>192,5 millions de paiements par carte</strong> (terminaux, guichets et en ligne) et <strong>401 millions de retraits</strong>.</p>
-      <p class="src">Source : Bank Al-Maghrib, rapport annuel 2024 sur les infrastructures des marchés financiers et les moyens de paiement.</p>
-      <div class="calc"><div class="lbl">Formule</div><div class="f">débit moyen = nombre d'opérations par an / nombre de secondes par an</div></div>
-      <div class="reflect"><label for="r1"><span class="rn">R1</span>Calculez le débit moyen (opérations par seconde) pour Visa, puis pour l'ensemble des opérations par carte au Maroc (paiements et retraits), et le rapport entre les deux. Pourquoi un système d'autorisation de paiement doit-il être dimensionné sur le pic d'activité et non sur la moyenne ?</label><textarea id="r1" data-label="R1 — Débit moyen Visa / Maroc et dimensionnement sur le pic"></textarea><div class="saved"></div></div>
-
-      <h3>Calcul 2 — Une flotte de capteurs</h3>
-      <p>Hypothèses de calcul (cas fictif) : un transporteur exploite <strong>2 000 camions frigorifiques</strong>. Chacun envoie sa position et la température de sa cargaison <strong>toutes les 30 secondes</strong>, 24 h sur 24. Un message pèse <strong>500 octets</strong>.</p>
-      <div class="reflect"><label for="r2"><span class="rn">R2</span>Calculez le nombre de messages reçus par seconde, puis le volume produit par jour et par an. Ce volume impose-t-il à lui seul une architecture distribuée ? Quelle contrainte de ce cas vous paraît la plus exigeante ?</label><textarea id="r2" data-label="R2 — Flotte de capteurs : débit, volume et contrainte dominante"></textarea><div class="saved"></div></div>
-
-      <h3>Calcul 3 — Lire un gros fichier</h3>
-      <p>Hypothèses de calcul : un fichier d'historique de <strong>10 To</strong> ; un disque lit <strong>200 Mo par seconde</strong> en lecture séquentielle.</p>
-      <div class="reflect"><label for="r3"><span class="rn">R3</span>Calculez le temps nécessaire pour lire tout le fichier sur une seule machine, puis sur 100 machines qui lisent chacune 1/100 du fichier en parallèle. Citez deux raisons pour lesquelles le temps réellement observé sera supérieur à ce calcul idéal.</label><textarea id="r3" data-label="R3 — Lecture de 10 To sur 1 puis 100 machines"></textarea><div class="saved"></div></div>
-      <div class="note info"><i class="ti ti-arrow-right" aria-hidden="true"></i><div>Découper un fichier en blocs répartis sur plusieurs machines, puis lancer le calcul là où se trouvent les blocs : c'est précisément le rôle de <strong>HDFS</strong> et de <strong>MapReduce</strong>, étudiés en semaine 2 (lab1).</div></div>
-
-      <div class="quiz" data-q="q3" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Un traitement qui dure 10 heures sur une machine est réparti sur 100 machines. Que peut-on attendre en pratique ?</p>
-        <button class="opt" type="button" data-v="a">Exactement 6 minutes, puisque 10 h / 100 = 6 min</button>
-        <button class="opt" type="button" data-v="b">Un peu plus que 6 minutes : il faut coordonner les machines, échanger des données et attendre la plus lente</button>
-        <button class="opt" type="button" data-v="c">Plus de 10 heures, car le réseau ralentit toujours davantage qu'il n'accélère</button>
-        <div class="fb" data-ok="Exact. Le calcul idéal donne un plancher. Coordination, transferts réseau, agrégation des résultats et machine la plus lente ajoutent un surcoût, généralement bien inférieur au gain." data-ko="La bonne réponse est la deuxième. Le calcul idéal est un plancher : la coordination, le réseau, l'agrégation des résultats et la machine la plus lente ajoutent un surcoût, mais le gain reste très important."></div>
-      </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
-
-  <!-- ============ SECTION 4 ============ -->
-  <section class="section" data-sec="4">
-    <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Diagnostiquer six situations réelles</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>30 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Pour chaque situation : cochez les V <strong>dominants</strong> (ceux qui orientent réellement l'architecture), ou « Aucun » si une solution classique suffit ; justifiez en quelques lignes, puis consultez la correction.</p>
-      <div class="note warn"><i class="ti ti-lock" aria-hidden="true"></i><div>Une fois la correction affichée, vos V cochés et votre justification sont figés. Le bouton « Voir la correction » s'active quand au moins un choix est coché et que la justification compte au moins 20 caractères.</div></div>
-
-      <!-- Scénario 1 : IDF -->
-      <div class="scen" data-s="s1" data-expected="Volume,Vélocité,Véracité,Valeur" data-tolerated="">
-        <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 1 — Détecter la fraude pendant l'autorisation d'un paiement</span></div>
-        <p>Lorsqu'un client paie par carte, la banque émettrice doit accepter ou refuser l'opération avant que le client ne quitte la caisse. Un réseau international comme Visa (257,5 milliards de transactions traitées sur l'exercice 2025, voir calcul 1) veut évaluer le risque de fraude de <strong>chaque</strong> transaction pendant cette autorisation, à partir de l'historique du porteur et du commerçant.</p>
-        <p class="src">Source du chiffre : Visa, rapport annuel 2025.</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 1">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+    <!-- ============ SECTION 1 ============ -->
+    <section class="section" data-sec="1">
+      <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Du problème à
+          l'architecture</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Face à une quantité croissante de données, deux stratégies existent :</p>
+        <table class="t">
+          <tr>
+            <th>Stratégie</th>
+            <th>Principe</th>
+            <th>Limite</th>
+          </tr>
+          <tr>
+            <td><strong>Scalabilité verticale</strong> (scale-up)</td>
+            <td>Renforcer une seule machine : plus de mémoire, de processeurs, de disques.</td>
+            <td>Plafond physique et coût qui croît plus vite que la capacité.</td>
+          </tr>
+          <tr>
+            <td><strong>Scalabilité horizontale</strong> (scale-out)</td>
+            <td>Répartir données et calculs sur plusieurs machines ordinaires.</td>
+            <td>Complexité : coordination, réseau, pannes à gérer.</td>
+          </tr>
+        </table>
+        <p>Une architecture distribuée n'est donc pas un progrès « par défaut » : elle se justifie lorsqu'au moins une
+          contrainte dépasse ce qu'une machine bien dimensionnée peut assurer.</p>
+        <ul>
+          <li>le <strong>volume</strong> à stocker ou à lire est trop important pour une machine ou pour le délai exigé
+            ;</li>
+          <li>le <strong>débit</strong> d'arrivée des données ou le <strong>délai de réponse</strong> exigé dépasse ses
+            capacités ;</li>
+          <li>la <strong>diversité des formats</strong> empêche de tout ranger dans un schéma relationnel unique.</li>
+        </ul>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>Un grand nombre de lignes n'est pas à lui seul un argument. Des dizaines de millions de lignes
+            structurées, traitées périodiquement, restent le terrain normal d'une base relationnelle bien indexée.</div>
         </div>
-        <div class="reflect"><label for="r4"><span class="rn">R4</span>Justifiez votre diagnostic du scénario 1.</label><textarea id="r4" data-label="R4 — Scénario 1 : fraude pendant l'autorisation"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : Volume, Vélocité, Véracité, Valeur.</strong> Plusieurs milliers de transactions par seconde en moyenne, davantage en pointe, et une décision exigée en une fraction de seconde : Vélocité et Volume dominent. Une fausse alerte bloque un client honnête, une fraude manquée coûte directement : la Véracité des données et du modèle est critique. L'enjeu financier (voir le repère Nilson de la section 2) donne la Valeur. Les données sont essentiellement structurées : la Variété n'est pas dominante. C'est le cas d'usage du projet IDF (semaine 5, temps réel).</div>
-      </div>
 
-      <!-- Scénario 2 : IDF -->
-      <div class="scen" data-s="s2" data-expected="Variété,Véracité,Valeur" data-tolerated="">
-        <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 2 — Instruire une demande de crédit à la consommation</span></div>
-        <p>Une banque marocaine veut répondre dans la journée aux demandes de crédit à la consommation. Pour chaque demande, elle combine l'historique des opérations du compte, les pièces justificatives scannées (bulletins de paie, relevés), les informations du bureau de crédit et le formulaire saisi en ligne. Cas fictif.</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 2">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+        <div class="quiz" data-q="q1" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Un assureur veut analyser une fois par an 5 ans d'historique de sinistres, soit 50 millions de
+            dossiers structurés, pour recalibrer ses tarifs. Quel diagnostic est le plus juste ?</p>
+          <button class="opt" type="button" data-v="a">Un cluster distribué est indispensable dès que l'on dépasse 10
+            millions de lignes</button>
+          <button class="opt" type="button" data-v="b">SQL n'est pas adapté à l'analyse actuarielle : il faut une base
+            NoSQL</button>
+          <button class="opt" type="button" data-v="c">Une base relationnelle bien dimensionnée suffit probablement ;
+            rien n'impose ici une architecture distribuée</button>
+          <div class="fb"
+            data-ok="Exact. Le volume reste à l'échelle d'une machine, les données sont structurées et le traitement est annuel : aucune des trois contraintes n'est dépassée."
+            data-ko="La bonne réponse est la dernière. 50 millions de dossiers structurés, analysés une fois par an, restent à la portée d'une base relationnelle bien dimensionnée. Le nombre de lignes seul ne justifie pas un cluster, et SQL convient parfaitement à ce type d'analyse.">
+          </div>
         </div>
-        <div class="reflect"><label for="r5"><span class="rn">R5</span>Justifiez votre diagnostic du scénario 2.</label><textarea id="r5" data-label="R5 — Scénario 2 : crédit à la consommation"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : Variété, Véracité, Valeur.</strong> La difficulté vient du mélange de sources : tables, documents scannés, données externes et formulaires. Les pièces peuvent être illisibles, incomplètes ou falsifiées : Véracité. La décision de crédit porte l'enjeu de risque : Valeur. Le volume par demande est faible et une réponse « dans la journée » ne relève pas du temps réel : ni Volume ni Vélocité ne dominent. Ce besoin appelle une plateforme capable d'accueillir des formats hétérogènes (data lake ou lakehouse, semaine 3), pas nécessairement un grand cluster.</div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
+    </section>
 
-      <!-- Scénario 3 : IDF (piège) -->
-      <div class="scen" data-s="s3" data-expected="Aucun" data-tolerated="">
-        <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 3 — Reporting mensuel des opérations par carte</span></div>
-        <p>Le contrôle de gestion d'une banque marocaine produit chaque mois un tableau des opérations par carte de ses clients (paiements et retraits), par région et par canal. Repère national : en 2024, on compte au Maroc 192,5 millions de paiements par carte et 401 millions de retraits, toutes banques confondues. Cas fictif pour la banque.</p>
-        <p class="src">Source du repère : Bank Al-Maghrib, rapport annuel 2024 sur les infrastructures des marchés financiers et les moyens de paiement.</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 3">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+    <!-- ============ SECTION 2 ============ -->
+    <section class="section" data-sec="2">
+      <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">Les V
+          appliqués</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Les « V » servent à <strong>caractériser</strong> un besoin, c'est-à-dire à dire quelle contrainte domine. Un
+          cas réel en combine souvent plusieurs, avec des poids différents.</p>
+        <table class="t">
+          <tr>
+            <th>V</th>
+            <th>Ce qu'il mesure</th>
+            <th>Question à se poser</th>
+          </tr>
+          <tr>
+            <td><strong>Volume</strong></td>
+            <td>Quantité de données à stocker et à lire</td>
+            <td>Tient-elle sur une machine, et peut-on la lire dans le délai exigé ?</td>
+          </tr>
+          <tr>
+            <td><strong>Vélocité</strong></td>
+            <td>Rythme d'arrivée des données et délai exigé entre l'arrivée et la décision</td>
+            <td>Faut-il réagir en secondes, en minutes, ou un traitement nocturne suffit-il ?</td>
+          </tr>
+          <tr>
+            <td><strong>Variété</strong></td>
+            <td>Hétérogénéité des formats : tables, fichiers, documents, images, messages, capteurs</td>
+            <td>Peut-on tout ranger dans un schéma relationnel unique ?</td>
+          </tr>
+          <tr>
+            <td><strong>Véracité</strong></td>
+            <td>Fiabilité incertaine des données : erreurs, trous, doublons, capteurs défaillants</td>
+            <td>Que se passe-t-il si une donnée est fausse ou manquante ?</td>
+          </tr>
+          <tr>
+            <td><strong>Valeur</strong></td>
+            <td>Enjeu métier de l'exploitation des données</td>
+            <td>Quelle décision ou quel gain justifie l'investissement ?</td>
+          </tr>
+        </table>
+        <div class="calc">
+          <div class="lbl">Repère chiffré — Valeur</div>
+          <div>En 2024, les pertes liées à la fraude sur les cartes de paiement ont atteint <strong>33,41 milliards de
+              dollars</strong> dans le monde, pour un volume de cartes de 51 920 milliards de dollars.</div>
         </div>
-        <div class="reflect"><label for="r6"><span class="rn">R6</span>Justifiez votre diagnostic du scénario 3.</label><textarea id="r6" data-label="R6 — Scénario 3 : reporting mensuel des opérations par carte"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : aucun V dominant, une solution classique suffit.</strong> Même en prenant la totalité des opérations du pays, on reste autour de 600 millions de lignes structurées par an ; une seule banque n'en traite qu'une partie, soit quelques dizaines de millions par mois au plus. Le traitement est mensuel. Une base relationnelle ou un entrepôt de données bien indexé, avec un outil de BI, répond au besoin. L'exigence de données certifiées pour un reporting est réelle, mais elle relève de la qualité et de la gouvernance (semaines 6 et 7), pas d'une architecture Big Data.</div>
-      </div>
+        <p class="src">Source : Nilson Report, communiqué du 7 janvier 2026.</p>
 
-      <!-- Scénario 4 : 2SCL -->
-      <div class="scen" data-s="s4" data-expected="Vélocité,Variété,Véracité,Valeur" data-tolerated="Volume">
-        <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 4 — Suivre chaque conteneur d'un hub portuaire</span></div>
-        <p>Un opérateur portuaire veut suivre en temps réel chaque conteneur : arrivée du navire, déchargement, position sur le parc, contrôles douaniers et scanner, sortie par camion, température des conteneurs frigorifiques. Les données proviennent de messages EDI des compagnies maritimes, de la lecture optique (OCR) des numéros de conteneurs, de capteurs et des systèmes douaniers. Repère : les terminaux à conteneurs de Tanger Med ont traité 11 106 164 EVP en 2025. Hypothèse : une dizaine d'événements par conteneur.</p>
-        <p class="src">Source du repère : Tanger Med Port Authority, bilan d'activité 2025 (communiqué de février 2026).</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 4">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+        <div class="quiz" data-q="q2" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Un transitaire reçoit chaque jour les fichiers EDI de ses clients, des photos de lettres de
+            voiture signées et des courriels de réclamation, qu'il veut exploiter ensemble. Quel V caractérise d'abord
+            ce besoin ?</p>
+          <button class="opt" type="button" data-v="a">Le Volume</button>
+          <button class="opt" type="button" data-v="b">La Variété</button>
+          <button class="opt" type="button" data-v="c">La Vélocité</button>
+          <div class="fb"
+            data-ok="Exact. Fichiers structurés, images et texte libre : c'est l'hétérogénéité des formats qui pose problème, pas la quantité ni la vitesse."
+            data-ko="C'est la Variété. Le besoin combine des fichiers structurés (EDI), des images et du texte libre ; rien n'indique un volume ou un débit hors norme.">
+          </div>
         </div>
-        <div class="reflect"><label for="r7"><span class="rn">R7</span>Justifiez votre diagnostic du scénario 4.</label><textarea id="r7" data-label="R7 — Scénario 4 : suivi des conteneurs d'un hub portuaire"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : Vélocité, Variété, Véracité, Valeur ; le Volume est défendable mais pas dominant.</strong> Le suivi est continu et doit refléter la situation du parc à tout instant : Vélocité. Les sources sont très hétérogènes (EDI, images, capteurs, systèmes douaniers) : Variété. Une lecture OCR erronée ou un capteur muet crée un conteneur « perdu » : Véracité. La fluidité du port et le respect des délais donnent la Valeur. Attention au Volume : un EVP est une unité de mesure (un conteneur de 40 pieds compte pour 2 EVP), donc il y a moins de conteneurs que d'EVP ; avec une dizaine d'événements chacun, on reste de l'ordre de la centaine de millions d'événements par an, ce qui est important mais pas hors d'échelle.</div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
+    </section>
 
-      <!-- Scénario 5 : 2SCL -->
-      <div class="scen" data-s="s5" data-expected="Vélocité,Véracité,Valeur" data-tolerated="">
-        <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 5 — Surveiller la chaîne du froid d'une flotte</span></div>
-        <p>C'est la flotte du calcul 2 : 2 000 camions frigorifiques qui transmettent position et température toutes les 30 secondes. Le client, un distributeur de produits frais, exige une alerte immédiate lorsque la température d'une cargaison sort de la plage autorisée. Cas fictif.</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 5">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+    <!-- ============ SECTION 3 ============ -->
+    <section class="section" data-sec="3">
+      <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Raisonner par ordres
+          de grandeur</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Un ingénieur data ne dit pas « c'est beaucoup » : il calcule. Trois calculs simples suffisent souvent à
+          trancher. Donnez vos résultats avec leur unité et arrondissez raisonnablement.</p>
+        <div class="calc">
+          <div class="lbl">Rappel</div>
+          <div class="f">1 an ≈ 365 × 24 × 3 600 ≈ 31,5 millions de secondes<br>1 Go = 1 000 Mo ; 1 To = 1 000 Go ; 1 Mo
+            = 10⁶ octets</div>
         </div>
-        <div class="reflect"><label for="r8"><span class="rn">R8</span>Justifiez votre diagnostic du scénario 5.</label><textarea id="r8" data-label="R8 — Scénario 5 : chaîne du froid d'une flotte"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : Vélocité, Véracité, Valeur.</strong> Le flux est continu et l'alerte doit partir en quelques secondes : Vélocité. Les capteurs tombent en panne, le GPS perd le signal, les horloges se décalent : il faut distinguer une vraie rupture du froid d'une donnée manquante, c'est la Véracité. Une cargaison perdue ou un lot à détruire donne la Valeur. Le calcul 2 montre que le volume annuel reste de l'ordre du téraoctet, qui tient sur un seul disque : le Volume n'est pas dominant. Les messages ont tous le même format : pas de Variété. C'est le cas d'usage du projet 2SCL (semaine 5, temps réel).</div>
-      </div>
 
-      <!-- Scénario 6 : 2SCL (piège) -->
-      <div class="scen" data-s="s6" data-expected="Aucun" data-tolerated="">
-        <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 6 — Tableau de bord des passages TIR d'un transitaire</span></div>
-        <p>Un transitaire de Tanger veut un tableau de bord hebdomadaire de ses camions TIR passés par le port : nombre de camions, durée de passage, destinations. Repère : 535 203 camions TIR sont passés par Tanger Med en 2025, tous opérateurs confondus, soit en moyenne un peu moins de 1 500 par jour. Cas fictif pour le transitaire.</p>
-        <p class="src">Source du repère : Tanger Med Port Authority, bilan d'activité 2025 (communiqué de février 2026).</p>
-        <div class="vchk" role="group" aria-label="V dominants du scénario 6">
-          <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button" data-v="Vélocité">Vélocité</button><button class="v" type="button" data-v="Variété">Variété</button><button class="v" type="button" data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+        <h3>Calcul 1 — Le débit d'un réseau de paiement</h3>
+        <p>Visa a traité <strong>257,5 milliards de transactions</strong> sur ses réseaux au cours de l'exercice clos au
+          30 septembre 2025.</p>
+        <p class="src">Source : Visa, rapport annuel 2025.</p>
+        <p>Au Maroc, en 2024, on compte <strong>192,5 millions de paiements par carte</strong> (terminaux, guichets et
+          en ligne) et <strong>401 millions de retraits</strong>.</p>
+        <p class="src">Source : Bank Al-Maghrib, rapport annuel 2024 sur les infrastructures des marchés financiers et
+          les moyens de paiement.</p>
+        <div class="calc">
+          <div class="lbl">Formule</div>
+          <div class="f">débit moyen = nombre d'opérations par an / nombre de secondes par an</div>
         </div>
-        <div class="reflect"><label for="r9"><span class="rn">R9</span>Justifiez votre diagnostic du scénario 6.</label><textarea id="r9" data-label="R9 — Scénario 6 : passages TIR d'un transitaire"></textarea><div class="saved"></div></div>
-        <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la correction</button>
-        <div class="scen-fb"></div>
-        <div class="expl"><strong>Correction : aucun V dominant, une solution classique suffit.</strong> Même le trafic total du port représente environ 535 000 lignes par an ; un seul transitaire n'en gère qu'une fraction, soit au plus quelques dizaines de camions par jour. Les données sont structurées et le rafraîchissement est hebdomadaire. Un tableur avancé ou une petite base relationnelle reliée à un outil de BI suffit. Proposer un cluster ici serait un surdimensionnement coûteux.</div>
+        <div class="reflect"><label for="r1"><span class="rn">R1</span>Calculez le débit moyen (opérations par seconde)
+            pour Visa, puis pour l'ensemble des opérations par carte au Maroc (paiements et retraits), et le rapport
+            entre les deux. Pourquoi un système d'autorisation de paiement doit-il être dimensionné sur le pic
+            d'activité et non sur la moyenne ?</label><textarea id="r1"
+            data-label="R1 — Débit moyen Visa / Maroc et dimensionnement sur le pic"></textarea>
+          <div class="saved"></div>
+        </div>
+
+        <h3>Calcul 2 — Une flotte de capteurs</h3>
+        <p>Hypothèses de calcul (cas fictif) : un transporteur exploite <strong>2 000 camions frigorifiques</strong>.
+          Chacun envoie sa position et la température de sa cargaison <strong>toutes les 30 secondes</strong>, 24 h sur
+          24. Un message pèse <strong>500 octets</strong>.</p>
+        <div class="reflect"><label for="r2"><span class="rn">R2</span>Calculez le nombre de messages reçus par seconde,
+            puis le volume produit par jour et par an. Ce volume impose-t-il à lui seul une architecture distribuée ?
+            Quelle contrainte de ce cas vous paraît la plus exigeante ?</label><textarea id="r2"
+            data-label="R2 — Flotte de capteurs : débit, volume et contrainte dominante"></textarea>
+          <div class="saved"></div>
+        </div>
+
+        <h3>Calcul 3 — Lire un gros fichier</h3>
+        <p>Hypothèses de calcul : un fichier d'historique de <strong>10 To</strong> ; un disque lit <strong>200 Mo par
+            seconde</strong> en lecture séquentielle.</p>
+        <div class="reflect"><label for="r3"><span class="rn">R3</span>Calculez le temps nécessaire pour lire tout le
+            fichier sur une seule machine, puis sur 100 machines qui lisent chacune 1/100 du fichier en parallèle. Citez
+            deux raisons pour lesquelles le temps réellement observé sera supérieur à ce calcul idéal.</label><textarea
+            id="r3" data-label="R3 — Lecture de 10 To sur 1 puis 100 machines"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="note info"><i class="ti ti-arrow-right" aria-hidden="true"></i>
+          <div>Découper un fichier en blocs répartis sur plusieurs machines, puis lancer le calcul là où se trouvent les
+            blocs : c'est précisément le rôle de <strong>HDFS</strong> et de <strong>MapReduce</strong>, étudiés en
+            semaine 2 (lab1).</div>
+        </div>
+
+        <div class="quiz" data-q="q3" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Un traitement qui dure 10 heures sur une machine est réparti sur 100 machines. Que peut-on
+            attendre en pratique ?</p>
+          <button class="opt" type="button" data-v="a">Exactement 6 minutes, puisque 10 h / 100 = 6 min</button>
+          <button class="opt" type="button" data-v="b">Un peu plus que 6 minutes : il faut coordonner les machines,
+            échanger des données et attendre la plus lente</button>
+          <button class="opt" type="button" data-v="c">Plus de 10 heures, car le réseau ralentit toujours davantage
+            qu'il n'accélère</button>
+          <div class="fb"
+            data-ok="Exact. Le calcul idéal donne un plancher. Coordination, transferts réseau, agrégation des résultats et machine la plus lente ajoutent un surcoût, généralement bien inférieur au gain."
+            data-ko="La bonne réponse est la deuxième. Le calcul idéal est un plancher : la coordination, le réseau, l'agrégation des résultats et la machine la plus lente ajoutent un surcoût, mais le gain reste très important.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
       </div>
+    </section>
 
-      <div class="quiz" data-q="q4" data-answer="b">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Qu'ont en commun les scénarios 3 et 6, qui ne justifient pas une architecture Big Data ?</p>
-        <button class="opt" type="button" data-v="a">Leurs données ne sont pas structurées</button>
-        <button class="opt" type="button" data-v="b">Volume et débit restent à l'échelle d'une machine, avec un traitement périodique sur des données structurées</button>
-        <button class="opt" type="button" data-v="c">Ils n'apportent aucune valeur métier</button>
-        <div class="fb" data-ok="Exact. Les deux besoins ont une réelle valeur métier, mais aucune contrainte de volume, de débit ou de format ne dépasse une solution classique." data-ko="La bonne réponse est la deuxième. Les deux besoins ont une valeur métier et portent sur des données structurées ; c'est l'absence de contrainte de volume, de débit ou de format qui rend une solution classique suffisante."></div>
+    <!-- ============ SECTION 4 ============ -->
+    <section class="section" data-sec="4">
+      <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Diagnostiquer six
+          situations réelles</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>30
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Pour chaque situation : cochez les V <strong>dominants</strong> (ceux qui orientent réellement
+          l'architecture), ou « Aucun » si une solution classique suffit ; justifiez en quelques lignes, puis consultez
+          la correction.</p>
+        <div class="note warn"><i class="ti ti-lock" aria-hidden="true"></i>
+          <div>Une fois la correction affichée, vos V cochés et votre justification sont figés. Le bouton « Voir la
+            correction » s'active quand au moins un choix est coché et que la justification compte au moins 20
+            caractères.</div>
+        </div>
+
+        <!-- Scénario 1 : IDF -->
+        <div class="scen" data-s="s1" data-expected="Volume,Vélocité,Véracité,Valeur" data-tolerated="">
+          <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 1 — Détecter la
+              fraude pendant l'autorisation d'un paiement</span></div>
+          <p>Lorsqu'un client paie par carte, la banque émettrice doit accepter ou refuser l'opération avant que le
+            client ne quitte la caisse. Un réseau international comme Visa (257,5 milliards de transactions traitées sur
+            l'exercice 2025, voir calcul 1) veut évaluer le risque de fraude de <strong>chaque</strong> transaction
+            pendant cette autorisation, à partir de l'historique du porteur et du commerçant.</p>
+          <p class="src">Source du chiffre : Visa, rapport annuel 2025.</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 1">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r4"><span class="rn">R4</span>Justifiez votre diagnostic du scénario
+              1.</label><textarea id="r4" data-label="R4 — Scénario 1 : fraude pendant l'autorisation"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : Volume, Vélocité, Véracité, Valeur.</strong> Plusieurs milliers de
+            transactions par seconde en moyenne, davantage en pointe, et une décision exigée en une fraction de seconde
+            : Vélocité et Volume dominent. Une fausse alerte bloque un client honnête, une fraude manquée coûte
+            directement : la Véracité des données et du modèle est critique. L'enjeu financier (voir le repère Nilson de
+            la section 2) donne la Valeur. Les données sont essentiellement structurées : la Variété n'est pas
+            dominante. C'est le cas d'usage du projet IDF (semaine 5, temps réel).</div>
+        </div>
+
+        <!-- Scénario 2 : IDF -->
+        <div class="scen" data-s="s2" data-expected="Variété,Véracité,Valeur" data-tolerated="">
+          <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 2 — Instruire une
+              demande de crédit à la consommation</span></div>
+          <p>Une banque marocaine veut répondre dans la journée aux demandes de crédit à la consommation. Pour chaque
+            demande, elle combine l'historique des opérations du compte, les pièces justificatives scannées (bulletins
+            de paie, relevés), les informations du bureau de crédit et le formulaire saisi en ligne. Cas fictif.</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 2">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r5"><span class="rn">R5</span>Justifiez votre diagnostic du scénario
+              2.</label><textarea id="r5" data-label="R5 — Scénario 2 : crédit à la consommation"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : Variété, Véracité, Valeur.</strong> La difficulté vient du mélange de
+            sources : tables, documents scannés, données externes et formulaires. Les pièces peuvent être illisibles,
+            incomplètes ou falsifiées : Véracité. La décision de crédit porte l'enjeu de risque : Valeur. Le volume par
+            demande est faible et une réponse « dans la journée » ne relève pas du temps réel : ni Volume ni Vélocité ne
+            dominent. Ce besoin appelle une plateforme capable d'accueillir des formats hétérogènes (data lake ou
+            lakehouse, semaine 3), pas nécessairement un grand cluster.</div>
+        </div>
+
+        <!-- Scénario 3 : IDF (piège) -->
+        <div class="scen" data-s="s3" data-expected="Aucun" data-tolerated="">
+          <div class="scen-head"><span class="fil idf">IDF</span><span class="scen-title">Scénario 3 — Reporting mensuel
+              des opérations par carte</span></div>
+          <p>Le contrôle de gestion d'une banque marocaine produit chaque mois un tableau des opérations par carte de
+            ses clients (paiements et retraits), par région et par canal. Repère national : en 2024, on compte au Maroc
+            192,5 millions de paiements par carte et 401 millions de retraits, toutes banques confondues. Cas fictif
+            pour la banque.</p>
+          <p class="src">Source du repère : Bank Al-Maghrib, rapport annuel 2024 sur les infrastructures des marchés
+            financiers et les moyens de paiement.</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 3">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r6"><span class="rn">R6</span>Justifiez votre diagnostic du scénario
+              3.</label><textarea id="r6"
+              data-label="R6 — Scénario 3 : reporting mensuel des opérations par carte"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : aucun V dominant, une solution classique suffit.</strong> Même en
+            prenant la totalité des opérations du pays, on reste autour de 600 millions de lignes structurées par an ;
+            une seule banque n'en traite qu'une partie, soit quelques dizaines de millions par mois au plus. Le
+            traitement est mensuel. Une base relationnelle ou un entrepôt de données bien indexé, avec un outil de BI,
+            répond au besoin. L'exigence de données certifiées pour un reporting est réelle, mais elle relève de la
+            qualité et de la gouvernance (semaines 6 et 7), pas d'une architecture Big Data.</div>
+        </div>
+
+        <!-- Scénario 4 : 2SCL -->
+        <div class="scen" data-s="s4" data-expected="Vélocité,Variété,Véracité,Valeur" data-tolerated="Volume">
+          <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 4 — Suivre chaque
+              conteneur d'un hub portuaire</span></div>
+          <p>Un opérateur portuaire veut suivre en temps réel chaque conteneur : arrivée du navire, déchargement,
+            position sur le parc, contrôles douaniers et scanner, sortie par camion, température des conteneurs
+            frigorifiques. Les données proviennent de messages EDI des compagnies maritimes, de la lecture optique (OCR)
+            des numéros de conteneurs, de capteurs et des systèmes douaniers. Repère : les terminaux à conteneurs de
+            Tanger Med ont traité 11 106 164 EVP en 2025. Hypothèse : une dizaine d'événements par conteneur.</p>
+          <p class="src">Source du repère : Tanger Med Port Authority, bilan d'activité 2025 (communiqué de février
+            2026).</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 4">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r7"><span class="rn">R7</span>Justifiez votre diagnostic du scénario
+              4.</label><textarea id="r7"
+              data-label="R7 — Scénario 4 : suivi des conteneurs d'un hub portuaire"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : Vélocité, Variété, Véracité, Valeur ; le Volume est défendable mais pas
+              dominant.</strong> Le suivi est continu et doit refléter la situation du parc à tout instant : Vélocité.
+            Les sources sont très hétérogènes (EDI, images, capteurs, systèmes douaniers) : Variété. Une lecture OCR
+            erronée ou un capteur muet crée un conteneur « perdu » : Véracité. La fluidité du port et le respect des
+            délais donnent la Valeur. Attention au Volume : un EVP est une unité de mesure (un conteneur de 40 pieds
+            compte pour 2 EVP), donc il y a moins de conteneurs que d'EVP ; avec une dizaine d'événements chacun, on
+            reste de l'ordre de la centaine de millions d'événements par an, ce qui est important mais pas hors
+            d'échelle.</div>
+        </div>
+
+        <!-- Scénario 5 : 2SCL -->
+        <div class="scen" data-s="s5" data-expected="Vélocité,Véracité,Valeur" data-tolerated="">
+          <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 5 — Surveiller la
+              chaîne du froid d'une flotte</span></div>
+          <p>C'est la flotte du calcul 2 : 2 000 camions frigorifiques qui transmettent position et température toutes
+            les 30 secondes. Le client, un distributeur de produits frais, exige une alerte immédiate lorsque la
+            température d'une cargaison sort de la plage autorisée. Cas fictif.</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 5">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r8"><span class="rn">R8</span>Justifiez votre diagnostic du scénario
+              5.</label><textarea id="r8" data-label="R8 — Scénario 5 : chaîne du froid d'une flotte"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : Vélocité, Véracité, Valeur.</strong> Le flux est continu et l'alerte
+            doit partir en quelques secondes : Vélocité. Les capteurs tombent en panne, le GPS perd le signal, les
+            horloges se décalent : il faut distinguer une vraie rupture du froid d'une donnée manquante, c'est la
+            Véracité. Une cargaison perdue ou un lot à détruire donne la Valeur. Le calcul 2 montre que le volume annuel
+            reste de l'ordre du téraoctet, qui tient sur un seul disque : le Volume n'est pas dominant. Les messages ont
+            tous le même format : pas de Variété. C'est le cas d'usage du projet 2SCL (semaine 5, temps réel).</div>
+        </div>
+
+        <!-- Scénario 6 : 2SCL (piège) -->
+        <div class="scen" data-s="s6" data-expected="Aucun" data-tolerated="">
+          <div class="scen-head"><span class="fil scl">2SCL</span><span class="scen-title">Scénario 6 — Tableau de bord
+              des passages TIR d'un transitaire</span></div>
+          <p>Un transitaire de Tanger veut un tableau de bord hebdomadaire de ses camions TIR passés par le port :
+            nombre de camions, durée de passage, destinations. Repère : 535 203 camions TIR sont passés par Tanger Med
+            en 2025, tous opérateurs confondus, soit en moyenne un peu moins de 1 500 par jour. Cas fictif pour le
+            transitaire.</p>
+          <p class="src">Source du repère : Tanger Med Port Authority, bilan d'activité 2025 (communiqué de février
+            2026).</p>
+          <div class="vchk" role="group" aria-label="V dominants du scénario 6">
+            <button class="v" type="button" data-v="Volume">Volume</button><button class="v" type="button"
+              data-v="Vélocité">Vélocité</button><button class="v" type="button"
+              data-v="Variété">Variété</button><button class="v" type="button"
+              data-v="Véracité">Véracité</button><button class="v" type="button" data-v="Valeur">Valeur</button><button
+              class="v none" type="button" data-v="Aucun">Aucun : solution classique</button>
+          </div>
+          <div class="reflect"><label for="r9"><span class="rn">R9</span>Justifiez votre diagnostic du scénario
+              6.</label><textarea id="r9" data-label="R9 — Scénario 6 : passages TIR d'un transitaire"></textarea>
+            <div class="saved"></div>
+          </div>
+          <button class="reveal-btn" type="button" disabled><i class="ti ti-eye" aria-hidden="true"></i>Voir la
+            correction</button>
+          <div class="scen-fb"></div>
+          <div class="expl"><strong>Correction : aucun V dominant, une solution classique suffit.</strong> Même le
+            trafic total du port représente environ 535 000 lignes par an ; un seul transitaire n'en gère qu'une
+            fraction, soit au plus quelques dizaines de camions par jour. Les données sont structurées et le
+            rafraîchissement est hebdomadaire. Un tableur avancé ou une petite base relationnelle reliée à un outil de
+            BI suffit. Proposer un cluster ici serait un surdimensionnement coûteux.</div>
+        </div>
+
+        <div class="quiz" data-q="q4" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Qu'ont en commun les scénarios 3 et 6, qui ne justifient pas une architecture Big Data ?</p>
+          <button class="opt" type="button" data-v="a">Leurs données ne sont pas structurées</button>
+          <button class="opt" type="button" data-v="b">Volume et débit restent à l'échelle d'une machine, avec un
+            traitement périodique sur des données structurées</button>
+          <button class="opt" type="button" data-v="c">Ils n'apportent aucune valeur métier</button>
+          <div class="fb"
+            data-ok="Exact. Les deux besoins ont une réelle valeur métier, mais aucune contrainte de volume, de débit ou de format ne dépasse une solution classique."
+            data-ko="La bonne réponse est la deuxième. Les deux besoins ont une valeur métier et portent sur des données structurées ; c'est l'absence de contrainte de volume, de débit ou de format qui rend une solution classique suffisante.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Consultez la correction des six scénarios et répondez à la question de validation pour
+          débloquer ce bouton.</div>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Consultez la correction des six scénarios et répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SECTION 5 ============ -->
-  <section class="section" data-sec="5">
-    <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">Synthèse et envoi</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-      <p>Le projet fil rouge porte sur la <strong>détection de fraude sur transactions bancaires</strong> (IDF) ou le <strong>suivi d'expéditions en temps réel</strong> (2SCL). Le premier jalon est le cahier des charges : il commence par un diagnostic du besoin.</p>
-      <div class="reflect"><label for="r10"><span class="rn">R10</span>Pour le cas du projet de votre filière, rédigez en 5 lignes maximum le diagnostic qui ouvrirait votre cahier des charges : quels V dominent, quels ordres de grandeur faudrait-il connaître, et quelle contrainte orientera le plus l'architecture ?</label><textarea id="r10" data-label="R10 — Synthèse : diagnostic du projet de la filière"></textarea><div class="saved"></div></div>
+    <!-- ============ SECTION 5 ============ -->
+    <section class="section" data-sec="5">
+      <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">Synthèse et
+          envoi</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Le projet fil rouge porte sur la <strong>détection de fraude sur transactions bancaires</strong> (IDF) ou le
+          <strong>suivi d'expéditions en temps réel</strong> (2SCL). Le premier jalon est le cahier des charges : il
+          commence par un diagnostic du besoin.</p>
+        <div class="reflect"><label for="r10"><span class="rn">R10</span>Pour le cas du projet de votre filière, rédigez
+            en 5 lignes maximum le diagnostic qui ouvrirait votre cahier des charges : quels V dominent, quels ordres de
+            grandeur faudrait-il connaître, et quelle contrainte orientera le plus l'architecture ?</label><textarea
+            id="r10" data-label="R10 — Synthèse : diagnostic du projet de la filière"></textarea>
+          <div class="saved"></div>
+        </div>
 
-      <div class="quiz" data-q="q5" data-answer="a">
-        <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
-        <p class="q">Quel ordre de démarche est le plus sûr pour choisir une architecture de données ?</p>
-        <button class="opt" type="button" data-v="a">Besoin métier, puis caractérisation (V et ordres de grandeur), puis choix de l'architecture</button>
-        <button class="opt" type="button" data-v="b">Choix de la technologie la plus récente, puis adaptation du besoin à ses capacités</button>
-        <button class="opt" type="button" data-v="c">Collecte de toutes les données disponibles, puis recherche d'un usage</button>
-        <div class="fb" data-ok="Exact. L'architecture découle du besoin et de ses contraintes chiffrées, jamais l'inverse." data-ko="La bonne réponse est la première : partir du besoin métier, le caractériser par les V et des ordres de grandeur, puis seulement choisir l'architecture."></div>
+        <div class="quiz" data-q="q5" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Quel ordre de démarche est le plus sûr pour choisir une architecture de données ?</p>
+          <button class="opt" type="button" data-v="a">Besoin métier, puis caractérisation (V et ordres de grandeur),
+            puis choix de l'architecture</button>
+          <button class="opt" type="button" data-v="b">Choix de la technologie la plus récente, puis adaptation du
+            besoin à ses capacités</button>
+          <button class="opt" type="button" data-v="c">Collecte de toutes les données disponibles, puis recherche d'un
+            usage</button>
+          <div class="fb"
+            data-ok="Exact. L'architecture découle du besoin et de ses contraintes chiffrées, jamais l'inverse."
+            data-ko="La bonne réponse est la première : partir du besoin métier, le caractériser par les V et des ordres de grandeur, puis seulement choisir l'architecture.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+        <p>Envoyez ensuite vos réponses avec le bouton en bas de page.</p>
       </div>
-      <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-      <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-      <p>Envoyez ensuite vos réponses avec le bouton en bas de page.</p>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ BONUS ============ -->
-  <section class="section bonus" data-sec="bonus">
-    <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star" aria-hidden="true"></i></span><span class="sec-title">Facultatif : préparer vos environnements de travail</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 à 30 min</span><span class="sec-status">Bonus</span></button>
-    <div class="sec-body">
-      <p>Les labs suivants utilisent trois environnements. Les préparer dès maintenant évite de perdre du temps en séance. Faites ce qui vous concerne, puis indiquez où vous en êtes dans le formulaire en bas de cette section.</p>
+    <!-- ============ BONUS ============ -->
+    <section class="section bonus" data-sec="bonus">
+      <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star"
+            aria-hidden="true"></i></span><span class="sec-title">Facultatif : préparer vos environnements de
+          travail</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 à 30 min</span><span
+          class="sec-status">Bonus</span></button>
+      <div class="sec-body">
+        <p>Les labs suivants utilisent trois environnements. Les préparer dès maintenant évite de perdre du temps en
+          séance. Faites ce qui vous concerne, puis indiquez où vous en êtes dans le formulaire en bas de cette section.
+        </p>
 
-      <h3>1. GitHub Codespaces (lab1, semaine 2)</h3>
-      <p><strong>Si vous n'avez pas encore de Codespace :</strong></p>
-      <ol>
-        <li>Ouvrez le dépôt du cours sur GitHub (lien donné par l'enseignant).</li>
-        <li>Cliquez sur le bouton vert <strong>Code</strong>, onglet <strong>Codespaces</strong>, puis <strong>Create codespace on main</strong>.</li>
-        <li>Attendez la fin de la préparation : la première fois, comptez plusieurs minutes (décompression des données et téléchargement des images Docker).</li>
-      </ol>
-      <p><strong>Si vous avez déjà un Codespace :</strong> ouvrez-le depuis <strong>Code → Codespaces</strong>, puis vérifiez qu'il provient bien du dépôt du cours et qu'il est à jour.</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>git remote -v
+        <h3>1. GitHub Codespaces (lab1, semaine 2)</h3>
+        <p><strong>Si vous n'avez pas encore de Codespace :</strong></p>
+        <ol>
+          <li>Ouvrez le dépôt du cours sur GitHub (lien donné par l'enseignant).</li>
+          <li>Cliquez sur le bouton vert <strong>Code</strong>, onglet <strong>Codespaces</strong>, puis <strong>Create
+              codespace on main</strong>.</li>
+          <li>Attendez la fin de la préparation : la première fois, comptez plusieurs minutes (décompression des données
+            et téléchargement des images Docker).</li>
+        </ol>
+        <p><strong>Si vous avez déjà un Codespace :</strong> ouvrez-le depuis <strong>Code → Codespaces</strong>, puis
+          vérifiez qu'il provient bien du dépôt du cours et qu'il est à jour.</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>git remote -v
 git status
-git pull</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'adresse affichée par <code class="i">git remote -v</code> doit être celle du dépôt communiqué par l'enseignant. Si <code class="i">git pull</code> signale un conflit, ne forcez rien : décrivez le problème dans le formulaire ci-dessous.</span></div>
-      <p><strong>Dans les deux cas</strong>, vérifiez que le cluster démarre, puis arrêtez-le :</p>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose up -d
-docker ps</code></pre></div>
-      <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Vous devez voir les conteneurs <code class="i">cluster-master</code>, <code class="i">cluster-slave1</code> et <code class="i">cluster-slave2</code> avec le statut <strong>Up</strong>.</span></div>
-      <div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose stop</code></pre></div>
-      <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>Votre quota Codespaces gratuit est limité. <strong>Arrêtez votre Codespace</strong> dès que vous avez terminé : sur github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>. Le GitHub Student Developer Pack donne accès à davantage d'heures.</div></div>
+git pull</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'adresse affichée par <code
+              class="i">git remote -v</code> doit être celle du dépôt communiqué par l'enseignant. Si <code
+              class="i">git pull</code> signale un conflit, ne forcez rien : décrivez le problème dans le formulaire
+            ci-dessous.</span></div>
+        <p><strong>Dans les deux cas</strong>, vérifiez que le cluster démarre, puis arrêtez-le :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose up -d
+docker ps</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Vous devez voir les conteneurs <code
+              class="i">cluster-master</code>, <code class="i">cluster-slave1</code> et <code
+              class="i">cluster-slave2</code> avec le statut <strong>Up</strong>.</span></div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose stop</code></pre>
+        </div>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>Votre quota Codespaces gratuit est limité. <strong>Arrêtez votre Codespace</strong> dès que vous avez
+            terminé : sur github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>. Le GitHub Student
+            Developer Pack donne accès à davantage d'heures.</div>
+        </div>
 
-      <h3>2. Databricks Free Edition (lab2, semaine 3)</h3>
-      <p>Créez un compte gratuit sur Databricks Free Edition (lien donné par l'enseignant, ou recherchez « Databricks Free Edition » sur le site de Databricks). Connectez-vous une fois pour vérifier que l'espace de travail s'ouvre. Ne créez rien d'autre : tout sera fait pendant le lab2.</p>
+        <h3>2. Databricks Free Edition (lab2, semaine 3)</h3>
+        <p>Créez un compte gratuit sur Databricks Free Edition (lien donné par l'enseignant, ou recherchez « Databricks
+          Free Edition » sur le site de Databricks). Connectez-vous une fois pour vérifier que l'espace de travail
+          s'ouvre. Ne créez rien d'autre : tout sera fait pendant le lab2.</p>
 
-      <h3>3. MongoDB Atlas (lab3, semaine 4)</h3>
-      <p>Créez un compte gratuit sur MongoDB Atlas. <strong>Créez uniquement le compte</strong> : le cluster gratuit M0 sera créé pendant le lab3, avec des réglages précis.</p>
-      <div class="note info"><i class="ti ti-key" aria-hidden="true"></i><div>Notez vos identifiants dans un gestionnaire de mots de passe. Utilisez de préférence la même adresse électronique pour GitHub, Databricks et Atlas.</div></div>
+        <h3>3. MongoDB Atlas (lab3, semaine 4)</h3>
+        <p>Créez un compte gratuit sur MongoDB Atlas. <strong>Créez uniquement le compte</strong> : le cluster gratuit
+          M0 sera créé pendant le lab3, avec des réglages précis.</p>
+        <div class="note info"><i class="ti ti-key" aria-hidden="true"></i>
+          <div>Notez vos identifiants dans un gestionnaire de mots de passe. Utilisez de préférence la même adresse
+            électronique pour GitHub, Databricks et Atlas.</div>
+        </div>
 
-      <h3>Où en êtes-vous ?</h3>
-      <div class="env">
-        <div><label for="env-cs">Codespace</label><select id="env-cs"><option value="">Non renseigné</option><option>Prêt</option><option>Pas encore fait</option><option>Problème rencontré</option></select></div>
-        <div><label for="env-db">Compte Databricks</label><select id="env-db"><option value="">Non renseigné</option><option>Créé</option><option>Pas encore fait</option><option>Problème rencontré</option></select></div>
-        <div><label for="env-at">Compte MongoDB Atlas</label><select id="env-at"><option value="">Non renseigné</option><option>Créé</option><option>Pas encore fait</option><option>Problème rencontré</option></select></div>
+        <h3>Où en êtes-vous ?</h3>
+        <div class="env">
+          <div><label for="env-cs">Codespace</label><select id="env-cs">
+              <option value="">Non renseigné</option>
+              <option>Prêt</option>
+              <option>Pas encore fait</option>
+              <option>Problème rencontré</option>
+            </select></div>
+          <div><label for="env-db">Compte Databricks</label><select id="env-db">
+              <option value="">Non renseigné</option>
+              <option>Créé</option>
+              <option>Pas encore fait</option>
+              <option>Problème rencontré</option>
+            </select></div>
+          <div><label for="env-at">Compte MongoDB Atlas</label><select id="env-at">
+              <option value="">Non renseigné</option>
+              <option>Créé</option>
+              <option>Pas encore fait</option>
+              <option>Problème rencontré</option>
+            </select></div>
+        </div>
+        <label for="env-pb" style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">En
+          cas de problème, décrivez-le (message d'erreur, étape)</label>
+        <textarea id="env-pb" class="envpb"></textarea>
       </div>
-      <label for="env-pb" style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">En cas de problème, décrivez-le (message d'erreur, étape)</label>
-      <textarea id="env-pb" class="envpb"></textarea>
+    </section>
+
+    <!-- ============ RENDU ============ -->
+    <div class="final">
+      <h2>Rendre votre travail</h2>
+      <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R10, vos diagnostics des six scénarios,
+        vos résultats aux questions de validation et l'état de vos environnements sont transmis directement. Vous pouvez
+        renvoyer plusieurs fois, seul le dernier envoi est pris en compte.</p>
+      <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si
+        vous changez d'ordinateur ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.
+      </p>
+      <div class="btn-row">
+        <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à
+          l'enseignant</button>
+        <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger
+          une copie</button>
+        <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes
+          réponses</button>
+      </div>
+      <div class="export-msg" id="exportmsg" role="status"></div>
     </div>
-  </section>
 
-  <!-- ============ RENDU ============ -->
-  <div class="final">
-    <h2>Rendre votre travail</h2>
-    <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R10, vos diagnostics des six scénarios, vos résultats aux questions de validation et l'état de vos environnements sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en compte.</p>
-    <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si vous changez d'ordinateur ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
-    <div class="btn-row">
-      <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à l'enseignant</button>
-      <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger une copie</button>
-      <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes réponses</button>
+    <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i>
+      <div>
+        <strong>En cas de problème</strong>
+        <ul style="margin:6px 0 0 18px">
+          <li>Mes réponses ont disparu : reprenez le même navigateur, sans navigation privée. Les réponses ne sont pas
+            partagées entre ordinateurs.</li>
+          <li>Le bouton « Voir la correction » reste grisé : cochez au moins un choix et écrivez une justification d'au
+            moins 20 caractères.</li>
+          <li>Une section reste verrouillée : terminez la précédente avec le bouton « Section terminée ».</li>
+          <li>« Envoi non configuré » ou échec de l'envoi : utilisez « Télécharger une copie » et remettez le fichier à
+            l'enseignant.</li>
+          <li>La création du Codespace est longue : c'est normal la première fois. Ne fermez pas l'onglet pendant la
+            préparation.</li>
+          <li>Un conteneur n'apparaît pas avec le statut Up : relancez <code class="i">docker-compose up -d</code> puis
+            <code class="i">docker ps</code> ; si le problème persiste, décrivez-le dans le formulaire de la section
+            facultative.</li>
+        </ul>
+      </div>
     </div>
-    <div class="export-msg" id="exportmsg" role="status"></div>
-  </div>
 
-  <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i><div>
-    <strong>En cas de problème</strong>
-    <ul style="margin:6px 0 0 18px">
-      <li>Mes réponses ont disparu : reprenez le même navigateur, sans navigation privée. Les réponses ne sont pas partagées entre ordinateurs.</li>
-      <li>Le bouton « Voir la correction » reste grisé : cochez au moins un choix et écrivez une justification d'au moins 20 caractères.</li>
-      <li>Une section reste verrouillée : terminez la précédente avec le bouton « Section terminée ».</li>
-      <li>« Envoi non configuré » ou échec de l'envoi : utilisez « Télécharger une copie » et remettez le fichier à l'enseignant.</li>
-      <li>La création du Codespace est longue : c'est normal la première fois. Ne fermez pas l'onglet pendant la préparation.</li>
-      <li>Un conteneur n'apparaît pas avec le statut Up : relancez <code class="i">docker-compose up -d</code> puis <code class="i">docker ps</code> ; si le problème persiste, décrivez-le dans le formulaire de la section facultative.</li>
-    </ul>
-  </div></div>
+    <footer>ENSIAS · Big Data &amp; Applications · 2SCL &amp; IDF · 2026-2027</footer>
+  </main>
 
-  <footer>ENSIAS · Big Data &amp; Applications · 2SCL &amp; IDF · 2026-2027</footer>
-</main>
+  <script>
+    (function () {
+      // Adresse du script Google fournie par l'enseignant (la même que pour le lab1)
+      var ENDPOINT = 'COLLER_ICI_L_URL_DU_SCRIPT_GOOGLE';
+      var TP = 'LAB0';
+      var KEY = 'ensias-bd-lab0-v1';
+      var TOTAL = 5;
+      var state = { done: [], quiz: {}, text: {}, scen: {}, env: {}, nom: '', filiere: '' };
 
-<script>
-(function(){
-  // Adresse du script Google fournie par l'enseignant (la même que pour le lab1)
-  var ENDPOINT = 'COLLER_ICI_L_URL_DU_SCRIPT_GOOGLE';
-  var TP = 'LAB0';
-  var KEY = 'ensias-bd-lab0-v1';
-  var TOTAL = 5;
-  var state = {done:[], quiz:{}, text:{}, scen:{}, env:{}, nom:'', filiere:''};
+      function load() { try { var s = localStorage.getItem(KEY); if (s) { var p = JSON.parse(s); state = Object.assign(state, p); } } catch (e) { } }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; } }
+      load();
+      state.scen = state.scen || {}; state.env = state.env || {};
 
-  function load(){ try{ var s = localStorage.getItem(KEY); if(s){ var p = JSON.parse(s); state = Object.assign(state, p); } }catch(e){} }
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
-  load();
-  state.scen = state.scen || {}; state.env = state.env || {};
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
+      var bonus = document.querySelector('.section.bonus');
 
-  var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
-  var bonus = document.querySelector('.section.bonus');
+      function isDone(i) { return state.done.indexOf(i) !== -1; }
+      function unlocked(i) { return i === 0 || isDone(i - 1); }
+      function scenRevealed(sc) { var s = state.scen[sc.dataset.s]; return !!(s && s.revealed); }
 
-  function isDone(i){ return state.done.indexOf(i) !== -1; }
-  function unlocked(i){ return i === 0 || isDone(i-1); }
-  function scenRevealed(sc){ var s = state.scen[sc.dataset.s]; return !!(s && s.revealed); }
-
-  function refresh(){
-    sections.forEach(function(sec, i){
-      sec.classList.toggle('done', isDone(i));
-      sec.classList.toggle('locked', !unlocked(i));
-      var st = sec.querySelector('.sec-status');
-      st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
-      sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
-      var btn = sec.querySelector('.done-btn');
-      var quizzes = sec.querySelectorAll('.quiz');
-      var scens = sec.querySelectorAll('.scen');
-      var allAnswered = Array.prototype.every.call(quizzes, function(q){ return state.quiz[q.dataset.q]; }) &&
-                        Array.prototype.every.call(scens, scenRevealed);
-      if(btn){
-        btn.disabled = !allAnswered || isDone(i);
-        btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
-        var hint = sec.querySelector('.done-hint');
-        if(hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+      function refresh() {
+        sections.forEach(function (sec, i) {
+          sec.classList.toggle('done', isDone(i));
+          sec.classList.toggle('locked', !unlocked(i));
+          var st = sec.querySelector('.sec-status');
+          st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
+          sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
+          var btn = sec.querySelector('.done-btn');
+          var quizzes = sec.querySelectorAll('.quiz');
+          var scens = sec.querySelectorAll('.scen');
+          var allAnswered = Array.prototype.every.call(quizzes, function (q) { return state.quiz[q.dataset.q]; }) &&
+            Array.prototype.every.call(scens, scenRevealed);
+          if (btn) {
+            btn.disabled = !allAnswered || isDone(i);
+            btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
+            var hint = sec.querySelector('.done-hint');
+            if (hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+          }
+        });
+        var n = state.done.length;
+        document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
+        document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
       }
-    });
-    var n = state.done.length;
-    document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
-    document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
-  }
 
-  function openSection(sec){
-    sections.concat([bonus]).forEach(function(s){ if(s !== sec) s.classList.remove('open'); });
-    sec.classList.add('open');
-    refresh();
-  }
-
-  sections.forEach(function(sec, i){
-    sec.querySelector('.sec-head').addEventListener('click', function(){
-      if(!unlocked(i)) return;
-      if(sec.classList.contains('open')){ sec.classList.remove('open'); refresh(); }
-      else { openSection(sec); }
-    });
-    var btn = sec.querySelector('.done-btn');
-    if(btn) btn.addEventListener('click', function(){
-      if(!isDone(i)) state.done.push(i);
-      save();
-      sec.classList.remove('open');
-      if(sections[i+1]){ openSection(sections[i+1]); sections[i+1].scrollIntoView({behavior:'smooth', block:'start'}); }
-      refresh();
-    });
-  });
-  bonus.querySelector('.sec-head').addEventListener('click', function(){
-    if(bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
-  });
-
-  // Questions de validation (réponse révélée après 3 s)
-  document.querySelectorAll('.quiz').forEach(function(q){
-    var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
-    var opts = q.querySelectorAll('.opt');
-    function reveal(choice, instant){
-      opts.forEach(function(o){ o.disabled = true; if(o.dataset.v === choice) o.classList.add('chosen'); });
-      function show(){
-        opts.forEach(function(o){ if(o.dataset.v === answer) o.classList.add('right'); else if(o.dataset.v === choice) o.classList.add('wrong'); });
-        var ok = choice === answer;
-        fb.className = 'fb ' + (ok ? 'ok' : 'ko');
-        fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+      function openSection(sec) {
+        sections.concat([bonus]).forEach(function (s) { if (s !== sec) s.classList.remove('open'); });
+        sec.classList.add('open');
         refresh();
       }
-      if(instant) show();
-      else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
-    }
-    opts.forEach(function(o){
-      o.addEventListener('click', function(){
-        if(state.quiz[id]) return;
-        state.quiz[id] = {choice:o.dataset.v, correct:o.dataset.v === answer};
-        save();
-        reveal(o.dataset.v, false);
-      });
-    });
-    if(state.quiz[id]) reveal(state.quiz[id].choice, true);
-  });
 
-  // Réponses écrites
-  document.querySelectorAll('.reflect textarea').forEach(function(t){
-    var info = t.parentNode.querySelector('.saved');
-    t.value = state.text[t.id] || '';
-    var timer;
-    t.addEventListener('input', function(){
-      state.text[t.id] = t.value;
-      clearTimeout(timer);
-      timer = setTimeout(function(){ info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
-    });
-  });
-
-  // Scénarios de diagnostic : V cochés, justification, correction après 3 s
-  var MIN_JUSTIF = 20;
-  function vLabel(v){ return v === 'Aucun' ? 'Aucun (solution classique)' : v; }
-  function listLabel(arr){ return arr.map(vLabel).join(', '); }
-  function scenVerdict(sc){
-    var st = state.scen[sc.dataset.s] || {v:[]};
-    var exp = sc.dataset.expected.split(',');
-    var tol = (sc.dataset.tolerated || '').split(',').filter(Boolean);
-    var missing = exp.filter(function(x){ return st.v.indexOf(x) === -1; });
-    var extra = st.v.filter(function(x){ return exp.indexOf(x) === -1 && tol.indexOf(x) === -1; });
-    var tolChosen = st.v.filter(function(x){ return tol.indexOf(x) !== -1; });
-    return {missing:missing, extra:extra, tol:tolChosen, ok:missing.length === 0 && extra.length === 0};
-  }
-  document.querySelectorAll('.scen').forEach(function(sc){
-    var id = sc.dataset.s;
-    var btns = sc.querySelectorAll('.v');
-    var ta = sc.querySelector('textarea');
-    var rb = sc.querySelector('.reveal-btn');
-    var fb = sc.querySelector('.scen-fb');
-    var expl = sc.querySelector('.expl');
-    if(!state.scen[id]) state.scen[id] = {v:[], revealed:false};
-    function st(){ return state.scen[id]; }
-    function sync(){
-      var s = st();
-      btns.forEach(function(b){
-        var on = s.v.indexOf(b.dataset.v) !== -1;
-        b.classList.toggle('sel', on);
-        b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        b.disabled = s.revealed;
+      sections.forEach(function (sec, i) {
+        sec.querySelector('.sec-head').addEventListener('click', function () {
+          if (!unlocked(i)) return;
+          if (sec.classList.contains('open')) { sec.classList.remove('open'); refresh(); }
+          else { openSection(sec); }
+        });
+        var btn = sec.querySelector('.done-btn');
+        if (btn) btn.addEventListener('click', function () {
+          if (!isDone(i)) state.done.push(i);
+          save();
+          sec.classList.remove('open');
+          if (sections[i + 1]) { openSection(sections[i + 1]); sections[i + 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          refresh();
+        });
       });
-      ta.readOnly = s.revealed;
-      rb.style.display = s.revealed ? 'none' : '';
-      rb.disabled = s.revealed || s.v.length === 0 || ta.value.trim().length < MIN_JUSTIF;
-    }
-    function showCorrection(){
-      var r = scenVerdict(sc);
-      var html;
-      if(r.ok){
-        html = '<strong>Diagnostic conforme à la correction.</strong>';
-        if(r.tol.length) html += ' Vous avez aussi retenu : ' + listLabel(r.tol) + ' (défendable, voir la correction).';
-        fb.className = 'scen-fb ok';
-      } else {
-        html = '<strong>Diagnostic partiellement conforme.</strong>';
-        if(r.missing.length) html += '<br>À ajouter : ' + listLabel(r.missing) + '.';
-        if(r.extra.length) html += '<br>Non dominant ici : ' + listLabel(r.extra) + '.';
-        if(r.tol.length) html += '<br>Défendable : ' + listLabel(r.tol) + '.';
-        fb.className = 'scen-fb part';
-      }
-      fb.innerHTML = html;
-      expl.classList.add('show');
-      refresh();
-    }
-    btns.forEach(function(b){
-      b.addEventListener('click', function(){
-        var s = st(); if(s.revealed) return;
-        var v = b.dataset.v, on = s.v.indexOf(v) !== -1;
-        if(v === 'Aucun'){ s.v = on ? [] : ['Aucun']; }
-        else {
-          s.v = s.v.filter(function(x){ return x !== 'Aucun'; });
-          if(on) s.v = s.v.filter(function(x){ return x !== v; }); else s.v.push(v);
+      bonus.querySelector('.sec-head').addEventListener('click', function () {
+        if (bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
+      });
+
+      // Questions de validation (réponse révélée après 3 s)
+      document.querySelectorAll('.quiz').forEach(function (q) {
+        var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
+        var opts = q.querySelectorAll('.opt');
+        function reveal(choice, instant) {
+          opts.forEach(function (o) { o.disabled = true; if (o.dataset.v === choice) o.classList.add('chosen'); });
+          function show() {
+            opts.forEach(function (o) { if (o.dataset.v === answer) o.classList.add('right'); else if (o.dataset.v === choice) o.classList.add('wrong'); });
+            var ok = choice === answer;
+            fb.className = 'fb ' + (ok ? 'ok' : 'ko');
+            fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+            refresh();
+          }
+          if (instant) show();
+          else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
         }
-        save(); sync();
+        opts.forEach(function (o) {
+          o.addEventListener('click', function () {
+            if (state.quiz[id]) return;
+            state.quiz[id] = { choice: o.dataset.v, correct: o.dataset.v === answer };
+            save();
+            reveal(o.dataset.v, false);
+          });
+        });
+        if (state.quiz[id]) reveal(state.quiz[id].choice, true);
       });
-    });
-    ta.addEventListener('input', sync);
-    rb.addEventListener('click', function(){
-      var s = st(); if(s.revealed || rb.disabled) return;
-      s.revealed = true; save(); sync();
-      fb.className = 'scen-fb wait'; fb.textContent = 'Diagnostic enregistré. Correction dans 3 secondes…';
-      setTimeout(showCorrection, 3000);
-    });
-    sync();
-    if(st().revealed) showCorrection();
-  });
 
-  // État des environnements (section facultative)
-  ['env-cs','env-db','env-at','env-pb'].forEach(function(eid){
-    var el = document.getElementById(eid);
-    el.value = state.env[eid] || '';
-    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function(){ state.env[eid] = el.value; save(); });
-  });
+      // Réponses écrites
+      document.querySelectorAll('.reflect textarea').forEach(function (t) {
+        var info = t.parentNode.querySelector('.saved');
+        t.value = state.text[t.id] || '';
+        var timer;
+        t.addEventListener('input', function () {
+          state.text[t.id] = t.value;
+          clearTimeout(timer);
+          timer = setTimeout(function () { info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
+        });
+      });
 
-  // Identité
-  var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
-  nom.value = state.nom || ''; fil.value = state.filiere || '';
-  nom.addEventListener('input', function(){ state.nom = nom.value; save(); });
-  fil.addEventListener('change', function(){ state.filiere = fil.value; save(); });
+      // Scénarios de diagnostic : V cochés, justification, correction après 3 s
+      var MIN_JUSTIF = 20;
+      function vLabel(v) { return v === 'Aucun' ? 'Aucun (solution classique)' : v; }
+      function listLabel(arr) { return arr.map(vLabel).join(', '); }
+      function scenVerdict(sc) {
+        var st = state.scen[sc.dataset.s] || { v: [] };
+        var exp = sc.dataset.expected.split(',');
+        var tol = (sc.dataset.tolerated || '').split(',').filter(Boolean);
+        var missing = exp.filter(function (x) { return st.v.indexOf(x) === -1; });
+        var extra = st.v.filter(function (x) { return exp.indexOf(x) === -1 && tol.indexOf(x) === -1; });
+        var tolChosen = st.v.filter(function (x) { return tol.indexOf(x) !== -1; });
+        return { missing: missing, extra: extra, tol: tolChosen, ok: missing.length === 0 && extra.length === 0 };
+      }
+      document.querySelectorAll('.scen').forEach(function (sc) {
+        var id = sc.dataset.s;
+        var btns = sc.querySelectorAll('.v');
+        var ta = sc.querySelector('textarea');
+        var rb = sc.querySelector('.reveal-btn');
+        var fb = sc.querySelector('.scen-fb');
+        var expl = sc.querySelector('.expl');
+        if (!state.scen[id]) state.scen[id] = { v: [], revealed: false };
+        function st() { return state.scen[id]; }
+        function sync() {
+          var s = st();
+          btns.forEach(function (b) {
+            var on = s.v.indexOf(b.dataset.v) !== -1;
+            b.classList.toggle('sel', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            b.disabled = s.revealed;
+          });
+          ta.readOnly = s.revealed;
+          rb.style.display = s.revealed ? 'none' : '';
+          rb.disabled = s.revealed || s.v.length === 0 || ta.value.trim().length < MIN_JUSTIF;
+        }
+        function showCorrection() {
+          var r = scenVerdict(sc);
+          var html;
+          if (r.ok) {
+            html = '<strong>Diagnostic conforme à la correction.</strong>';
+            if (r.tol.length) html += ' Vous avez aussi retenu : ' + listLabel(r.tol) + ' (défendable, voir la correction).';
+            fb.className = 'scen-fb ok';
+          } else {
+            html = '<strong>Diagnostic partiellement conforme.</strong>';
+            if (r.missing.length) html += '<br>À ajouter : ' + listLabel(r.missing) + '.';
+            if (r.extra.length) html += '<br>Non dominant ici : ' + listLabel(r.extra) + '.';
+            if (r.tol.length) html += '<br>Défendable : ' + listLabel(r.tol) + '.';
+            fb.className = 'scen-fb part';
+          }
+          fb.innerHTML = html;
+          expl.classList.add('show');
+          refresh();
+        }
+        btns.forEach(function (b) {
+          b.addEventListener('click', function () {
+            var s = st(); if (s.revealed) return;
+            var v = b.dataset.v, on = s.v.indexOf(v) !== -1;
+            if (v === 'Aucun') { s.v = on ? [] : ['Aucun']; }
+            else {
+              s.v = s.v.filter(function (x) { return x !== 'Aucun'; });
+              if (on) s.v = s.v.filter(function (x) { return x !== v; }); else s.v.push(v);
+            }
+            save(); sync();
+          });
+        });
+        ta.addEventListener('input', sync);
+        rb.addEventListener('click', function () {
+          var s = st(); if (s.revealed || rb.disabled) return;
+          s.revealed = true; save(); sync();
+          fb.className = 'scen-fb wait'; fb.textContent = 'Diagnostic enregistré. Correction dans 3 secondes…';
+          setTimeout(showCorrection, 3000);
+        });
+        sync();
+        if (st().revealed) showCorrection();
+      });
 
-  // Boutons Copier
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click', function(){
-      var text = b.closest('.cmd').querySelector('pre').innerText.trim();
-      function done(){ b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function(){ b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
-      if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
-      function fallback(){ var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){} document.body.removeChild(ta); }
-    });
-  });
+      // État des environnements (section facultative)
+      ['env-cs', 'env-db', 'env-at', 'env-pb'].forEach(function (eid) {
+        var el = document.getElementById(eid);
+        el.value = state.env[eid] || '';
+        el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function () { state.env[eid] = el.value; save(); });
+      });
 
-  // Données communes à l'envoi et à l'export
-  var scens = Array.prototype.slice.call(document.querySelectorAll('.scen'));
-  function scenSummary(){
-    var out = [], conformes = 0, vus = 0;
-    scens.forEach(function(sc, k){
-      var s = state.scen[sc.dataset.s] || {v:[], revealed:false};
-      var r = scenVerdict(sc);
-      if(s.revealed){ vus++; if(r.ok) conformes++; }
-      out.push({n:k+1, titre:sc.querySelector('.scen-title').textContent, v:listLabel(s.v), revealed:s.revealed, ok:r.ok});
-    });
-    return {items:out, conformes:conformes, vus:vus};
-  }
-  function envVal(eid){ return (state.env[eid] || '').trim(); }
+      // Identité
+      var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
+      nom.value = state.nom || ''; fil.value = state.filiere || '';
+      nom.addEventListener('input', function () { state.nom = nom.value; save(); });
+      fil.addEventListener('change', function () { state.filiere = fil.value; save(); });
 
-  // Envoi direct à l'enseignant (Google Sheets via Apps Script)
-  document.getElementById('send').addEventListener('click', function(){
-    var msg = document.getElementById('exportmsg');
-    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
-    if(ENDPOINT.indexOf('http') !== 0){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
-    var qs = Object.keys(state.quiz);
-    var sm = scenSummary();
-    var data = {tp:TP, date:new Date().toLocaleString('fr-FR'), nom:state.nom.trim(), filiere:state.filiere || '',
-      sections:state.done.length + ' / ' + TOTAL,
-      score:qs.filter(function(k){ return state.quiz[k].correct; }).length + ' / ' + qs.length,
-      scenarios:sm.conformes + ' conforme(s) sur ' + sm.vus + ' corrigé(s)'};
-    document.querySelectorAll('.reflect textarea').forEach(function(t){ data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
-    sm.items.forEach(function(it){ data['S' + it.n + '_V'] = it.v; });
-    data.ENV_CODESPACE = envVal('env-cs'); data.ENV_DATABRICKS = envVal('env-db');
-    data.ENV_ATLAS = envVal('env-at'); data.ENV_PROBLEME = envVal('env-pb');
-    var btn = this; btn.disabled = true;
-    msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
-    fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)})
-      .then(function(){ msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
-      .catch(function(){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
-      .then(function(){ btn.disabled = false; });
-  });
+      // Boutons Copier
+      document.querySelectorAll('.copy').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = b.closest('.cmd').querySelector('pre').innerText.trim();
+          function done() { b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function () { b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
+          if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+          function fallback() { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } document.body.removeChild(ta); }
+        });
+      });
 
-  // Export
-  document.getElementById('export').addEventListener('click', function(){
-    var msg = document.getElementById('exportmsg');
-    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
-    var qs = Object.keys(state.quiz).sort();
-    var score = qs.filter(function(k){ return state.quiz[k].correct; }).length;
-    var sm = scenSummary();
-    var lines = ['# Lab 0 — Diagnostiquer un besoin Big Data', '',
-      '- **Nom** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
-      '- **Export** : ' + new Date().toLocaleString('fr-FR'),
-      '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
-      '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)',
-      '- **Scénarios** : ' + sm.conformes + ' conforme(s) sur ' + sm.vus + ' corrigé(s)', '', '---', ''];
-    document.querySelectorAll('.reflect textarea').forEach(function(t){
-      lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
-    });
-    lines.push('## V cochés par scénario', '');
-    sm.items.forEach(function(it){ lines.push('- ' + it.titre + ' : ' + (it.v || '_(aucun choix)_') + (it.revealed ? '' : ' (correction non consultée)')); });
-    lines.push('', '## Environnements (facultatif)', '',
-      '- Codespace : ' + (envVal('env-cs') || 'non renseigné'),
-      '- Databricks : ' + (envVal('env-db') || 'non renseigné'),
-      '- MongoDB Atlas : ' + (envVal('env-at') || 'non renseigné'),
-      '- Problème signalé : ' + (envVal('env-pb') || 'aucun'), '');
-    var blob = new Blob([lines.join('\n')], {type:'text/markdown;charset=utf-8'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'LAB0_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    msg.style.color = 'var(--success-text)';
-    msg.textContent = 'Copie téléchargée sur votre ordinateur.';
-  });
+      // Données communes à l'envoi et à l'export
+      var scens = Array.prototype.slice.call(document.querySelectorAll('.scen'));
+      function scenSummary() {
+        var out = [], conformes = 0, vus = 0;
+        scens.forEach(function (sc, k) {
+          var s = state.scen[sc.dataset.s] || { v: [], revealed: false };
+          var r = scenVerdict(sc);
+          if (s.revealed) { vus++; if (r.ok) conformes++; }
+          out.push({ n: k + 1, titre: sc.querySelector('.scen-title').textContent, v: listLabel(s.v), revealed: s.revealed, ok: r.ok });
+        });
+        return { items: out, conformes: conformes, vus: vus };
+      }
+      function envVal(eid) { return (state.env[eid] || '').trim(); }
 
-  document.getElementById('reset').addEventListener('click', function(){
-    if(!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
-    try{ localStorage.removeItem(KEY); }catch(e){}
-    location.reload();
-  });
+      // Envoi direct à l'enseignant (Google Sheets via Apps Script)
+      document.getElementById('send').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
+        if (ENDPOINT.indexOf('http') !== 0) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
+        var qs = Object.keys(state.quiz);
+        var sm = scenSummary();
+        var data = {
+          tp: TP, date: new Date().toLocaleString('fr-FR'), nom: state.nom.trim(), filiere: state.filiere || '',
+          sections: state.done.length + ' / ' + TOTAL,
+          score: qs.filter(function (k) { return state.quiz[k].correct; }).length + ' / ' + qs.length,
+          scenarios: sm.conformes + ' conforme(s) sur ' + sm.vus + ' corrigé(s)'
+        };
+        document.querySelectorAll('.reflect textarea').forEach(function (t) { data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
+        sm.items.forEach(function (it) { data['S' + it.n + '_V'] = it.v; });
+        data.ENV_CODESPACE = envVal('env-cs'); data.ENV_DATABRICKS = envVal('env-db');
+        data.ENV_ATLAS = envVal('env-at'); data.ENV_PROBLEME = envVal('env-pb');
+        var btn = this; btn.disabled = true;
+        msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
+        fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+          .then(function () { msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
+          .catch(function () { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
+          .then(function () { btn.disabled = false; });
+      });
 
-  // Ouvrir la première section non terminée
-  var first = sections.find(function(s, i){ return !isDone(i) && unlocked(i); });
-  if(first) first.classList.add('open');
-  refresh();
-})();
-</script>
+      // Export
+      document.getElementById('export').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
+        var qs = Object.keys(state.quiz).sort();
+        var score = qs.filter(function (k) { return state.quiz[k].correct; }).length;
+        var sm = scenSummary();
+        var lines = ['# Lab 0 — Diagnostiquer un besoin Big Data', '',
+          '- **Nom** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
+          '- **Export** : ' + new Date().toLocaleString('fr-FR'),
+          '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
+          '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)',
+          '- **Scénarios** : ' + sm.conformes + ' conforme(s) sur ' + sm.vus + ' corrigé(s)', '', '---', ''];
+        document.querySelectorAll('.reflect textarea').forEach(function (t) {
+          lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
+        });
+        lines.push('## V cochés par scénario', '');
+        sm.items.forEach(function (it) { lines.push('- ' + it.titre + ' : ' + (it.v || '_(aucun choix)_') + (it.revealed ? '' : ' (correction non consultée)')); });
+        lines.push('', '## Environnements (facultatif)', '',
+          '- Codespace : ' + (envVal('env-cs') || 'non renseigné'),
+          '- Databricks : ' + (envVal('env-db') || 'non renseigné'),
+          '- MongoDB Atlas : ' + (envVal('env-at') || 'non renseigné'),
+          '- Problème signalé : ' + (envVal('env-pb') || 'aucun'), '');
+        var blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'LAB0_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        msg.style.color = 'var(--success-text)';
+        msg.textContent = 'Copie téléchargée sur votre ordinateur.';
+      });
+
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        location.reload();
+      });
+
+      // Ouvrir la première section non terminée
+      var first = sections.find(function (s, i) { return !isDone(i) && unlocked(i); });
+      if (first) first.classList.add('open');
+      refresh();
+    })();
+  </script>
 </body>
+
 </html>
