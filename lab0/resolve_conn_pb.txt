@@ -1,0 +1,9 @@
+sudo iptables-legacy -P FORWARD ACCEPT
+sudo iptables-legacy -I FORWARD -s 172.18.0.0/16 -d 172.18.0.0/16 -j ACCEPT
+
+docker exec cluster-master bash -c "timeout 3 bash -c '</dev/tcp/hadoop-slave1/22' && echo OK || echo KO"
+
+docker exec -it cluster-master bash
+stop-all.sh
+start-all.sh
+hdfs dfsadmin -report | grep -i "live datanodes"
