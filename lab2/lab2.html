@@ -1,297 +1,1176 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2 — Cluster Spark, RDD et Spark UI | ENSIAS 2026-2027</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#1E2761;--navy-dark:#141c4a;--gold:#E8B84B;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#64748b;--hint:#94a3b8;--success-bg:#ecfdf5;--success-text:#065f46;--success-border:#6ee7b7;--danger-bg:#fef2f2;--danger-text:#991b1b;--danger-border:#fca5a5;--info-bg:#eff6ff;--info-text:#1e40af;--info-border:#93c5fd;--warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fcd34d;--code-bg:#0f172a;--teal:#0f766e;--teal-bg:#e6f6f4}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-a{color:var(--info-text)}
-.site-header{background:var(--navy);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
-.header-inner{max-width:900px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
-.header-left{display:flex;align-items:center;gap:10px}
-.header-logo{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--navy)}
-.header-title{font-size:13px;font-weight:600;color:#fff}
-.header-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
-.header-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--navy)}
-.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
-.lab-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3068 100%);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
-.lab-hero::after{content:'2';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-family:'DM Serif Display',serif;font-size:120px;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
-.lab-tag{font-size:11px;font-weight:600;color:var(--gold);margin-bottom:.6rem}
-.lab-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,28px);color:#fff;margin-bottom:.5rem;font-weight:400}
-.lab-desc{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;max-width:580px;margin-bottom:1.1rem}
-.lab-meta{display:flex;gap:8px;flex-wrap:wrap}
-.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);padding:4px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.12)}
-.ident{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr 180px;gap:10px}
-.ident label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
-.ident input,.ident select{width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
-.progress-wrap{margin-bottom:1.25rem}
-.progress-bar{background:var(--border);border-radius:99px;height:6px;overflow:hidden;margin-bottom:4px}
-.progress-fill{height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .5s}
-.progress-label{font-size:11px;color:var(--muted);text-align:right}
-.intro-note{margin-bottom:1.25rem}
-.section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.section.locked{opacity:.55}
-.sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;width:100%;background:none;border:0;font:inherit;text-align:left;color:inherit}
-.sec-head:hover{background:var(--bg)}
-.section.locked .sec-head{cursor:not-allowed}
-.sec-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:var(--bg);color:var(--navy);border:1px solid var(--border)}
-.section.done .sec-num{background:var(--success-text);color:#fff;border-color:var(--success-text)}
-.section.open .sec-num{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sec-title{font-size:14px;font-weight:600;flex:1;line-height:1.35}
-.sec-time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
-.sec-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--warn-bg);color:var(--warn-text)}
-.section.done .sec-status{background:var(--success-bg);color:var(--success-text)}
-.section.locked .sec-status{background:var(--bg);color:var(--hint)}
-.sec-body{display:none;padding:4px 18px 18px;border-top:1px solid var(--border)}
-.section.open .sec-body{display:block}
-.sec-body p{font-size:13.5px;margin:12px 0}
-.sec-body h3{font-size:13px;font-weight:700;color:var(--navy);margin:18px 0 6px}
-.sec-body ul,.sec-body ol{font-size:13.5px;margin:8px 0 8px 20px}
-.sec-body li{margin:3px 0}
-code.i{font-family:'DM Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
-.cmd{margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid #1e293b}
-.cmd-head{display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px}
-.term{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;display:flex;align-items:center;gap:4px}
-.term.cs{background:#dbeafe;color:#1e3a8a}
-.term.cm{background:var(--gold);color:var(--navy)}
-.copy{font:inherit;font-size:11px;font-weight:600;color:#cbd5e1;background:transparent;border:1px solid #475569;border-radius:6px;padding:3px 9px;cursor:pointer;display:flex;align-items:center;gap:4px}
-.copy:hover{color:#fff;border-color:#94a3b8}
-.copy.ok{color:#6ee7b7;border-color:#6ee7b7}
-.cmd pre{background:var(--code-bg);color:#e2e8f0;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.7;margin:0}
-.cmd pre .c{color:#64748b}
-.expect{font-size:12.5px;background:var(--teal-bg);color:var(--teal);border-radius:8px;padding:8px 12px;margin:-2px 0 12px;display:flex;gap:8px}
-.expect i{margin-top:2px}
-.note{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0;display:flex;gap:9px;border:1px solid}
-.note i{font-size:17px;margin-top:1px}
-.note.info{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border)}
-.note.warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border)}
-.note.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
-table.t{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-table.t th,table.t td{border:1px solid var(--border);padding:6px 9px;text-align:left}
-table.t th{background:var(--bg);font-weight:600}
-.quiz{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin:16px 0}
-.quiz-tag{font-size:11px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;margin-bottom:6px}
-.quiz .q{font-size:13.5px;font-weight:600;margin:0 0 10px}
-.opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:9px 12px;margin:6px 0;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;color:var(--text)}
-.opt:hover:not(:disabled){border-color:var(--navy)}
-.opt.chosen{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
-.opt.right{background:var(--success-bg);border-color:var(--success-border)}
-.opt.wrong{background:var(--danger-bg);border-color:var(--danger-border)}
-.opt:disabled{cursor:default}
-.fb{font-size:13px;margin-top:8px;display:none;border-radius:9px;padding:9px 12px}
-.fb.wait{display:block;color:var(--muted);background:#fff;border:1px dashed var(--border)}
-.fb.ok{display:block;background:var(--success-bg);color:var(--success-text)}
-.fb.ko{display:block;background:var(--danger-bg);color:var(--danger-text)}
-.reflect{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:16px 0;background:#fffdf6}
-.reflect label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
-.reflect label .rn{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:6px}
-.reflect textarea{width:100%;min-height:90px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:#fff;color:var(--text)}
-.saved{font-size:11px;color:var(--hint);margin-top:3px}
-.done-btn{margin-top:14px;font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;border:0;background:var(--navy);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.done-btn:disabled{background:var(--hint);cursor:not-allowed}
-.done-hint{font-size:11.5px;color:var(--muted);margin-top:6px}
-.final{background:var(--card);border:2px solid var(--navy);border-radius:14px;padding:1.1rem 1.2rem;margin-top:1.5rem}
-.final h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:21px;color:var(--navy);margin-bottom:6px}
-.final p{font-size:13.5px;margin:6px 0}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.btn{font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--navy)}
-.btn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-.btn.ghost{background:#fff;color:var(--navy)}
-.btn.danger{background:#fff;color:var(--danger-text);border-color:var(--danger-border)}
-.export-msg{font-size:12.5px;margin-top:8px}
-footer{text-align:center;font-size:11px;color:var(--hint);margin-top:2.5rem}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media (max-width:640px){.ident{grid-template-columns:1fr}.sec-time{display:none}}
-@media (prefers-reduced-motion:reduce){.progress-fill{transition:none}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 2 — Cluster Spark, RDD et Spark UI | ENSIAS 2026-2027</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1E2761;
+      --navy-dark: #141c4a;
+      --gold: #E8B84B;
+      --bg: #f4f6ff;
+      --card: #fff;
+      --border: #dde3f5;
+      --text: #1a2040;
+      --muted: #64748b;
+      --hint: #94a3b8;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --success-border: #6ee7b7;
+      --danger-bg: #fef2f2;
+      --danger-text: #991b1b;
+      --danger-border: #fca5a5;
+      --info-bg: #eff6ff;
+      --info-text: #1e40af;
+      --info-border: #93c5fd;
+      --warn-bg: #fffbeb;
+      --warn-text: #92400e;
+      --warn-border: #fcd34d;
+      --code-bg: #0f172a;
+      --teal: #0f766e;
+      --teal-bg: #e6f6f4
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6
+    }
+
+    a {
+      color: var(--info-text)
+    }
+
+    .site-header {
+      background: var(--navy);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--gold)
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      background: var(--gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 14px;
+      color: var(--navy)
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .55);
+      margin-top: 1px
+    }
+
+    .header-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem
+    }
+
+    .lab-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a3068 100%);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .lab-hero::after {
+      content: '2';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 120px;
+      color: rgba(255, 255, 255, .05);
+      line-height: 1;
+      pointer-events: none
+    }
+
+    .lab-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .6rem
+    }
+
+    .lab-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 4vw, 28px);
+      color: #fff;
+      margin-bottom: .5rem;
+      font-weight: 400
+    }
+
+    .lab-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .75);
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 1.1rem
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .8);
+      background: rgba(255, 255, 255, .08);
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .ident {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px
+    }
+
+    .ident label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .ident input,
+    .ident select {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .progress-wrap {
+      margin-bottom: 1.25rem
+    }
+
+    .progress-bar {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: var(--navy);
+      border-radius: 99px;
+      transition: width .5s
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right
+    }
+
+    .intro-note {
+      margin-bottom: 1.25rem
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden
+    }
+
+    .section.locked {
+      opacity: .55
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      background: none;
+      border: 0;
+      font: inherit;
+      text-align: left;
+      color: inherit
+    }
+
+    .sec-head:hover {
+      background: var(--bg)
+    }
+
+    .section.locked .sec-head {
+      cursor: not-allowed
+    }
+
+    .sec-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--bg);
+      color: var(--navy);
+      border: 1px solid var(--border)
+    }
+
+    .section.done .sec-num {
+      background: var(--success-text);
+      color: #fff;
+      border-color: var(--success-text)
+    }
+
+    .section.open .sec-num {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .sec-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.35
+    }
+
+    .sec-time {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 3px
+    }
+
+    .sec-status {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--warn-bg);
+      color: var(--warn-text)
+    }
+
+    .section.done .sec-status {
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .section.locked .sec-status {
+      background: var(--bg);
+      color: var(--hint)
+    }
+
+    .sec-body {
+      display: none;
+      padding: 4px 18px 18px;
+      border-top: 1px solid var(--border)
+    }
+
+    .section.open .sec-body {
+      display: block
+    }
+
+    .sec-body p {
+      font-size: 13.5px;
+      margin: 12px 0
+    }
+
+    .sec-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 18px 0 6px
+    }
+
+    .sec-body ul,
+    .sec-body ol {
+      font-size: 13.5px;
+      margin: 8px 0 8px 20px
+    }
+
+    .sec-body li {
+      margin: 3px 0
+    }
+
+    code.i {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 5px
+    }
+
+    .cmd {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b
+    }
+
+    .cmd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 6px 10px
+    }
+
+    .term {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .term.cs {
+      background: #dbeafe;
+      color: #1e3a8a
+    }
+
+    .term.cm {
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .copy {
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: transparent;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 3px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .copy:hover {
+      color: #fff;
+      border-color: #94a3b8
+    }
+
+    .copy.ok {
+      color: #6ee7b7;
+      border-color: #6ee7b7
+    }
+
+    .cmd pre {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 0
+    }
+
+    .cmd pre .c {
+      color: #64748b
+    }
+
+    .expect {
+      font-size: 12.5px;
+      background: var(--teal-bg);
+      color: var(--teal);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: -2px 0 12px;
+      display: flex;
+      gap: 8px
+    }
+
+    .expect i {
+      margin-top: 2px
+    }
+
+    .note {
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      display: flex;
+      gap: 9px;
+      border: 1px solid
+    }
+
+    .note i {
+      font-size: 17px;
+      margin-top: 1px
+    }
+
+    .note.info {
+      background: var(--info-bg);
+      color: var(--info-text);
+      border-color: var(--info-border)
+    }
+
+    .note.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border)
+    }
+
+    .note.ok {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-color: var(--success-border)
+    }
+
+    table.t {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 10px 0
+    }
+
+    table.t th,
+    table.t td {
+      border: 1px solid var(--border);
+      padding: 6px 9px;
+      text-align: left
+    }
+
+    table.t th {
+      background: var(--bg);
+      font-weight: 600
+    }
+
+    .quiz {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0
+    }
+
+    .quiz-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px
+    }
+
+    .quiz .q {
+      font-size: 13.5px;
+      font-weight: 600;
+      margin: 0 0 10px
+    }
+
+    .opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin: 6px 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--text)
+    }
+
+    .opt:hover:not(:disabled) {
+      border-color: var(--navy)
+    }
+
+    .opt.chosen {
+      border-color: var(--navy);
+      box-shadow: inset 0 0 0 1px var(--navy)
+    }
+
+    .opt.right {
+      background: var(--success-bg);
+      border-color: var(--success-border)
+    }
+
+    .opt.wrong {
+      background: var(--danger-bg);
+      border-color: var(--danger-border)
+    }
+
+    .opt:disabled {
+      cursor: default
+    }
+
+    .fb {
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+      border-radius: 9px;
+      padding: 9px 12px
+    }
+
+    .fb.wait {
+      display: block;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed var(--border)
+    }
+
+    .fb.ok {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .fb.ko {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger-text)
+    }
+
+    .reflect {
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      background: #fffdf6
+    }
+
+    .reflect label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px
+    }
+
+    .reflect label .rn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-right: 6px
+    }
+
+    .reflect textarea {
+      width: 100%;
+      min-height: 90px;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .saved {
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 3px
+    }
+
+    .done-btn {
+      margin-top: 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 0;
+      background: var(--navy);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .done-btn:disabled {
+      background: var(--hint);
+      cursor: not-allowed
+    }
+
+    .done-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px
+    }
+
+    .final {
+      background: var(--card);
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      margin-top: 1.5rem
+    }
+
+    .final h2 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      font-size: 21px;
+      color: var(--navy);
+      margin-bottom: 6px
+    }
+
+    .final p {
+      font-size: 13.5px;
+      margin: 6px 0
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--navy)
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold)
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--navy)
+    }
+
+    .btn.danger {
+      background: #fff;
+      color: var(--danger-text);
+      border-color: var(--danger-border)
+    }
+
+    .export-msg {
+      font-size: 12.5px;
+      margin-top: 8px
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 2.5rem
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px
+    }
+
+    @media (max-width:640px) {
+      .ident {
+        grid-template-columns: 1fr
+      }
+
+      .sec-time {
+        display: none
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .progress-fill {
+        transition: none
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-left">
-      <div class="header-logo">BD</div>
-      <div>
-        <div class="header-title">Big Data &amp; Applications</div>
-        <div class="header-sub">ENSIAS · 2SCL, IDF &amp; BI&amp;A · 2026-2027</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-logo">BD</div>
+        <div>
+          <div class="header-title">Big Data &amp; Applications</div>
+          <div class="header-sub">ENSIAS · 2SCL, IDF &amp; BI&amp;A · 2026-2027</div>
+        </div>
+      </div>
+      <span class="header-badge">Lab 2 · en séance</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="lab-hero">
+      <div class="lab-tag">Semaine 2 · En séance · noté sur 10</div>
+      <h1 class="lab-title">Lab 2 — Premier contact avec un cluster Spark</h1>
+      <p class="lab-desc">Soumettre vos premières applications Spark au cluster du TP1, manipuler des RDD, observer
+        jobs, stages, shuffle et cache dans le Spark UI, puis passer du RDD au DataFrame et écrire une application
+        complète exécutée sur YARN.</p>
+      <div class="lab-meta">
+        <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>2 h</span>
+        <span class="meta-chip"><i class="ti ti-brand-github" aria-hidden="true"></i>GitHub Codespaces</span>
+        <span class="meta-chip"><i class="ti ti-bolt" aria-hidden="true"></i>Spark</span>
+        <span class="meta-chip"><i class="ti ti-brand-python" aria-hidden="true"></i>PySpark</span>
+        <span class="meta-chip"><i class="ti ti-chart-dots-3" aria-hidden="true"></i>Spark UI</span>
       </div>
     </div>
-    <span class="header-badge">Lab 2 · en séance</span>
-  </div>
-</header>
 
-<main class="container">
-
-  <div class="lab-hero">
-    <div class="lab-tag">Semaine 2 · En séance · noté sur 10</div>
-    <h1 class="lab-title">Lab 2 — Premier contact avec un cluster Spark</h1>
-    <p class="lab-desc">Soumettre vos premières applications Spark au cluster du TP1, manipuler des RDD, observer jobs, stages, shuffle et cache dans le Spark UI, puis passer du RDD au DataFrame et écrire une application complète exécutée sur YARN.</p>
-    <div class="lab-meta">
-      <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>2 h</span>
-      <span class="meta-chip"><i class="ti ti-brand-github" aria-hidden="true"></i>GitHub Codespaces</span>
-      <span class="meta-chip"><i class="ti ti-bolt" aria-hidden="true"></i>Spark</span>
-      <span class="meta-chip"><i class="ti ti-brand-python" aria-hidden="true"></i>PySpark</span>
-      <span class="meta-chip"><i class="ti ti-chart-dots-3" aria-hidden="true"></i>Spark UI</span>
+    <div class="ident">
+      <div>
+        <label for="nom">Nom(s) et prénom(s)</label>
+        <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+      </div>
+      <div>
+        <label for="filiere">Filière</label>
+        <select id="filiere">
+          <option value="">Choisir…</option>
+          <option>2SCL</option>
+          <option>IDF</option>
+          <option>BI&amp;A</option>
+        </select>
+      </div>
     </div>
-  </div>
 
-  <div class="ident">
-    <div>
-      <label for="nom">Nom(s) et prénom(s)</label>
-      <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="pfill"></div>
+      </div>
+      <div class="progress-label" id="plabel">0 / 7 sections terminées</div>
     </div>
-    <div>
-      <label for="filiere">Filière</label>
-      <select id="filiere">
-        <option value="">Choisir…</option>
-        <option>2SCL</option>
-        <option>IDF</option>
-        <option>BI&amp;A</option>
-      </select>
+
+    <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i>
+      <div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le
+        bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont
+        <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à
+        l'enseignant à la fin du TP.</div>
     </div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
-    <div class="progress-label" id="plabel">0 / 7 sections terminées</div>
-  </div>
-
-  <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à l'enseignant à la fin du TP.</div></div>
 
 
-  <!-- ============ SECTION 0 ============ -->
-  <section class="section" data-sec="0">
-    <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Démarrer le cluster et vérifier Spark</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p>Vous reprenez le Codespace et le cluster du TP1. L'image Docker du cluster contient déjà Spark : il n'y a rien à installer.</p>
-<h3>1. Lancer les conteneurs</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose up -d
-docker ps</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les conteneurs <code class="i">cluster-master</code>, <code class="i">cluster-slave1</code> et <code class="i">cluster-slave2</code> ont le statut <strong>Up</strong>.</span></div>
-<h3>2. Démarrer HDFS, YARN et Spark, puis entrer dans le maître</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker exec -it cluster-master ./start-hadoop.sh
+    <!-- ============ SECTION 0 ============ -->
+    <section class="section" data-sec="0">
+      <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Démarrer le cluster
+          et vérifier Spark</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Vous reprenez le Codespace et le cluster du TP1. L'image Docker du cluster contient déjà Spark : il n'y a
+          rien à installer.</p>
+        <h3>1. Lancer les conteneurs</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose up -d
+docker ps</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les conteneurs <code
+              class="i">cluster-master</code>, <code class="i">cluster-slave1</code> et <code
+              class="i">cluster-slave2</code> ont le statut <strong>Up</strong>.</span></div>
+        <h3>2. Démarrer HDFS, YARN et Spark, puis entrer dans le maître</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker exec -it cluster-master ./start-hadoop.sh
 docker exec -it cluster-master ./start-spark.sh
-docker exec -it cluster-master bash</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code class="i">root@hadoop-master</code>.</span></div>
-<h3>3. Vérifier Spark et les données</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>spark-submit --version
+docker exec -it cluster-master bash</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code
+              class="i">root@hadoop-master</code>.</span></div>
+        <h3>3. Vérifier Spark et les données</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>spark-submit --version
 
 <span class="c"># Données du TP1 : on les recopie seulement si elles manquent</span>
 hdfs dfs -mkdir -p /user/root/input /user/root/web_input
 hdfs dfs -test -e input/purchases.txt || hdfs dfs -put /shared_volume/purchases.txt input/
 hdfs dfs -test -e web_input/alice.txt || hdfs dfs -put /shared_volume/alice.txt web_input/
-hdfs dfs -ls -h input web_input</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La première commande affiche le logo Spark et la <strong>version</strong> : notez-la pour R1. La dernière liste <code class="i">purchases.txt</code> et <code class="i">alice.txt</code>.</span></div>
-<h3>4. Les interfaces web</h3>
-<table class="t"><tr><th>Port</th><th>Interface</th><th>Quand</th></tr><tr><td>8088</td><td>YARN : applications soumises au cluster</td><td>en permanence</td></tr><tr><td>4040</td><td><strong>Spark UI</strong> : jobs, stages, tasks, stockage</td><td>seulement pendant qu'une application Spark tourne</td></tr></table>
-<div class="note info"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Ouvrez le port 8088 depuis l'onglet <strong>Ports</strong> de VS Code. Le port 4040 n'apparaît qu'à la section 2, quand le shell <code class="i">pyspark</code> est lancé.</div></div>
-<div class="quiz" data-q="q0" data-answer="b"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Pourquoi n'avez-vous rien eu à installer pour utiliser Spark ?</p><button class="opt" type="button" data-v="a">Spark est installé par défaut dans tous les Codespaces</button><button class="opt" type="button" data-v="b">Spark est inclus dans l'image Docker du cluster, déjà utilisée au TP1</button><button class="opt" type="button" data-v="c">Spark s'exécute sur les serveurs de Databricks</button><div class="fb" data-ok="Exact. L'image yassern1/hadoop-spark-jupyter contient Hadoop et Spark : le même cluster sert au TP1, à ce lab et au TP5." data-ko="Spark est inclus dans l'image Docker du cluster (yassern1/hadoop-spark-jupyter), déjà utilisée au TP1. Databricks ne sera utilisé que dans le Home assignment."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+hdfs dfs -ls -h input web_input</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La première commande affiche le logo Spark
+            et la <strong>version</strong> : notez-la pour R1. La dernière liste <code class="i">purchases.txt</code> et
+            <code class="i">alice.txt</code>.</span></div>
+        <h3>4. Les interfaces web</h3>
+        <table class="t">
+          <tr>
+            <th>Port</th>
+            <th>Interface</th>
+            <th>Quand</th>
+          </tr>
+          <tr>
+            <td>8088</td>
+            <td>YARN : applications soumises au cluster</td>
+            <td>en permanence</td>
+          </tr>
+          <tr>
+            <td>4040</td>
+            <td><strong>Spark UI</strong> : jobs, stages, tasks, stockage</td>
+            <td>seulement pendant qu'une application Spark tourne</td>
+          </tr>
+        </table>
+        <div class="note info"><i class="ti ti-info-circle" aria-hidden="true"></i>
+          <div>Ouvrez le port 8088 depuis l'onglet <strong>Ports</strong> de VS Code. Le port 4040 n'apparaît qu'à la
+            section 2, quand le shell <code class="i">pyspark</code> est lancé.</div>
+        </div>
+        <div class="quiz" data-q="q0" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi n'avez-vous rien eu à installer pour utiliser Spark ?</p><button class="opt"
+            type="button" data-v="a">Spark est installé par défaut dans tous les Codespaces</button><button class="opt"
+            type="button" data-v="b">Spark est inclus dans l'image Docker du cluster, déjà utilisée au
+            TP1</button><button class="opt" type="button" data-v="c">Spark s'exécute sur les serveurs de
+            Databricks</button>
+          <div class="fb"
+            data-ok="Exact. L'image yassern1/hadoop-spark-jupyter contient Hadoop et Spark : le même cluster sert au TP1, à ce lab et au TP5."
+            data-ko="Spark est inclus dans l'image Docker du cluster (yassern1/hadoop-spark-jupyter), déjà utilisée au TP1. Databricks ne sera utilisé que dans le Home assignment.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 1 ============ -->
-  <section class="section" data-sec="1">
-    <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Premier job : SparkPi avec spark-submit</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p><code class="i">spark-submit</code> soumet une application à Spark, quel que soit le mode d'exécution. On commence par l'exemple SparkPi fourni avec Spark, qui estime π par tirages aléatoires. Son paramètre est le <strong>nombre de partitions</strong>.</p>
-<h3>1. En mode local, sur le seul conteneur maître</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>ls $SPARK_HOME/examples/jars/ | grep examples
+    <!-- ============ SECTION 1 ============ -->
+    <section class="section" data-sec="1">
+      <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Premier job : SparkPi
+          avec spark-submit</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p><code class="i">spark-submit</code> soumet une application à Spark, quel que soit le mode d'exécution. On
+          commence par l'exemple SparkPi fourni avec Spark, qui estime π par tirages aléatoires. Son paramètre est le
+          <strong>nombre de partitions</strong>.</p>
+        <h3>1. En mode local, sur le seul conteneur maître</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>ls $SPARK_HOME/examples/jars/ | grep examples
 
 spark-submit --class org.apache.spark.examples.SparkPi --master "local[*]" \
-  $SPARK_HOME/examples/jars/spark-examples_*.jar 10 2&gt;/dev/null | grep "Pi is"</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une seule ligne : <code class="i">Pi is roughly …</code>. Le <code class="i">2&gt;/dev/null</code> masque les journaux techniques de Spark.</span></div>
-<h3>2. Sur le cluster, avec YARN</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client \
-  $SPARK_HOME/examples/jars/spark-examples_*.jar 100 2&gt;&amp;1 | grep -E "Pi is|Submitted application"</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Deux lignes : l'identifiant <code class="i">application_…</code> attribué par YARN, puis la valeur de π. Dans l'interface YARN (8088), l'application <strong>Spark Pi</strong> apparaît avec l'état FINISHED.</span></div>
-<div class="reflect"><label for="r1"><span class="rn">R1</span>Quelle version de Spark est installée ? Donnez les valeurs de π obtenues avec 10 et avec 100 partitions.</label><textarea id="r1" data-label="R1 — Version de Spark et valeurs de π"></textarea><div class="saved"></div></div>
-<div class="reflect"><label for="r2"><span class="rn">R2</span>Seule l'exécution en mode <code class="i">yarn</code> apparaît dans l'interface YARN. Pourquoi ? Dans les deux cas, sur quel conteneur le <em>driver</em> s'est-il exécuté ? (Aidez-vous de la diapositive 2.3 du cours.)</label><textarea id="r2" data-label="R2 — Mode local, mode YARN et emplacement du driver"></textarea><div class="saved"></div></div>
-<div class="quiz" data-q="q1" data-answer="c"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Dans la commande SparkPi, que représente le dernier paramètre (10, puis 100) ?</p><button class="opt" type="button" data-v="a">Le nombre de nœuds du cluster</button><button class="opt" type="button" data-v="b">Le nombre de décimales de π à calculer</button><button class="opt" type="button" data-v="c">Le nombre de partitions, donc de tasks du calcul</button><div class="fb" data-ok="Exact. SparkPi découpe les tirages en autant de partitions ; chaque partition est traitée par une task." data-ko="C'est le nombre de partitions : chaque partition devient une task. Le nombre de nœuds dépend du cluster, pas de l'application."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+  $SPARK_HOME/examples/jars/spark-examples_*.jar 10 2&gt;/dev/null | grep "Pi is"</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une seule ligne : <code
+              class="i">Pi is roughly …</code>. Le <code class="i">2&gt;/dev/null</code> masque les journaux techniques
+            de Spark.</span></div>
+        <h3>2. Sur le cluster, avec YARN</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client \
+  $SPARK_HOME/examples/jars/spark-examples_*.jar 100 2&gt;&amp;1 | grep -E "Pi is|Submitted application"</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Deux lignes : l'identifiant <code
+              class="i">application_…</code> attribué par YARN, puis la valeur de π. Dans l'interface YARN (8088),
+            l'application <strong>Spark Pi</strong> apparaît avec l'état FINISHED.</span></div>
+        <div class="reflect"><label for="r1"><span class="rn">R1</span>Quelle version de Spark est installée ? Donnez
+            les valeurs de π obtenues avec 10 et avec 100 partitions.</label><textarea id="r1"
+            data-label="R1 — Version de Spark et valeurs de π"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r2"><span class="rn">R2</span>Seule l'exécution en mode <code
+              class="i">yarn</code> apparaît dans l'interface YARN. Pourquoi ? Dans les deux cas, sur quel conteneur le
+            <em>driver</em> s'est-il exécuté ? (Aidez-vous de la diapositive 2.3 du cours.)</label><textarea id="r2"
+            data-label="R2 — Mode local, mode YARN et emplacement du driver"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q1" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans la commande SparkPi, que représente le dernier paramètre (10, puis 100) ?</p><button
+            class="opt" type="button" data-v="a">Le nombre de nœuds du cluster</button><button class="opt" type="button"
+            data-v="b">Le nombre de décimales de π à calculer</button><button class="opt" type="button" data-v="c">Le
+            nombre de partitions, donc de tasks du calcul</button>
+          <div class="fb"
+            data-ok="Exact. SparkPi découpe les tirages en autant de partitions ; chaque partition est traitée par une task."
+            data-ko="C'est le nombre de partitions : chaque partition devient une task. Le nombre de nœuds dépend du cluster, pas de l'application.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 2 ============ -->
-  <section class="section" data-sec="2">
-    <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">RDD en interactif : l'évaluation paresseuse</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p>Le shell <code class="i">pyspark</code> est un interpréteur Python dans lequel les objets <code class="i">spark</code> (SparkSession) et <code class="i">sc</code> (SparkContext) sont déjà créés. On le lance en mode local pour disposer du Spark UI sur le port 4040.</p>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>pyspark --master "local[*]"</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code class="i">&gt;&gt;&gt;</code>. Ouvrez maintenant le port <strong>4040</strong> depuis l'onglet Ports : le Spark UI s'affiche, onglet <strong>Jobs</strong>. Gardez-le ouvert à côté.</span></div>
-<h3>1. Trois transformations</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>nums = sc.parallelize(range(1, 1001), 4)
+    <!-- ============ SECTION 2 ============ -->
+    <section class="section" data-sec="2">
+      <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">RDD en interactif :
+          l'évaluation paresseuse</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Le shell <code class="i">pyspark</code> est un interpréteur Python dans lequel les objets <code
+            class="i">spark</code> (SparkSession) et <code class="i">sc</code> (SparkContext) sont déjà créés. On le
+          lance en mode local pour disposer du Spark UI sur le port 4040.</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>pyspark --master "local[*]"</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>L'invite devient <code
+              class="i">&gt;&gt;&gt;</code>. Ouvrez maintenant le port <strong>4040</strong> depuis l'onglet Ports : le
+            Spark UI s'affiche, onglet <strong>Jobs</strong>. Gardez-le ouvert à côté.</span></div>
+        <h3>1. Trois transformations</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>nums = sc.parallelize(range(1, 1001), 4)
 carres = nums.map(lambda x: x * x)
-pairs = carres.filter(lambda x: x % 2 == 0)</code></pre></div>
-<p>Actualisez l'onglet <strong>Jobs</strong> du Spark UI et notez ce que vous voyez.</p>
-<h3>2. Deux actions</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>pairs.count()
+pairs = carres.filter(lambda x: x % 2 == 0)</code></pre>
+        </div>
+        <p>Actualisez l'onglet <strong>Jobs</strong> du Spark UI et notez ce que vous voyez.</p>
+        <h3>2. Deux actions</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>pairs.count()
 pairs.take(5)
-nums.getNumPartitions()</code></pre></div>
-<p>Actualisez à nouveau l'onglet <strong>Jobs</strong>.</p>
-<h3>3. La lignée du RDD</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>print(pairs.toDebugString().decode())</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Spark affiche la chaîne des RDD qui ont produit <code class="i">pairs</code>, du plus récent au plus ancien : c'est la <strong>lignée</strong> (diapositive 2.5 du cours).</span></div>
-<div class="reflect"><label for="r3"><span class="rn">R3</span>Combien de jobs le Spark UI affiche-t-il après les trois transformations, puis après <code class="i">count()</code> et <code class="i">take(5)</code> ? Expliquez la différence. Combien de tasks le job du <code class="i">count()</code> a-t-il exécutées, et pourquoi ce nombre ?</label><textarea id="r3" data-label="R3 — Évaluation paresseuse, jobs et tasks"></textarea><div class="saved"></div></div>
-<div class="quiz" data-q="q2" data-answer="a"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Vous enchaînez dix transformations sur un RDD sans appeler d'action. Que calcule Spark ?</p><button class="opt" type="button" data-v="a">Rien : il enregistre seulement le plan des opérations</button><button class="opt" type="button" data-v="b">Les dix transformations, une par une, au fur et à mesure</button><button class="opt" type="button" data-v="c">Seulement la première transformation</button><div class="fb" data-ok="Exact. Les transformations sont paresseuses : le calcul est déclenché par la première action." data-ko="Rien n'est calculé : les transformations ne font que construire le plan (la lignée). Le calcul démarre à la première action."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+nums.getNumPartitions()</code></pre>
+        </div>
+        <p>Actualisez à nouveau l'onglet <strong>Jobs</strong>.</p>
+        <h3>3. La lignée du RDD</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>print(pairs.toDebugString().decode())</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Spark affiche la chaîne des RDD qui ont
+            produit <code class="i">pairs</code>, du plus récent au plus ancien : c'est la <strong>lignée</strong>
+            (diapositive 2.5 du cours).</span></div>
+        <div class="reflect"><label for="r3"><span class="rn">R3</span>Combien de jobs le Spark UI affiche-t-il après
+            les trois transformations, puis après <code class="i">count()</code> et <code class="i">take(5)</code> ?
+            Expliquez la différence. Combien de tasks le job du <code class="i">count()</code> a-t-il exécutées, et
+            pourquoi ce nombre ?</label><textarea id="r3"
+            data-label="R3 — Évaluation paresseuse, jobs et tasks"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q2" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Vous enchaînez dix transformations sur un RDD sans appeler d'action. Que calcule Spark ?</p>
+          <button class="opt" type="button" data-v="a">Rien : il enregistre seulement le plan des
+            opérations</button><button class="opt" type="button" data-v="b">Les dix transformations, une par une, au fur
+            et à mesure</button><button class="opt" type="button" data-v="c">Seulement la première
+            transformation</button>
+          <div class="fb"
+            data-ok="Exact. Les transformations sont paresseuses : le calcul est déclenché par la première action."
+            data-ko="Rien n'est calculé : les transformations ne font que construire le plan (la lignée). Le calcul démarre à la première action.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 3 ============ -->
-  <section class="section" data-sec="3">
-    <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Word count, stages, shuffle et cache</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p>On reprend le WordCount du TP1, cette fois en quelques lignes de PySpark, puis on observe son exécution dans le Spark UI.</p>
-<h3>1. Word count sur alice.txt</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>texte = sc.textFile("hdfs://hadoop-master:9000/user/root/web_input/alice.txt")
+    <!-- ============ SECTION 3 ============ -->
+    <section class="section" data-sec="3">
+      <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Word count, stages,
+          shuffle et cache</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>On reprend le WordCount du TP1, cette fois en quelques lignes de PySpark, puis on observe son exécution dans
+          le Spark UI.</p>
+        <h3>1. Word count sur alice.txt</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>texte = sc.textFile("hdfs://hadoop-master:9000/user/root/web_input/alice.txt")
 mots = texte.flatMap(lambda l: l.lower().split())
 paires = mots.map(lambda m: (m, 1))
 compte = paires.reduceByKey(lambda a, b: a + b)
-compte.takeOrdered(10, key=lambda kv: -kv[1])</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les 10 mots les plus fréquents, avec leur nombre d'occurrences.</span></div>
-<p>Dans le Spark UI, cliquez sur le dernier job, puis ouvrez <strong>DAG Visualization</strong>. Ouvrez ensuite l'onglet <strong>Stages</strong> et repérez, pour chaque stage, le nombre de tasks et les colonnes <strong>Shuffle Write</strong> et <strong>Shuffle Read</strong>.</p>
-<h3>2. Partitions de purchases.txt</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>ventes = sc.textFile("hdfs://hadoop-master:9000/user/root/input/purchases.txt")
-ventes.getNumPartitions()</code></pre></div>
-<h3>3. Effet du cache</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>import time
+compte.takeOrdered(10, key=lambda kv: -kv[1])</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les 10 mots les plus fréquents, avec leur
+            nombre d'occurrences.</span></div>
+        <p>Dans le Spark UI, cliquez sur le dernier job, puis ouvrez <strong>DAG Visualization</strong>. Ouvrez ensuite
+          l'onglet <strong>Stages</strong> et repérez, pour chaque stage, le nombre de tasks et les colonnes
+          <strong>Shuffle Write</strong> et <strong>Shuffle Read</strong>.</p>
+        <h3>2. Partitions de purchases.txt</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>ventes = sc.textFile("hdfs://hadoop-master:9000/user/root/input/purchases.txt")
+ventes.getNumPartitions()</code></pre>
+        </div>
+        <h3>3. Effet du cache</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>import time
 
 t = time.time(); print(ventes.count()); print(round(time.time() - t, 1), "s")
 
 ventes.cache()
 t = time.time(); print(ventes.count()); print(round(time.time() - t, 1), "s")
-t = time.time(); print(ventes.count()); print(round(time.time() - t, 1), "s")</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Trois fois le même nombre de lignes, suivi d'une durée en secondes. Ouvrez ensuite l'onglet <strong>Storage</strong> du Spark UI et relevez la colonne <strong>Fraction Cached</strong>.</span></div>
-<div class="reflect"><label for="r4"><span class="rn">R4</span>Pour le word count : combien de stages, combien de tasks dans chacun ? Quelle transformation a provoqué le découpage en deux stages, et quelles valeurs de Shuffle Write et Shuffle Read relevez-vous ?</label><textarea id="r4" data-label="R4 — Stages, tasks et shuffle du word count"></textarea><div class="saved"></div></div>
-<div class="reflect"><label for="r5"><span class="rn">R5</span>Combien de partitions compte <code class="i">purchases.txt</code> ? Comparez avec le nombre de blocs HDFS trouvé au TP1 (R5) et expliquez le lien.</label><textarea id="r5" data-label="R5 — Partitions Spark et blocs HDFS"></textarea><div class="saved"></div></div>
-<div class="reflect"><label for="r6"><span class="rn">R6</span>Donnez les trois durées de <code class="i">count()</code>. Pourquoi la deuxième n'est-elle pas plus rapide que la première, alors que la troisième peut l'être ? Quelle fraction du RDD est en cache ? Si elle est inférieure à 100 %, proposez une explication.</label><textarea id="r6" data-label="R6 — Effet du cache"></textarea><div class="saved"></div></div>
-<div class="quiz" data-q="q3" data-answer="b"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Dans le word count, quelle transformation impose un nouveau stage ?</p><button class="opt" type="button" data-v="a">flatMap</button><button class="opt" type="button" data-v="b">reduceByKey</button><button class="opt" type="button" data-v="c">map</button><div class="fb" data-ok="Exact. reduceByKey doit regrouper toutes les occurrences d'un même mot, dispersées dans toutes les partitions : c'est une transformation wide, donc un shuffle et un nouveau stage." data-ko="C'est reduceByKey : elle regroupe les paires par clé à travers toutes les partitions (transformation wide), ce qui impose un shuffle. flatMap et map sont narrow."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+t = time.time(); print(ventes.count()); print(round(time.time() - t, 1), "s")</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Trois fois le même nombre de lignes, suivi
+            d'une durée en secondes. Ouvrez ensuite l'onglet <strong>Storage</strong> du Spark UI et relevez la colonne
+            <strong>Fraction Cached</strong>.</span></div>
+        <div class="reflect"><label for="r4"><span class="rn">R4</span>Pour le word count : combien de stages, combien
+            de tasks dans chacun ? Quelle transformation a provoqué le découpage en deux stages, et quelles valeurs de
+            Shuffle Write et Shuffle Read relevez-vous ?</label><textarea id="r4"
+            data-label="R4 — Stages, tasks et shuffle du word count"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r5"><span class="rn">R5</span>Combien de partitions compte <code
+              class="i">purchases.txt</code> ? Comparez avec le nombre de blocs HDFS trouvé au TP1 (R5) et expliquez le
+            lien.</label><textarea id="r5" data-label="R5 — Partitions Spark et blocs HDFS"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r6"><span class="rn">R6</span>Donnez les trois durées de <code
+              class="i">count()</code>. Pourquoi la deuxième n'est-elle pas plus rapide que la première, alors que la
+            troisième peut l'être ? Quelle fraction du RDD est en cache ? Si elle est inférieure à 100 %, proposez une
+            explication.</label><textarea id="r6" data-label="R6 — Effet du cache"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q3" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans le word count, quelle transformation impose un nouveau stage ?</p><button class="opt"
+            type="button" data-v="a">flatMap</button><button class="opt" type="button"
+            data-v="b">reduceByKey</button><button class="opt" type="button" data-v="c">map</button>
+          <div class="fb"
+            data-ok="Exact. reduceByKey doit regrouper toutes les occurrences d'un même mot, dispersées dans toutes les partitions : c'est une transformation wide, donc un shuffle et un nouveau stage."
+            data-ko="C'est reduceByKey : elle regroupe les paires par clé à travers toutes les partitions (transformation wide), ce qui impose un shuffle. flatMap et map sont narrow.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 4 ============ -->
-  <section class="section" data-sec="4">
-    <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Du RDD au DataFrame : ventes par magasin</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p>Même calcul que l'exercice « ventes par magasin » du TP1, écrit deux fois : avec l'API RDD, puis avec l'API DataFrame et Spark SQL.</p>
-<div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>Restez dans le <strong>même shell</strong> <code class="i">pyspark</code> qu'à la section 3 : la variable <code class="i">ventes</code> y est définie. Si vous l'avez quitté, relancez <code class="i">pyspark --master "local[*]"</code> puis la commande <code class="i">ventes = sc.textFile(…)</code> de la section 3.</div></div>
-<h3>1. Avec l'API RDD</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>champs = ventes.map(lambda l: l.split("\t")).filter(lambda c: len(c) == 6)
+    <!-- ============ SECTION 4 ============ -->
+    <section class="section" data-sec="4">
+      <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Du RDD au DataFrame :
+          ventes par magasin</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Même calcul que l'exercice « ventes par magasin » du TP1, écrit deux fois : avec l'API RDD, puis avec l'API
+          DataFrame et Spark SQL.</p>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>Restez dans le <strong>même shell</strong> <code class="i">pyspark</code> qu'à la section 3 : la variable
+            <code class="i">ventes</code> y est définie. Si vous l'avez quitté, relancez <code
+              class="i">pyspark --master "local[*]"</code> puis la commande <code
+              class="i">ventes = sc.textFile(…)</code> de la section 3.</div>
+        </div>
+        <h3>1. Avec l'API RDD</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>champs = ventes.map(lambda l: l.split("\t")).filter(lambda c: len(c) == 6)
 par_magasin = champs.map(lambda c: (c[2], float(c[4]))).reduceByKey(lambda a, b: a + b)
-par_magasin.takeOrdered(3, key=lambda kv: -kv[1])</code></pre></div>
-<h3>2. Avec l'API DataFrame</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>from pyspark.sql import functions as F
+par_magasin.takeOrdered(3, key=lambda kv: -kv[1])</code></pre>
+        </div>
+        <h3>2. Avec l'API DataFrame</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>from pyspark.sql import functions as F
 
 schema = "date_vente DATE, heure STRING, magasin STRING, categorie STRING, montant DOUBLE, paiement STRING"
 df = spark.read.csv("hdfs://hadoop-master:9000/user/root/input/purchases.txt", sep="\t", schema=schema)
@@ -302,277 +1181,435 @@ res = (df.groupBy("magasin")
          .agg(F.round(F.sum("montant"), 2).alias("ca"))
          .orderBy(F.desc("ca")))
 res.show(3)
-res.explain()</code></pre></div>
-<h3>3. Avec Spark SQL</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>df.createOrReplaceTempView("ventes")
+res.explain()</code></pre>
+        </div>
+        <h3>3. Avec Spark SQL</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>df.createOrReplaceTempView("ventes")
 spark.sql("""
   SELECT magasin, ROUND(SUM(montant), 2) AS ca
   FROM ventes GROUP BY magasin ORDER BY ca DESC LIMIT 3
-""").show()</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les trois versions donnent les mêmes trois magasins, avec les mêmes totaux (aux arrondis près).</span></div>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python" aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>exit()</code></pre></div>
-<div class="reflect"><label for="r7"><span class="rn">R7</span>Donnez les 3 magasins qui vendent le plus, avec leur total. Sont-ils identiques à ceux obtenus en MapReduce au TP1 (R10) ? Comparez la longueur et la lisibilité des trois écritures.</label><textarea id="r7" data-label="R7 — Top 3 des magasins, RDD, DataFrame, SQL"></textarea><div class="saved"></div></div>
-<div class="reflect"><label for="r8"><span class="rn">R8</span>Dans le plan affiché par <code class="i">res.explain()</code>, repérez l'opérateur <code class="i">Exchange</code> et les deux <code class="i">HashAggregate</code>. À quoi correspondent-ils ? Faites le lien avec les deux stages observés à la section 3.</label><textarea id="r8" data-label="R8 — Lecture du plan d'exécution"></textarea><div class="saved"></div></div>
-<div class="quiz" data-q="q4" data-answer="c"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Pourquoi le calcul en DataFrame est-il en général plus efficace que le même calcul en RDD écrit en Python ?</p><button class="opt" type="button" data-v="a">Parce que les DataFrames ne sont pas distribués</button><button class="opt" type="button" data-v="b">Parce que les DataFrames évitent tout shuffle</button><button class="opt" type="button" data-v="c">Parce que l'optimiseur Catalyst connaît le schéma et que le calcul s'exécute dans la JVM, sans passer par des fonctions Python</button><div class="fb" data-ok="Exact. Avec un RDD, chaque lambda Python est exécutée hors de la JVM ; un DataFrame est optimisé par Catalyst et exécuté dans la JVM. Le shuffle, lui, reste nécessaire pour un groupBy." data-ko="Les DataFrames sont distribués et le groupBy impose toujours un shuffle. Leur avantage vient de Catalyst, qui optimise un plan dont il connaît le schéma, et de l'exécution dans la JVM, sans fonctions Python."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+""").show()</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les trois versions donnent les mêmes trois
+            magasins, avec les mêmes totaux (aux arrondis près).</span></div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-brand-python"
+                aria-hidden="true"></i>cluster-master · pyspark</span><button class="copy" type="button"><i
+                class="ti ti-copy" aria-hidden="true"></i>Copier</button></div>
+          <pre><code>exit()</code></pre>
+        </div>
+        <div class="reflect"><label for="r7"><span class="rn">R7</span>Donnez les 3 magasins qui vendent le plus, avec
+            leur total. Sont-ils identiques à ceux obtenus en MapReduce au TP1 (R10) ? Comparez la longueur et la
+            lisibilité des trois écritures.</label><textarea id="r7"
+            data-label="R7 — Top 3 des magasins, RDD, DataFrame, SQL"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r8"><span class="rn">R8</span>Dans le plan affiché par <code
+              class="i">res.explain()</code>, repérez l'opérateur <code class="i">Exchange</code> et les deux <code
+              class="i">HashAggregate</code>. À quoi correspondent-ils ? Faites le lien avec les deux stages observés à
+            la section 3.</label><textarea id="r8" data-label="R8 — Lecture du plan d'exécution"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q4" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi le calcul en DataFrame est-il en général plus efficace que le même calcul en RDD écrit
+            en Python ?</p><button class="opt" type="button" data-v="a">Parce que les DataFrames ne sont pas
+            distribués</button><button class="opt" type="button" data-v="b">Parce que les DataFrames évitent tout
+            shuffle</button><button class="opt" type="button" data-v="c">Parce que l'optimiseur Catalyst connaît le
+            schéma et que le calcul s'exécute dans la JVM, sans passer par des fonctions Python</button>
+          <div class="fb"
+            data-ok="Exact. Avec un RDD, chaque lambda Python est exécutée hors de la JVM ; un DataFrame est optimisé par Catalyst et exécuté dans la JVM. Le shuffle, lui, reste nécessaire pour un groupBy."
+            data-ko="Les DataFrames sont distribués et le groupBy impose toujours un shuffle. Leur avantage vient de Catalyst, qui optimise un plan dont il connaît le schéma, et de l'exécution dans la JVM, sans fonctions Python.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 5 ============ -->
-  <section class="section" data-sec="5">
-    <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">À vous de jouer : une application Spark sur YARN</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<p>Une vraie application Spark n'est pas tapée dans un shell : c'est un script soumis au cluster par <code class="i">spark-submit</code>. Objectif : calculer le <strong>total des ventes par moyen de paiement</strong>.</p>
-<p>Ouvrez <code class="i">assets/spark/ventes_paiement.py</code> dans l'éditeur du Codespace et complétez <strong>les deux lignes marquées TODO</strong>. Le reste du script est fourni.</p>
-<table class="t"><tr><th>[0] date</th><th>[1] heure</th><th>[2] magasin</th><th>[3] catégorie</th><th>[4] montant</th><th>[5] paiement</th></tr><tr><td>2012-01-01</td><td>09:00</td><td>San Jose</td><td>Men's Clothing</td><td>214.05</td><td>Amex</td></tr></table>
-<h3>1. Soumettre le script à YARN</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>spark-submit --master yarn --deploy-mode client /shared_volume/spark/ventes_paiement.py 2&gt;/dev/null</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une ligne par moyen de paiement avec son total, du plus grand au plus petit. Si vous voyez <code class="i">None 0.0</code>, le TODO 1 n'est pas complété ; si le même moyen de paiement apparaît plusieurs fois, c'est le TODO 2.</span></div>
-<div class="note info"><i class="ti ti-bug" aria-hidden="true"></i><div>Rien ne s'affiche ? Relancez la commande <strong>sans</strong> <code class="i">2&gt;/dev/null</code> pour voir le message d'erreur complet.</div></div>
-<h3>2. Vérifier le résultat écrit dans HDFS</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>hdfs dfs -ls output/ventes_paiement
-hdfs dfs -cat output/ventes_paiement/part-* | head</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Plusieurs fichiers <code class="i">part-…</code> : un par partition de sortie. Dans l'interface YARN (8088), l'application <strong>ventes-par-paiement</strong> apparaît avec l'état FINISHED.</span></div>
-<div class="reflect"><label for="r9"><span class="rn">R9</span>Recopiez vos deux lignes complétées. Donnez les 3 moyens de paiement qui totalisent le plus de ventes. Au TP1 (R11), qu'aurait-il fallu modifier pour obtenir ce résultat en MapReduce ? Comparez l'effort.</label><textarea id="r9" data-label="R9 — Lignes complétées, résultat et comparaison avec MapReduce"></textarea><div class="saved"></div></div>
-<div class="quiz" data-q="q5" data-answer="a"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Avec <code class="i">--deploy-mode client</code>, où s'exécute le driver de votre application ?</p><button class="opt" type="button" data-v="a">Sur cluster-master, la machine qui a lancé spark-submit</button><button class="opt" type="button" data-v="b">Sur un des esclaves, choisi par YARN</button><button class="opt" type="button" data-v="c">Dans votre navigateur</button><div class="fb" data-ok="Exact. En mode client, le driver reste sur la machine qui soumet ; c'est pourquoi les print() s'affichent dans votre terminal." data-ko="En mode client, le driver reste sur la machine qui soumet (cluster-master) : c'est pourquoi les print() s'affichent dans votre terminal. En mode cluster, YARN le placerait sur un nœud du cluster."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    <!-- ============ SECTION 5 ============ -->
+    <section class="section" data-sec="5">
+      <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">À vous de jouer : une
+          application Spark sur YARN</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Une vraie application Spark n'est pas tapée dans un shell : c'est un script soumis au cluster par <code
+            class="i">spark-submit</code>. Objectif : calculer le <strong>total des ventes par moyen de
+            paiement</strong>.</p>
+        <p>Ouvrez <code class="i">assets/spark/ventes_paiement.py</code> dans l'éditeur du Codespace et complétez
+          <strong>les deux lignes marquées TODO</strong>. Le reste du script est fourni.</p>
+        <table class="t">
+          <tr>
+            <th>[0] date</th>
+            <th>[1] heure</th>
+            <th>[2] magasin</th>
+            <th>[3] catégorie</th>
+            <th>[4] montant</th>
+            <th>[5] paiement</th>
+          </tr>
+          <tr>
+            <td>2012-01-01</td>
+            <td>09:00</td>
+            <td>San Jose</td>
+            <td>Men's Clothing</td>
+            <td>214.05</td>
+            <td>Amex</td>
+          </tr>
+        </table>
+        <h3>1. Soumettre le script à YARN</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>spark-submit --master yarn --deploy-mode client /shared_volume/spark/ventes_paiement.py 2&gt;/dev/null</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une ligne par moyen de paiement avec son
+            total, du plus grand au plus petit. Si vous voyez <code class="i">None 0.0</code>, le TODO 1 n'est pas
+            complété ; si le même moyen de paiement apparaît plusieurs fois, c'est le TODO 2.</span></div>
+        <div class="note info"><i class="ti ti-bug" aria-hidden="true"></i>
+          <div>Rien ne s'affiche ? Relancez la commande <strong>sans</strong> <code class="i">2&gt;/dev/null</code> pour
+            voir le message d'erreur complet.</div>
+        </div>
+        <h3>2. Vérifier le résultat écrit dans HDFS</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>hdfs dfs -ls output/ventes_paiement
+hdfs dfs -cat output/ventes_paiement/part-* | head</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Plusieurs fichiers <code
+              class="i">part-…</code> : un par partition de sortie. Dans l'interface YARN (8088), l'application
+            <strong>ventes-par-paiement</strong> apparaît avec l'état FINISHED.</span></div>
+        <div class="reflect"><label for="r9"><span class="rn">R9</span>Recopiez vos deux lignes complétées. Donnez les 3
+            moyens de paiement qui totalisent le plus de ventes. Au TP1 (R11), qu'aurait-il fallu modifier pour obtenir
+            ce résultat en MapReduce ? Comparez l'effort.</label><textarea id="r9"
+            data-label="R9 — Lignes complétées, résultat et comparaison avec MapReduce"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q5" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Avec <code class="i">--deploy-mode client</code>, où s'exécute le driver de votre application ?
+          </p><button class="opt" type="button" data-v="a">Sur cluster-master, la machine qui a lancé
+            spark-submit</button><button class="opt" type="button" data-v="b">Sur un des esclaves, choisi par
+            YARN</button><button class="opt" type="button" data-v="c">Dans votre navigateur</button>
+          <div class="fb"
+            data-ok="Exact. En mode client, le driver reste sur la machine qui soumet ; c'est pourquoi les print() s'affichent dans votre terminal."
+            data-ko="En mode client, le driver reste sur la machine qui soumet (cluster-master) : c'est pourquoi les print() s'affichent dans votre terminal. En mode cluster, YARN le placerait sur un nœud du cluster.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ SECTION 6 ============ -->
-  <section class="section" data-sec="6">
-    <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">Synthèse, rendu et arrêt</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span class="sec-status">À faire</span></button>
-    <div class="sec-body">
-<div class="reflect"><label for="r10"><span class="rn">R10</span>En 5 lignes maximum, appuyé sur vos mesures : qu'est-ce que Spark change par rapport à MapReduce, et qu'est-ce qui ne change pas (partitions, shuffle, tolérance aux pannes) ?</label><textarea id="r10" data-label="R10 — Synthèse : Spark et MapReduce"></textarea><div class="saved"></div></div>
-<h3>Arrêter proprement</h3>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>exit</code></pre></div>
-<div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>docker-compose stop</code></pre></div>
-<p>Envoyez vos réponses avec le bouton ci-dessous, puis <strong>arrêtez votre Codespace</strong> : sur github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>.</p>
-<div class="note info"><i class="ti ti-arrow-right" aria-hidden="true"></i><div><strong>Suite : Lab 2 · Home assignment</strong>, à la maison : le lakehouse Bronze / Silver / Gold sur <strong>Databricks Free Edition</strong>. Créez votre compte avant de commencer ; tout se fait en DataFrame et en SQL.</div></div>
-<div class="quiz" data-q="q6" data-answer="b"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Dans le Home assignment, sur Databricks Free Edition, avec quelle API écrirez-vous vos traitements ?</p><button class="opt" type="button" data-v="a">L'API RDD, comme dans ce lab</button><button class="opt" type="button" data-v="b">L'API DataFrame et Spark SQL</button><button class="opt" type="button" data-v="c">Des jobs MapReduce en Java</button><div class="fb" data-ok="Exact. Le lakehouse du Home assignment s'écrit en DataFrame et en SQL ; les RDD restent utiles pour comprendre le moteur." data-ko="Le Home assignment utilise l'API DataFrame et Spark SQL, l'interface de référence sur les plateformes actuelles. Les RDD servent ici à comprendre le moteur."></div></div>
-<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
-<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
-    </div>
-  </section>
+    <!-- ============ SECTION 6 ============ -->
+    <section class="section" data-sec="6">
+      <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">Synthèse, rendu et
+          arrêt</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <div class="reflect"><label for="r10"><span class="rn">R10</span>En 5 lignes maximum, appuyé sur vos mesures :
+            qu'est-ce que Spark change par rapport à MapReduce, et qu'est-ce qui ne change pas (partitions, shuffle,
+            tolérance aux pannes) ?</label><textarea id="r10"
+            data-label="R10 — Synthèse : Spark et MapReduce"></textarea>
+          <div class="saved"></div>
+        </div>
+        <h3>Arrêter proprement</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>exit</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2"
+                aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>docker-compose stop</code></pre>
+        </div>
+        <p>Envoyez vos réponses avec le bouton ci-dessous, puis <strong>arrêtez votre Codespace</strong> : sur
+          github.com, <strong>Code → Codespaces → ⋯ → Stop codespace</strong>.</p>
+        <div class="note info"><i class="ti ti-arrow-right" aria-hidden="true"></i>
+          <div><strong>Suite : Lab 2 · Home assignment</strong>, à la maison : le lakehouse Bronze / Silver / Gold sur
+            <strong>Databricks Free Edition</strong>. Créez votre compte avant de commencer ; tout se fait en DataFrame
+            et en SQL.</div>
+        </div>
+        <div class="quiz" data-q="q6" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Dans le Home assignment, sur Databricks Free Edition, avec quelle API écrirez-vous vos
+            traitements ?</p><button class="opt" type="button" data-v="a">L'API RDD, comme dans ce lab</button><button
+            class="opt" type="button" data-v="b">L'API DataFrame et Spark SQL</button><button class="opt" type="button"
+            data-v="c">Des jobs MapReduce en Java</button>
+          <div class="fb"
+            data-ok="Exact. Le lakehouse du Home assignment s'écrit en DataFrame et en SQL ; les RDD restent utiles pour comprendre le moteur."
+            data-ko="Le Home assignment utilise l'API DataFrame et Spark SQL, l'interface de référence sur les plateformes actuelles. Les RDD servent ici à comprendre le moteur.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
 
-  <!-- ============ BONUS ============ -->
-  <section class="section bonus" data-sec="bonus">
-    <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star" aria-hidden="true"></i></span><span class="sec-title">Pour aller plus loin (facultatif) : le word count en Scala</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">Bonus</span></button>
-    <div class="sec-body">
-      <p>Spark est écrit en Scala. Le shell <code class="i">spark-shell</code> fournit les mêmes objets <code class="i">sc</code> et <code class="i">spark</code> que <code class="i">pyspark</code>. Relancez le cluster si besoin (section 0), puis :</p>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>spark-shell --master "local[*]"</code></pre></div>
-<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>val texte = sc.textFile("hdfs://hadoop-master:9000/user/root/web_input/alice.txt")
+    <!-- ============ BONUS ============ -->
+    <section class="section bonus" data-sec="bonus">
+      <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star"
+            aria-hidden="true"></i></span><span class="sec-title">Pour aller plus loin (facultatif) : le word count en
+          Scala</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">Bonus</span></button>
+      <div class="sec-body">
+        <p>Spark est écrit en Scala. Le shell <code class="i">spark-shell</code> fournit les mêmes objets <code
+            class="i">sc</code> et <code class="i">spark</code> que <code class="i">pyspark</code>. Relancez le cluster
+          si besoin (section 0), puis :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>spark-shell --master "local[*]"</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term cm"><i class="ti ti-server"
+                aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>val texte = sc.textFile("hdfs://hadoop-master:9000/user/root/web_input/alice.txt")
 val compte = texte.flatMap(_.toLowerCase.split("\\s+")).map(m =&gt; (m, 1)).reduceByKey(_ + _)
 compte.takeOrdered(10)(Ordering.by(-_._2)).foreach(println)
-:quit</code></pre></div>
-<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le même classement qu'en Python, section 3 (à la ligne vide près, que <code class="i">split()</code> en Python ignore).</span></div>
+:quit</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le même classement qu'en Python, section 3
+            (à la ligne vide près, que <code class="i">split()</code> en Python ignore).</span></div>
+      </div>
+    </section>
+
+    <!-- ============ RENDU ============ -->
+    <div class="final">
+      <h2>Rendre votre travail</h2>
+      <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R10 et vos résultats aux questions de
+        validation sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en
+        compte. Envoyez <strong>avant la fin de la séance</strong>.</p>
+      <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si
+        vous changez de poste ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
+      <div class="btn-row">
+        <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à
+          l'enseignant</button>
+        <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger
+          une copie</button>
+        <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes
+          réponses</button>
+      </div>
+      <div class="export-msg" id="exportmsg" role="status"></div>
     </div>
-  </section>
 
-  <!-- ============ RENDU ============ -->
-  <div class="final">
-    <h2>Rendre votre travail</h2>
-    <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R10 et vos résultats aux questions de validation sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en compte. Envoyez <strong>avant la fin de la séance</strong>.</p>
-    <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si vous changez de poste ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
-    <div class="btn-row">
-      <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à l'enseignant</button>
-      <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger une copie</button>
-      <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes réponses</button>
+
+    <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i>
+      <div>
+        <strong>En cas de problème</strong>
+        <ul style="margin:6px 0 0 18px">
+          <li><code class="i">spark-submit: command not found</code> ou <code
+              class="i">pyspark: command not found</code> : vous êtes dans le terminal Codespace. Entrez dans le maître
+            avec <code class="i">docker exec -it cluster-master bash</code>.</li>
+          <li><code class="i">Connection refused</code> sur le port 9000 : HDFS n'est pas démarré. Relancez <code
+              class="i">./start-hadoop.sh</code> depuis le maître.</li>
+          <li>L'application reste à l'état <strong>ACCEPTED</strong> dans YARN : une autre application occupe les
+            ressources. Listez-les avec <code class="i">yarn application -list</code> et arrêtez l'ancienne avec <code
+              class="i">yarn application -kill &lt;id&gt;</code>.</li>
+          <li>Le port 4040 n'apparaît pas : le Spark UI n'existe que pendant qu'une application tourne. Si deux
+            applications tournent, la seconde utilise le port 4041.</li>
+          <li><code class="i">Python in worker has different version</code> : lancez <code
+              class="i">export PYSPARK_PYTHON=python3</code> dans le maître, puis relancez la commande.</li>
+          <li>Le Codespace ne démarre pas : prévenez l'enseignant. En secours, les sections 2 à 4 peuvent se faire dans
+            Google Colab (<code class="i">!pip install pyspark</code>, mode local, fichiers téléversés dans la session).
+          </li>
+        </ul>
+      </div>
     </div>
-    <div class="export-msg" id="exportmsg" role="status"></div>
-  </div>
 
+    <footer>ENSIAS · Big Data &amp; Applications · 2SCL, IDF &amp; BI&amp;A · 2026-2027</footer>
+  </main>
 
-  <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i><div>
-    <strong>En cas de problème</strong>
-    <ul style="margin:6px 0 0 18px">
-      <li><code class="i">spark-submit: command not found</code> ou <code class="i">pyspark: command not found</code> : vous êtes dans le terminal Codespace. Entrez dans le maître avec <code class="i">docker exec -it cluster-master bash</code>.</li>
-      <li><code class="i">Connection refused</code> sur le port 9000 : HDFS n'est pas démarré. Relancez <code class="i">./start-hadoop.sh</code> depuis le maître.</li>
-      <li>L'application reste à l'état <strong>ACCEPTED</strong> dans YARN : une autre application occupe les ressources. Listez-les avec <code class="i">yarn application -list</code> et arrêtez l'ancienne avec <code class="i">yarn application -kill &lt;id&gt;</code>.</li>
-      <li>Le port 4040 n'apparaît pas : le Spark UI n'existe que pendant qu'une application tourne. Si deux applications tournent, la seconde utilise le port 4041.</li>
-      <li><code class="i">Python in worker has different version</code> : lancez <code class="i">export PYSPARK_PYTHON=python3</code> dans le maître, puis relancez la commande.</li>
-      <li>Le Codespace ne démarre pas : prévenez l'enseignant. En secours, les sections 2 à 4 peuvent se faire dans Google Colab (<code class="i">!pip install pyspark</code>, mode local, fichiers téléversés dans la session).</li>
-    </ul>
-  </div></div>
+  <script>
+    (function () {
+      // Adresse du script Google fournie par l'enseignant (voir le guide enseignant)
+      var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwIGriq5SYt4FccF6Wh2qLGHvatUwBrD9V6FztLf00nsNja4cugPbmVPeUNeYM1wVoi/exec';
+      var TP = 'LAB2';
+      var KEY = 'ensias-bd-lab2-v1';
+      var TOTAL = 7;
+      var state = { done: [], quiz: {}, text: {}, nom: '', filiere: '' };
 
-  <footer>ENSIAS · Big Data &amp; Applications · 2SCL, IDF &amp; BI&amp;A · 2026-2027</footer>
-</main>
+      function load() { try { var s = localStorage.getItem(KEY); if (s) { var p = JSON.parse(s); state = Object.assign(state, p); } } catch (e) { } }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; } }
+      load();
 
-<script>
-(function(){
-  // Adresse du script Google fournie par l'enseignant (voir le guide enseignant)
-  var ENDPOINT = 'COLLER_ICI_L_URL_DU_SCRIPT_GOOGLE';
-  var TP = 'LAB2';
-  var KEY = 'ensias-bd-lab2-v1';
-  var TOTAL = 7;
-  var state = {done:[], quiz:{}, text:{}, nom:'', filiere:''};
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
+      var bonus = document.querySelector('.section.bonus');
 
-  function load(){ try{ var s = localStorage.getItem(KEY); if(s){ var p = JSON.parse(s); state = Object.assign(state, p); } }catch(e){} }
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
-  load();
+      function isDone(i) { return state.done.indexOf(i) !== -1; }
+      function unlocked(i) { return i === 0 || isDone(i - 1); }
 
-  var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
-  var bonus = document.querySelector('.section.bonus');
-
-  function isDone(i){ return state.done.indexOf(i) !== -1; }
-  function unlocked(i){ return i === 0 || isDone(i-1); }
-
-  function refresh(){
-    sections.forEach(function(sec, i){
-      sec.classList.toggle('done', isDone(i));
-      sec.classList.toggle('locked', !unlocked(i));
-      var st = sec.querySelector('.sec-status');
-      st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
-      sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
-      var btn = sec.querySelector('.done-btn');
-      var quizzes = sec.querySelectorAll('.quiz');
-      var allAnswered = Array.prototype.every.call(quizzes, function(q){ return state.quiz[q.dataset.q]; });
-      if(btn){
-        btn.disabled = !allAnswered || isDone(i);
-        btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
-        var hint = sec.querySelector('.done-hint');
-        if(hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+      function refresh() {
+        sections.forEach(function (sec, i) {
+          sec.classList.toggle('done', isDone(i));
+          sec.classList.toggle('locked', !unlocked(i));
+          var st = sec.querySelector('.sec-status');
+          st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
+          sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
+          var btn = sec.querySelector('.done-btn');
+          var quizzes = sec.querySelectorAll('.quiz');
+          var allAnswered = Array.prototype.every.call(quizzes, function (q) { return state.quiz[q.dataset.q]; });
+          if (btn) {
+            btn.disabled = !allAnswered || isDone(i);
+            btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
+            var hint = sec.querySelector('.done-hint');
+            if (hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+          }
+        });
+        var n = state.done.length;
+        document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
+        document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
       }
-    });
-    var n = state.done.length;
-    document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
-    document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
-  }
 
-  function openSection(sec){
-    sections.concat([bonus]).forEach(function(s){ if(s !== sec) s.classList.remove('open'); });
-    sec.classList.add('open');
-    refresh();
-  }
-
-  sections.forEach(function(sec, i){
-    sec.querySelector('.sec-head').addEventListener('click', function(){
-      if(!unlocked(i)) return;
-      if(sec.classList.contains('open')){ sec.classList.remove('open'); refresh(); }
-      else { openSection(sec); }
-    });
-    var btn = sec.querySelector('.done-btn');
-    if(btn) btn.addEventListener('click', function(){
-      if(!isDone(i)) state.done.push(i);
-      save();
-      sec.classList.remove('open');
-      if(sections[i+1]){ openSection(sections[i+1]); sections[i+1].scrollIntoView({behavior:'smooth', block:'start'}); }
-      refresh();
-    });
-  });
-  bonus.querySelector('.sec-head').addEventListener('click', function(){
-    if(bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
-  });
-
-  // Questions de validation (réponse révélée après 3 s)
-  document.querySelectorAll('.quiz').forEach(function(q){
-    var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
-    var opts = q.querySelectorAll('.opt');
-    function reveal(choice, instant){
-      opts.forEach(function(o){ o.disabled = true; if(o.dataset.v === choice) o.classList.add('chosen'); });
-      function show(){
-        opts.forEach(function(o){ if(o.dataset.v === answer) o.classList.add('right'); else if(o.dataset.v === choice) o.classList.add('wrong'); });
-        var ok = choice === answer;
-        fb.className = 'fb ' + (ok ? 'ok' : 'ko');
-        fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+      function openSection(sec) {
+        sections.concat([bonus]).forEach(function (s) { if (s !== sec) s.classList.remove('open'); });
+        sec.classList.add('open');
         refresh();
       }
-      if(instant) show();
-      else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
-    }
-    opts.forEach(function(o){
-      o.addEventListener('click', function(){
-        if(state.quiz[id]) return;
-        state.quiz[id] = {choice:o.dataset.v, correct:o.dataset.v === answer};
-        save();
-        reveal(o.dataset.v, false);
+
+      sections.forEach(function (sec, i) {
+        sec.querySelector('.sec-head').addEventListener('click', function () {
+          if (!unlocked(i)) return;
+          if (sec.classList.contains('open')) { sec.classList.remove('open'); refresh(); }
+          else { openSection(sec); }
+        });
+        var btn = sec.querySelector('.done-btn');
+        if (btn) btn.addEventListener('click', function () {
+          if (!isDone(i)) state.done.push(i);
+          save();
+          sec.classList.remove('open');
+          if (sections[i + 1]) { openSection(sections[i + 1]); sections[i + 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          refresh();
+        });
       });
-    });
-    if(state.quiz[id]) reveal(state.quiz[id].choice, true);
-  });
+      bonus.querySelector('.sec-head').addEventListener('click', function () {
+        if (bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
+      });
 
-  // Réponses écrites
-  document.querySelectorAll('.reflect textarea').forEach(function(t){
-    var info = t.parentNode.querySelector('.saved');
-    t.value = state.text[t.id] || '';
-    var timer;
-    t.addEventListener('input', function(){
-      state.text[t.id] = t.value;
-      clearTimeout(timer);
-      timer = setTimeout(function(){ info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
-    });
-  });
+      // Questions de validation (réponse révélée après 3 s)
+      document.querySelectorAll('.quiz').forEach(function (q) {
+        var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
+        var opts = q.querySelectorAll('.opt');
+        function reveal(choice, instant) {
+          opts.forEach(function (o) { o.disabled = true; if (o.dataset.v === choice) o.classList.add('chosen'); });
+          function show() {
+            opts.forEach(function (o) { if (o.dataset.v === answer) o.classList.add('right'); else if (o.dataset.v === choice) o.classList.add('wrong'); });
+            var ok = choice === answer;
+            fb.className = 'fb ' + (ok ? 'ok' : 'ko');
+            fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+            refresh();
+          }
+          if (instant) show();
+          else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
+        }
+        opts.forEach(function (o) {
+          o.addEventListener('click', function () {
+            if (state.quiz[id]) return;
+            state.quiz[id] = { choice: o.dataset.v, correct: o.dataset.v === answer };
+            save();
+            reveal(o.dataset.v, false);
+          });
+        });
+        if (state.quiz[id]) reveal(state.quiz[id].choice, true);
+      });
 
-  // Identité
-  var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
-  nom.value = state.nom || ''; fil.value = state.filiere || '';
-  nom.addEventListener('input', function(){ state.nom = nom.value; save(); });
-  fil.addEventListener('change', function(){ state.filiere = fil.value; save(); });
+      // Réponses écrites
+      document.querySelectorAll('.reflect textarea').forEach(function (t) {
+        var info = t.parentNode.querySelector('.saved');
+        t.value = state.text[t.id] || '';
+        var timer;
+        t.addEventListener('input', function () {
+          state.text[t.id] = t.value;
+          clearTimeout(timer);
+          timer = setTimeout(function () { info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
+        });
+      });
 
-  // Boutons Copier
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click', function(){
-      var text = b.closest('.cmd').querySelector('pre').innerText.trim();
-      function done(){ b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function(){ b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
-      if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
-      function fallback(){ var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){} document.body.removeChild(ta); }
-    });
-  });
+      // Identité
+      var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
+      nom.value = state.nom || ''; fil.value = state.filiere || '';
+      nom.addEventListener('input', function () { state.nom = nom.value; save(); });
+      fil.addEventListener('change', function () { state.filiere = fil.value; save(); });
 
-  // Envoi direct à l'enseignant (Google Sheets via Apps Script)
-  document.getElementById('send').addEventListener('click', function(){
-    var msg = document.getElementById('exportmsg');
-    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
-    if(ENDPOINT.indexOf('http') !== 0){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
-    var qs = Object.keys(state.quiz);
-    var data = {tp:TP, date:new Date().toLocaleString('fr-FR'), nom:state.nom.trim(), filiere:state.filiere || '',
-      sections:state.done.length + ' / ' + TOTAL,
-      score:qs.filter(function(k){ return state.quiz[k].correct; }).length + ' / ' + qs.length};
-    document.querySelectorAll('.reflect textarea').forEach(function(t){ data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
-    var btn = this; btn.disabled = true;
-    msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
-    fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)})
-      .then(function(){ msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
-      .catch(function(){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
-      .then(function(){ btn.disabled = false; });
-  });
+      // Boutons Copier
+      document.querySelectorAll('.copy').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = b.closest('.cmd').querySelector('pre').innerText.trim();
+          function done() { b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function () { b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
+          if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+          function fallback() { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } document.body.removeChild(ta); }
+        });
+      });
 
-  // Export
-  document.getElementById('export').addEventListener('click', function(){
-    var msg = document.getElementById('exportmsg');
-    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
-    var qs = Object.keys(state.quiz).sort();
-    var score = qs.filter(function(k){ return state.quiz[k].correct; }).length;
-    var lines = ['# Lab 2 — Cluster Spark, RDD et Spark UI', '',
-      '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
-      '- **Export** : ' + new Date().toLocaleString('fr-FR'),
-      '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
-      '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
-    document.querySelectorAll('.reflect textarea').forEach(function(t){
-      lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
-    });
-    var blob = new Blob([lines.join('\n')], {type:'text/markdown;charset=utf-8'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Lab2_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    msg.style.color = 'var(--success-text)';
-    msg.textContent = 'Copie téléchargée sur votre ordinateur.';
-  });
+      // Envoi direct à l'enseignant (Google Sheets via Apps Script)
+      document.getElementById('send').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
+        if (ENDPOINT.indexOf('http') !== 0) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
+        var qs = Object.keys(state.quiz);
+        var data = {
+          tp: TP, date: new Date().toLocaleString('fr-FR'), nom: state.nom.trim(), filiere: state.filiere || '',
+          sections: state.done.length + ' / ' + TOTAL,
+          score: qs.filter(function (k) { return state.quiz[k].correct; }).length + ' / ' + qs.length
+        };
+        document.querySelectorAll('.reflect textarea').forEach(function (t) { data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
+        var btn = this; btn.disabled = true;
+        msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
+        fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+          .then(function () { msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
+          .catch(function () { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
+          .then(function () { btn.disabled = false; });
+      });
 
-  document.getElementById('reset').addEventListener('click', function(){
-    if(!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
-    try{ localStorage.removeItem(KEY); }catch(e){}
-    location.reload();
-  });
+      // Export
+      document.getElementById('export').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
+        var qs = Object.keys(state.quiz).sort();
+        var score = qs.filter(function (k) { return state.quiz[k].correct; }).length;
+        var lines = ['# Lab 2 — Cluster Spark, RDD et Spark UI', '',
+          '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
+          '- **Export** : ' + new Date().toLocaleString('fr-FR'),
+          '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
+          '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
+        document.querySelectorAll('.reflect textarea').forEach(function (t) {
+          lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
+        });
+        var blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Lab2_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        msg.style.color = 'var(--success-text)';
+        msg.textContent = 'Copie téléchargée sur votre ordinateur.';
+      });
 
-  // Ouvrir la première section non terminée
-  var first = sections.find(function(s, i){ return !isDone(i) && unlocked(i); });
-  if(first) first.classList.add('open');
-  refresh();
-})();
-</script>
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        location.reload();
+      });
+
+      // Ouvrir la première section non terminée
+      var first = sections.find(function (s, i) { return !isDone(i) && unlocked(i); });
+      if (first) first.classList.add('open');
+      refresh();
+    })();
+  </script>
 </body>
+
 </html>
