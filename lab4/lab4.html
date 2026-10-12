@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 4 — Lakehouse Bronze, Silver, Gold | ENSIAS 2026-2027</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1E2761;
+      --navy-dark: #141c4a;
+      --gold: #E8B84B;
+      --bg: #f4f6ff;
+      --card: #fff;
+      --border: #dde3f5;
+      --text: #1a2040;
+      --muted: #64748b;
+      --hint: #94a3b8;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --success-border: #6ee7b7;
+      --danger-bg: #fef2f2;
+      --danger-text: #991b1b;
+      --danger-border: #fca5a5;
+      --info-bg: #eff6ff;
+      --info-text: #1e40af;
+      --info-border: #93c5fd;
+      --warn-bg: #fffbeb;
+      --warn-text: #92400e;
+      --warn-border: #fcd34d;
+      --code-bg: #0f172a;
+      --teal: #0f766e;
+      --teal-bg: #e6f6f4
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6
+    }
+
+    a {
+      color: var(--info-text)
+    }
+
+    .site-header {
+      background: var(--navy);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--gold)
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      background: var(--gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 14px;
+      color: var(--navy)
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .55);
+      margin-top: 1px
+    }
+
+    .header-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem
+    }
+
+    .lab-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a3068 100%);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .lab-hero::after {
+      content: '4';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 120px;
+      color: rgba(255, 255, 255, .05);
+      line-height: 1;
+      pointer-events: none
+    }
+
+    .lab-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .6rem
+    }
+
+    .lab-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 4vw, 28px);
+      color: #fff;
+      margin-bottom: .5rem;
+      font-weight: 400
+    }
+
+    .lab-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .75);
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 1.1rem
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .8);
+      background: rgba(255, 255, 255, .08);
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .ident {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px
+    }
+
+    .ident label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .ident input,
+    .ident select {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .progress-wrap {
+      margin-bottom: 1.25rem
+    }
+
+    .progress-bar {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: var(--navy);
+      border-radius: 99px;
+      transition: width .5s
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right
+    }
+
+    .intro-note {
+      margin-bottom: 1.25rem
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden
+    }
+
+    .section.locked {
+      opacity: .55
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      background: none;
+      border: 0;
+      font: inherit;
+      text-align: left;
+      color: inherit
+    }
+
+    .sec-head:hover {
+      background: var(--bg)
+    }
+
+    .section.locked .sec-head {
+      cursor: not-allowed
+    }
+
+    .sec-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--bg);
+      color: var(--navy);
+      border: 1px solid var(--border)
+    }
+
+    .section.done .sec-num {
+      background: var(--success-text);
+      color: #fff;
+      border-color: var(--success-text)
+    }
+
+    .section.open .sec-num {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .sec-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.35
+    }
+
+    .sec-time {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 3px
+    }
+
+    .sec-status {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--warn-bg);
+      color: var(--warn-text)
+    }
+
+    .section.done .sec-status {
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .section.locked .sec-status {
+      background: var(--bg);
+      color: var(--hint)
+    }
+
+    .sec-body {
+      display: none;
+      padding: 4px 18px 18px;
+      border-top: 1px solid var(--border)
+    }
+
+    .section.open .sec-body {
+      display: block
+    }
+
+    .sec-body p {
+      font-size: 13.5px;
+      margin: 12px 0
+    }
+
+    .sec-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 18px 0 6px
+    }
+
+    .sec-body ul,
+    .sec-body ol {
+      font-size: 13.5px;
+      margin: 8px 0 8px 20px
+    }
+
+    .sec-body li {
+      margin: 3px 0
+    }
+
+    code.i {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 5px
+    }
+
+    .cmd {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b
+    }
+
+    .cmd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 6px 10px
+    }
+
+    .term {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .term.cs {
+      background: #dbeafe;
+      color: #1e3a8a
+    }
+
+    .term.cm {
+      background: var(--gold);
+      color: var(--navy)
+    }
+
+    .term.db {
+      background: #ffe1d6;
+      color: #9a3412
+    }
+
+    [hidden] {
+      display: none !important
+    }
+
+    .copy {
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: transparent;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 3px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .copy:hover {
+      color: #fff;
+      border-color: #94a3b8
+    }
+
+    .copy.ok {
+      color: #6ee7b7;
+      border-color: #6ee7b7
+    }
+
+    .cmd pre {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 0
+    }
+
+    .cmd pre .c {
+      color: #64748b
+    }
+
+    .expect {
+      font-size: 12.5px;
+      background: var(--teal-bg);
+      color: var(--teal);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: -2px 0 12px;
+      display: flex;
+      gap: 8px
+    }
+
+    .expect i {
+      margin-top: 2px
+    }
+
+    .note {
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      display: flex;
+      gap: 9px;
+      border: 1px solid
+    }
+
+    .note i {
+      font-size: 17px;
+      margin-top: 1px
+    }
+
+    .note.info {
+      background: var(--info-bg);
+      color: var(--info-text);
+      border-color: var(--info-border)
+    }
+
+    .note.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border)
+    }
+
+    .note.ok {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-color: var(--success-border)
+    }
+
+    table.t {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 10px 0
+    }
+
+    table.t th,
+    table.t td {
+      border: 1px solid var(--border);
+      padding: 6px 9px;
+      text-align: left
+    }
+
+    table.t th {
+      background: var(--bg);
+      font-weight: 600
+    }
+
+    .quiz {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0
+    }
+
+    .quiz-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px
+    }
+
+    .quiz .q {
+      font-size: 13.5px;
+      font-weight: 600;
+      margin: 0 0 10px
+    }
+
+    .opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin: 6px 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--text)
+    }
+
+    .opt:hover:not(:disabled) {
+      border-color: var(--navy)
+    }
+
+    .opt.chosen {
+      border-color: var(--navy);
+      box-shadow: inset 0 0 0 1px var(--navy)
+    }
+
+    .opt.right {
+      background: var(--success-bg);
+      border-color: var(--success-border)
+    }
+
+    .opt.wrong {
+      background: var(--danger-bg);
+      border-color: var(--danger-border)
+    }
+
+    .opt:disabled {
+      cursor: default
+    }
+
+    .fb {
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+      border-radius: 9px;
+      padding: 9px 12px
+    }
+
+    .fb.wait {
+      display: block;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed var(--border)
+    }
+
+    .fb.ok {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text)
+    }
+
+    .fb.ko {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger-text)
+    }
+
+    .reflect {
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      background: #fffdf6
+    }
+
+    .reflect label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px
+    }
+
+    .reflect label .rn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-right: 6px
+    }
+
+    .reflect textarea {
+      width: 100%;
+      min-height: 90px;
+      font: inherit;
+      font-size: 13px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      background: #fff;
+      color: var(--text)
+    }
+
+    .saved {
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 3px
+    }
+
+    .done-btn {
+      margin-top: 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 0;
+      background: var(--navy);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .done-btn:disabled {
+      background: var(--hint);
+      cursor: not-allowed
+    }
+
+    .done-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px
+    }
+
+    .final {
+      background: var(--card);
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      margin-top: 1.5rem
+    }
+
+    .final h2 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      font-size: 21px;
+      color: var(--navy);
+      margin-bottom: 6px
+    }
+
+    .final p {
+      font-size: 13.5px;
+      margin: 6px 0
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--navy)
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold)
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--navy)
+    }
+
+    .btn.danger {
+      background: #fff;
+      color: var(--danger-text);
+      border-color: var(--danger-border)
+    }
+
+    .export-msg {
+      font-size: 12.5px;
+      margin-top: 8px
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--hint);
+      margin-top: 2.5rem
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px
+    }
+
+    @media (max-width:640px) {
+      .ident {
+        grid-template-columns: 1fr
+      }
+
+      .sec-time {
+        display: none
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .progress-fill {
+        transition: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-logo">BD</div>
+        <div>
+          <div class="header-title">Big Data &amp; Applications</div>
+          <div class="header-sub">ENSIAS · 2SCL, IDF &amp; BI&amp;A · 2026-2027</div>
+        </div>
+      </div>
+      <span class="header-badge">Lab 4 · en séance</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="lab-hero">
+      <div class="lab-tag">Semaine 4 · En séance · noté sur 20</div>
+      <h1 class="lab-title">Lab 4 — Votre lakehouse Bronze, Silver, Gold</h1>
+      <p class="lab-desc">Construire sur Databricks un lakehouse complet sur les données brutes de votre filière :
+        ingestion Bronze en Delta, règles Silver et quarantaine écrites par vous, tables Gold écrites par vous, puis
+        lecture du plan et des garanties de Delta Lake.</p>
+      <div class="lab-meta">
+        <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>≈ 2 h 10</span>
+        <span class="meta-chip"><i class="ti ti-cloud" aria-hidden="true"></i>Databricks Free Edition</span>
+        <span class="meta-chip"><i class="ti ti-database" aria-hidden="true"></i>Delta Lake</span>
+        <span class="meta-chip"><i class="ti ti-layers-subtract" aria-hidden="true"></i>Médaillon</span>
+      </div>
+    </div>
+
+    <div class="ident">
+      <div>
+        <label for="nom">Nom(s) et prénom(s)</label>
+        <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+      </div>
+      <div>
+        <label for="filiere">Filière (obligatoire)</label>
+        <select id="filiere">
+          <option value="">Choisir…</option>
+          <option>2SCL</option>
+          <option>IDF</option>
+          <option>BI&amp;A</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="pfill"></div>
+      </div>
+      <div class="progress-label" id="plabel">0 / 7 sections terminées</div>
+    </div>
+
+    <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i>
+      <div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le
+        bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont
+        <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à
+        l'enseignant à la fin du lab.</div>
+    </div>
+
+    <div class="note warn" id="filwarn"><i class="ti ti-arrow-up" aria-hidden="true"></i>
+      <div><strong>Choisissez votre filière</strong> dans l'encart ci-dessus : le code et les tables affichés dans les
+        sections en dépendent.</div>
+    </div>
+
+
+    <!-- ============ SECTION 0 ============ -->
+    <section class="section" data-sec="0">
+      <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Préparer les données
+          brutes</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Ce lab se fait <strong>en séance</strong>, dans votre espace Databricks du Lab 3, mais dans un
+          <strong>nouveau schéma</strong> <code class="i">workspace.lab4</code>. Vous construisez les trois couches d'un
+          lakehouse sur les données <strong>brutes</strong> de votre filière, qui contiennent des défauts, en
+          réutilisant les traitements écrits au Lab 3.</p>
+        <div class="note warn"><i class="ti ti-arrow-up" aria-hidden="true"></i>
+          <div>Choisissez votre filière dans l'encart en haut de la page : le code et les tables affichés en dépendent.
+          </div>
+        </div>
+        <h3>1. Créer le schéma et le volume</h3>
+        <p>Créez un <strong>nouveau notebook</strong> nommé <code class="i">lab4</code>, puis exécutez :</p>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+CREATE SCHEMA IF NOT EXISTS workspace.lab4;
+CREATE VOLUME IF NOT EXISTS workspace.lab4.raw;</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Deux commandes sans résultat affiché, ou
+            un message de succès. Le schéma <code class="i">lab4</code> apparaît dans <strong>Catalog</strong> → <code
+              class="i">workspace</code>.</span></div>
+        <h3>2. Téléverser les fichiers bruts</h3>
+        <p>Depuis le dépôt du cours, dossier <code class="i">assets/lab4/</code>, téléchargez :</p>
+        <div data-fil="IDF">
+          <ul>
+            <li><code class="i">idf_transactions_raw.csv</code></li>
+          </ul>
+        </div>
+        <div data-fil="2SCL">
+          <ul>
+            <li><code class="i">scl_scans_raw.json</code></li>
+            <li><code class="i">scl_colis_ref.csv</code></li>
+          </ul>
+        </div>
+        <div data-fil="BI&amp;A">
+          <ul>
+            <li><code class="i">bia_ventes_raw.txt</code></li>
+          </ul>
+        </div>
+        <p>Puis <strong>Catalog</strong> → <code class="i">workspace</code> → <code class="i">lab4</code> →
+          <strong>Volumes</strong> → <code class="i">raw</code> → <strong>Upload to this volume</strong>.</p>
+        <h3>3. Se placer dans le schéma</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks ·
+              Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>spark.sql(&quot;USE CATALOG workspace&quot;)
+spark.sql(&quot;USE SCHEMA lab4&quot;)
+display(dbutils.fs.ls(&quot;/Volumes/workspace/lab4/raw/&quot;))</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>La liste du volume : les fichiers bruts
+            <code class="i">*_raw</code> que vous venez d'ajouter.</span></div>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>N'utilisez jamais <strong>« Run all »</strong> : la section 1 relance volontairement une ingestion. Lors
+            d'une nouvelle session, réexécutez seulement cette cellule.</div>
+        </div>
+        <div class="quiz" data-q="q0" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi les fichiers de ce lab sont-ils dits « bruts » ?</p><button class="opt" type="button"
+            data-v="a">Parce qu'ils sont compressés</button><button class="opt" type="button" data-v="b">Parce qu'ils
+            arrivent tels que produits par la source, avec leurs défauts</button><button class="opt" type="button"
+            data-v="c">Parce qu'ils sont plus volumineux que ceux du Lab 3</button>
+          <div class="fb"
+            data-ok="Exact : les données brutes sont conservées telles quelles en Bronze ; leur nettoyage est le rôle de Silver."
+            data-ko="Brut signifie tel que produit par la source, avec ses défauts (doublons, formats, valeurs manquantes). Les nettoyer est le rôle de la couche Silver.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 1 ============ -->
+    <section class="section" data-sec="1">
+      <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Couche Bronze :
+          ingérer, rejouer, restaurer</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>La couche Bronze conserve les données telles que reçues, toutes en texte, avec le fichier d'origine et
+          l'horodatage du chargement. Ce code est fourni.</p>
+        <h3>1. Première ingestion</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+def ingerer():
+    bronze = (spark.read
+        .option(&quot;header&quot;, True)
+        .schema(&quot;transaction_id STRING, client_id STRING, country STRING, amount STRING, &quot;
+                &quot;transaction_type STRING, risk_score STRING, transaction_date STRING&quot;)
+        .csv(&quot;/Volumes/workspace/lab4/raw/idf_transactions_raw.csv&quot;)
+        .withColumn(&quot;_source_file&quot;, F.col(&quot;_metadata.file_path&quot;))
+        .withColumn(&quot;_ingest_ts&quot;, F.current_timestamp()))
+    bronze.write.mode(&quot;append&quot;).saveAsTable(&quot;bronze_transactions&quot;)
+    print(&quot;Lignes dans bronze_transactions :&quot;, spark.table(&quot;bronze_transactions&quot;).count())
+
+ingerer()</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+def ingerer():
+    bronze = (spark.read
+        .schema(&quot;colis STRING, etape STRING, site STRING, ts STRING&quot;)
+        .json(&quot;/Volumes/workspace/lab4/raw/scl_scans_raw.json&quot;)
+        .withColumn(&quot;_source_file&quot;, F.col(&quot;_metadata.file_path&quot;))
+        .withColumn(&quot;_ingest_ts&quot;, F.current_timestamp()))
+    bronze.write.mode(&quot;append&quot;).saveAsTable(&quot;bronze_scans&quot;)
+    print(&quot;Lignes dans bronze_scans :&quot;, spark.table(&quot;bronze_scans&quot;).count())
+
+ingerer()
+
+# Référentiel des colis : petite table de référence, rechargée en entier
+(spark.read.option(&quot;header&quot;, True)
+    .schema(&quot;colis_id STRING, transporteur STRING, origine STRING, destination STRING, promesse_h INT&quot;)
+    .csv(&quot;/Volumes/workspace/lab4/raw/scl_colis_ref.csv&quot;)
+    .write.mode(&quot;overwrite&quot;).saveAsTable(&quot;ref_colis&quot;))</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+def ingerer():
+    bronze = (spark.read
+        .text(&quot;/Volumes/workspace/lab4/raw/bia_ventes_raw.txt&quot;)          # une colonne : value (la ligne brute)
+        .withColumn(&quot;_source_file&quot;, F.col(&quot;_metadata.file_path&quot;))
+        .withColumn(&quot;_ingest_ts&quot;, F.current_timestamp()))
+    bronze.write.mode(&quot;append&quot;).saveAsTable(&quot;bronze_ventes&quot;)
+    print(&quot;Lignes dans bronze_ventes :&quot;, spark.table(&quot;bronze_ventes&quot;).count())
+
+ingerer()</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Un nombre de lignes : notez-le pour
+            R1.</span></div>
+        <h3>2. Relance volontaire, historique, restauration</h3>
+        <p>Exécutez <strong>une seconde fois</strong> la seule ligne <code class="i">ingerer()</code> dans une nouvelle
+          cellule, notez le nombre de lignes, puis :</p>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE HISTORY bronze_transactions</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE HISTORY bronze_scans</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE HISTORY bronze_ventes</code></pre>
+          </div>
+        </div>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+RESTORE TABLE bronze_transactions TO VERSION AS OF 0;
+
+SELECT COUNT(*) AS nb_lignes FROM bronze_transactions;</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+RESTORE TABLE bronze_scans TO VERSION AS OF 0;
+
+SELECT COUNT(*) AS nb_lignes FROM bronze_scans;</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+RESTORE TABLE bronze_ventes TO VERSION AS OF 0;
+
+SELECT COUNT(*) AS nb_lignes FROM bronze_ventes;</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Après le <code class="i">RESTORE</code>,
+            le nombre de lignes de la première ingestion.</span></div>
+        <div class="reflect"><label for="r1"><span class="rn">R1</span>Nombre de lignes après la première ingestion,
+            puis après la relance. Que montre <code class="i">DESCRIBE HISTORY</code> (versions, opérations, lignes
+            écrites) ?</label><textarea id="r1" data-label="R1 — Ingestion, relance et historique"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r2"><span class="rn">R2</span>Après le <code class="i">RESTORE</code>, combien
+            de lignes et quelle version ? Pourquoi l'ancienne version reste-t-elle lisible ? Quel problème une ingestion
+            non idempotente poserait-elle en production ?</label><textarea id="r2"
+            data-label="R2 — Time travel et idempotence"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q1" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi Bronze lit-elle toutes les colonnes en texte ?</p><button class="opt" type="button"
+            data-v="a">Parce que Delta ne stocke pas de nombres</button><button class="opt" type="button"
+            data-v="b">Pour aller plus vite</button><button class="opt" type="button" data-v="c">Pour ne rien perdre :
+            une valeur mal formée est conservée et traitée en Silver</button>
+          <div class="fb" data-ok="Exact : Bronze garde tout, Silver décide."
+            data-ko="Typer dès l'ingestion ferait échouer ou perdre les valeurs mal formées. Bronze garde tout en texte ; le typage et les règles qualité sont le rôle de Silver.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 2 ============ -->
+    <section class="section" data-sec="2">
+      <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">À vous de jouer n° 1
+          : la couche Silver</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>35
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>À vous d'écrire les règles de la couche Silver. Le squelette ci-dessous contient <strong>4 lignes <code
+              class="i">TODO</code></strong> à compléter, avec les fonctions pratiquées au Lab 3 (<code
+            class="i">F.upper</code>, <code class="i">F.trim</code>, <code class="i">F.initcap</code>, <code
+            class="i">try_cast</code>, <code class="i">dropDuplicates</code>, jointure <code class="i">left_anti</code>,
+          expressions SQL).</p>
+        <h3>1. Les règles de votre filière</h3>
+        <div data-fil="IDF">
+          <table class="t">
+            <tr>
+              <th>Défaut dans Bronze</th>
+              <th>Traitement en Silver</th>
+            </tr>
+            <tr>
+              <td>type écrit <code class="i">atm</code>, <code class="i">transfer </code>…</td>
+              <td>corrigé : majuscules, espaces retirés (TODO 1)</td>
+            </tr>
+            <tr>
+              <td>montant avec virgule décimale</td>
+              <td>corrigé : fourni</td>
+            </tr>
+            <tr>
+              <td>même <code class="i">transaction_id</code> en double</td>
+              <td>supprimé (TODO 2)</td>
+            </tr>
+            <tr>
+              <td>montant ≤ 0 ou illisible, score vide, date invalide</td>
+              <td><strong>quarantaine</strong> (TODO 3 et 4)</td>
+            </tr>
+          </table>
+        </div>
+        <div data-fil="2SCL">
+          <table class="t">
+            <tr>
+              <th>Défaut dans Bronze</th>
+              <th>Traitement en Silver</th>
+            </tr>
+            <tr>
+              <td>libellé d'étape variable (<code class="i">pris en charge</code>, <code class="i">Entrepôt</code>,
+                <code class="i">en livraison</code>, <code class="i">livré</code>…)</td>
+              <td>corrigé : code normalisé (TODO 1)</td>
+            </tr>
+            <tr>
+              <td>site mal écrit (casse, espaces)</td>
+              <td>corrigé (TODO 2)</td>
+            </tr>
+            <tr>
+              <td>même message reçu deux fois</td>
+              <td>supprimé : fourni</td>
+            </tr>
+            <tr>
+              <td>colis absent du référentiel ; ts ou étape manquant</td>
+              <td><strong>quarantaine</strong> (TODO 3 et 4)</td>
+            </tr>
+          </table>
+        </div>
+        <div data-fil="BI&amp;A">
+          <table class="t">
+            <tr>
+              <th>Défaut dans Bronze</th>
+              <th>Traitement en Silver</th>
+            </tr>
+            <tr>
+              <td>casse ou espaces du moyen de paiement</td>
+              <td>corrigé (TODO 1)</td>
+            </tr>
+            <tr>
+              <td>montant illisible (<code class="i">N/A</code>, vide)</td>
+              <td>converti en <code class="i">NULL</code> (TODO 2), puis quarantaine</td>
+            </tr>
+            <tr>
+              <td>ligne vendue deux fois à l'identique</td>
+              <td>supprimé : fourni</td>
+            </tr>
+            <tr>
+              <td>montant ≤ 0 ou nul ; magasin vide</td>
+              <td><strong>quarantaine</strong> (TODO 3 et 4)</td>
+            </tr>
+          </table>
+        </div>
+        <h3>2. Compléter et exécuter</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>b = spark.table(&quot;bronze_transactions&quot;)
+
+typed = (b
+    .withColumn(&quot;transaction_type&quot;, ___)        # TODO 1 : majuscules, sans espaces autour
+    .withColumn(&quot;amount&quot;, F.expr(&quot;try_cast(replace(amount, &#x27;,&#x27;, &#x27;.&#x27;) AS DOUBLE)&quot;))
+    .withColumn(&quot;risk_score&quot;, F.expr(&quot;try_cast(risk_score AS INT)&quot;))
+    .withColumn(&quot;ts&quot;, F.expr(&quot;try_to_timestamp(transaction_date, &#x27;yyyy-MM-dd HH:mm:ss&#x27;)&quot;))
+    .dropDuplicates(___))                        # TODO 2 : liste des colonnes qui identifient une transaction
+
+regle = F.expr(&quot;___&quot;)                            # TODO 3 : montant &gt; 0, score entre 0 et 100, ts présent
+typed = typed.withColumn(&quot;valide&quot;, F.coalesce(regle, F.lit(False)))
+
+silver = typed.filter(&quot;valide&quot;).select(
+    &quot;transaction_id&quot;, &quot;client_id&quot;, &quot;country&quot;, &quot;amount&quot;, &quot;transaction_type&quot;, &quot;risk_score&quot;, &quot;ts&quot;)
+quarantaine = typed.filter(___).withColumn(&quot;_motif&quot;, F.expr(&quot;&quot;&quot;   -- TODO 4 : les lignes non valides
+    CASE WHEN amount IS NULL OR amount &lt;= 0 THEN &#x27;montant&#x27;
+         WHEN risk_score IS NULL OR risk_score NOT BETWEEN 0 AND 100 THEN &#x27;score&#x27;
+         ELSE &#x27;date&#x27; END&quot;&quot;&quot;))
+
+silver.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;silver_transactions&quot;)
+quarantaine.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;quarantaine_transactions&quot;)</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>b = spark.table(&quot;bronze_scans&quot;)
+ref = spark.table(&quot;ref_colis&quot;)
+
+norm = (b
+    .withColumnRenamed(&quot;colis&quot;, &quot;colis_id&quot;)
+    .withColumn(&quot;etape&quot;, F.expr(&quot;&quot;&quot;
+        CASE WHEN lower(trim(etape)) LIKE &#x27;pris%&#x27; THEN &#x27;PRISE_EN_CHARGE&#x27;
+             ___                                  -- TODO 1 : ENTREPOT, EN_LIVRAISON puis LIVRE (attention à l&#x27;ordre)
+        END&quot;&quot;&quot;))
+    .withColumn(&quot;site&quot;, ___)                     # TODO 2 : première lettre de chaque mot en majuscule, sans espaces autour
+    .withColumn(&quot;ts&quot;, F.expr(&quot;try_to_timestamp(ts)&quot;))
+    .dropDuplicates([&quot;colis_id&quot;, &quot;etape&quot;, &quot;ts&quot;]))
+
+inconnus = norm.join(ref, &quot;colis_id&quot;, ___)       # TODO 3 : les colis absents du référentiel
+connus = norm.join(ref, &quot;colis_id&quot;, &quot;inner&quot;)
+
+silver = connus.filter(___).select(              # TODO 4 : ts et étape présents
+    &quot;colis_id&quot;, &quot;etape&quot;, &quot;site&quot;, &quot;ts&quot;, &quot;transporteur&quot;, &quot;origine&quot;, &quot;destination&quot;, &quot;promesse_h&quot;)
+quarantaine = (inconnus.withColumn(&quot;_motif&quot;, F.lit(&quot;colis inconnu&quot;))
+    .unionByName(connus.filter(&quot;ts IS NULL OR etape IS NULL&quot;)
+                       .select(*norm.columns).withColumn(&quot;_motif&quot;, F.lit(&quot;ts ou étape manquant&quot;))))
+
+silver.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;silver_evenements&quot;)
+quarantaine.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;quarantaine_evenements&quot;)</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>b = spark.table(&quot;bronze_ventes&quot;)
+p = F.split(&quot;value&quot;, &quot;\t&quot;)
+
+typed = (b
+    .select(F.get(p, 0).alias(&quot;date_vente&quot;), F.get(p, 1).alias(&quot;heure&quot;),
+            F.trim(F.get(p, 2)).alias(&quot;magasin&quot;), F.get(p, 3).alias(&quot;categorie&quot;),
+            F.get(p, 4).alias(&quot;montant&quot;),
+            ___.alias(&quot;paiement&quot;))                # TODO 1 : colonne 5 en minuscules, sans espaces autour
+    .withColumn(&quot;date_vente&quot;, F.expr(&quot;try_cast(date_vente AS DATE)&quot;))
+    .withColumn(&quot;montant&quot;, ___)                  # TODO 2 : conversion sûre en DOUBLE
+    .dropDuplicates())
+
+regle = F.expr(&quot;___&quot;)                            # TODO 3 : montant &gt; 0 et magasin non vide
+typed = typed.withColumn(&quot;valide&quot;, F.coalesce(regle, F.lit(False)))
+
+silver = typed.filter(&quot;valide&quot;).drop(&quot;valide&quot;)
+quarantaine = typed.filter(___).withColumn(&quot;_motif&quot;, F.expr(    # TODO 4 : les lignes non valides
+    &quot;CASE WHEN montant IS NULL OR montant &lt;= 0 THEN &#x27;montant&#x27; ELSE &#x27;magasin&#x27; END&quot;))
+
+silver.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;silver_ventes&quot;)
+quarantaine.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;quarantaine_ventes&quot;)</code></pre>
+          </div>
+        </div>
+        <div class="note info"><i class="ti ti-shield-check" aria-hidden="true"></i>
+          <div><code class="i">try_cast</code> et <code class="i">try_to_timestamp</code> renvoient <code
+              class="i">NULL</code> au lieu d'une erreur quand une valeur est illisible. Votre règle qualité doit
+            ensuite envoyer ces lignes en quarantaine.</div>
+        </div>
+        <h3>3. Vérifier votre travail : le bilan</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>nb = spark.table(&quot;bronze_transactions&quot;).count()
+ns = spark.table(&quot;silver_transactions&quot;).count()
+nq = spark.table(&quot;quarantaine_transactions&quot;).count()
+print(&quot;Bronze&quot;, nb, &quot;| Silver&quot;, ns, &quot;| Quarantaine&quot;, nq, &quot;| Doublons supprimés&quot;, nb - ns - nq)
+
+display(spark.sql(&quot;SELECT _motif, COUNT(*) AS nb FROM quarantaine_transactions GROUP BY _motif&quot;))</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>nb = spark.table(&quot;bronze_scans&quot;).count()
+ns = spark.table(&quot;silver_evenements&quot;).count()
+nq = spark.table(&quot;quarantaine_evenements&quot;).count()
+print(&quot;Bronze&quot;, nb, &quot;| Silver&quot;, ns, &quot;| Quarantaine&quot;, nq, &quot;| Doublons supprimés&quot;, nb - ns - nq)
+
+display(spark.sql(&quot;SELECT _motif, COUNT(*) AS nb FROM quarantaine_evenements GROUP BY _motif&quot;))</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>nb = spark.table(&quot;bronze_ventes&quot;).count()
+ns = spark.table(&quot;silver_ventes&quot;).count()
+nq = spark.table(&quot;quarantaine_ventes&quot;).count()
+print(&quot;Bronze&quot;, nb, &quot;| Silver&quot;, ns, &quot;| Quarantaine&quot;, nq, &quot;| Doublons supprimés&quot;, nb - ns - nq)
+
+display(spark.sql(&quot;SELECT _motif, COUNT(*) AS nb FROM quarantaine_ventes GROUP BY _motif&quot;))</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span><strong>Bronze = Silver + Quarantaine +
+              Doublons supprimés</strong>. Si l'égalité ne tombe pas juste, ou si la quarantaine est vide, revoyez vos
+            TODO.</span></div>
+        <h3>4. Pourquoi « try_ » ?</h3>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+SELECT try_cast(&#x27;abc&#x27; AS DOUBLE) AS avec_try</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks ·
+              Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                aria-hidden="true"></i>Copier</button></div>
+          <pre><code>try:
+    display(spark.sql(&quot;SELECT cast(&#x27;abc&#x27; AS DOUBLE) AS sans_try&quot;))
+except Exception as e:
+    print(&quot;ERREUR :&quot;, str(e).splitlines()[0])</code></pre>
+        </div>
+        <div class="reflect"><label for="r3"><span class="rn">R3</span>Recopiez vos 4 lignes complétées (TODO 1 à
+            4).</label><textarea id="r3" data-label="R3 — Lignes Silver complétées"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r4"><span class="rn">R4</span>Donnez votre bilan (Bronze, Silver, quarantaine,
+            doublons) et la répartition de la quarantaine par motif. L'égalité est-elle vérifiée ?</label><textarea
+            id="r4" data-label="R4 — Bilan et quarantaine"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r5"><span class="rn">R5</span>Pour un motif de quarantaine, affichez une ligne
+            (<code class="i">display(spark.table("quarantaine_…"))</code>) et expliquez pourquoi elle ne peut pas être
+            corrigée automatiquement, alors que d'autres défauts l'ont été.</label><textarea id="r5"
+            data-label="R5 — Défauts corrigibles et non corrigibles"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r6"><span class="rn">R6</span>Que renvoient les deux requêtes de l'étape 4 ?
+            Qu'aurait-il fallu craindre en écrivant <code class="i">cast</code> au lieu de <code
+              class="i">try_cast</code> ?</label><textarea id="r6" data-label="R6 — try_cast et mode ANSI"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q2" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Une ligne de quarantaine contient une erreur de saisie évidente. Que faire ?</p><button
+            class="opt" type="button" data-v="a">La corriger à la source ou par une règle documentée, puis rejouer le
+            traitement depuis Bronze</button><button class="opt" type="button" data-v="b">La modifier à la main dans
+            Silver</button><button class="opt" type="button" data-v="c">La supprimer de Bronze</button>
+          <div class="fb"
+            data-ok="Exact : Bronze reste intacte, la règle ou la source est corrigée, et le traitement est rejoué : le résultat reste reproductible."
+            data-ko="On ne modifie jamais Silver à la main et on ne touche pas à Bronze : on corrige la source ou la règle, puis on rejoue depuis Bronze.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 3 ============ -->
+    <section class="section" data-sec="3">
+      <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">À vous de jouer n° 2
+          : la couche Gold</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>30 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <p>Écrivez <strong>entièrement</strong> les tables Gold ci-dessous, en Spark SQL (<code
+            class="i">CREATE OR REPLACE TABLE … AS SELECT …</code>) ou en API DataFrame (<code
+            class="i">saveAsTable</code>). Respectez exactement les noms de colonnes, les arrondis et les tris : les
+          résultats sont comparés à des valeurs de référence.</p>
+        <div data-fil="IDF">
+          <table class="t">
+            <tr>
+              <th>Table</th>
+              <th>Contenu attendu</th>
+            </tr>
+            <tr>
+              <td><code class="i">gold_risque_pays</code></td>
+              <td>Une ligne par <code class="i">country</code> : <code class="i">nb_tx</code> (nombre de transactions),
+                <code class="i">montant_total</code> (somme, 2 décimales), <code class="i">taux_risque_eleve</code>
+                (part des transactions de score ≥ 70, 3 décimales, avec <code class="i">CASE WHEN</code>). Tri par <code
+                  class="i">montant_total</code> décroissant.</td>
+            </tr>
+            <tr>
+              <td><code class="i">gold_top_clients_pays</code></td>
+              <td>Pour chaque pays, les <strong>3 clients</strong> dont la somme des montants à risque élevé (score ≥
+                70) est la plus forte : <code class="i">country</code>, <code class="i">client_id</code>, <code
+                  class="i">montant_risque</code> (2 décimales), <code class="i">rang</code> (1 à 3, <code
+                  class="i">ROW_NUMBER</code> par pays, égalités départagées par <code class="i">client_id</code>). Tri
+                par pays puis rang.</td>
+            </tr>
+          </table>
+        </div>
+        <div data-fil="2SCL">
+          <table class="t">
+            <tr>
+              <th>Table</th>
+              <th>Contenu attendu</th>
+            </tr>
+            <tr>
+              <td><code class="i">gold_delais_colis</code></td>
+              <td>Une ligne par colis <strong>livré</strong> : <code class="i">colis_id</code>, <code
+                  class="i">transporteur</code>, <code class="i">origine</code>, <code class="i">destination</code>,
+                <code class="i">promesse_h</code>, <code class="i">delai_h</code> (heures entre la prise en charge et la
+                livraison, non arrondi).</td>
+            </tr>
+            <tr>
+              <td><code class="i">gold_retard_transporteur</code></td>
+              <td>Une ligne par transporteur : <code class="i">nb_colis_livres</code>, <code
+                  class="i">delai_moyen_h</code> (1 décimale), <code class="i">taux_retard</code> (part des colis où
+                <code class="i">delai_h &gt; promesse_h</code>, 3 décimales, avec <code class="i">CASE WHEN</code>). Tri
+                par taux de retard décroissant.</td>
+            </tr>
+            <tr>
+              <td><code class="i">gold_itineraire_lent</code></td>
+              <td>Pour chaque transporteur, l'<strong>itinéraire</strong> (<code class="i">origine</code>, <code
+                  class="i">destination</code>) au délai moyen le plus long, parmi ceux qui comptent <strong>au moins
+                  5</strong> colis livrés : <code class="i">transporteur</code>, <code class="i">origine</code>, <code
+                  class="i">destination</code>, <code class="i">nb_colis</code>, <code class="i">delai_moyen_h</code> (1
+                décimale). Fenêtre <code class="i">ROW_NUMBER</code> par transporteur.</td>
+            </tr>
+          </table>
+        </div>
+        <div data-fil="BI&amp;A">
+          <table class="t">
+            <tr>
+              <th>Table</th>
+              <th>Contenu attendu</th>
+            </tr>
+            <tr>
+              <td><code class="i">gold_ca_categorie</code></td>
+              <td>Une ligne par <code class="i">categorie</code> : <code class="i">nb_ventes</code>, <code
+                  class="i">ca</code> (somme, 2 décimales), <code class="i">panier_moyen</code> (moyenne, 2 décimales).
+                Tri par <code class="i">ca</code> décroissant.</td>
+            </tr>
+            <tr>
+              <td><code class="i">gold_top_categories_heure</code></td>
+              <td>Pour chaque <strong>heure</strong> de la journée (<code class="i">substr(heure, 1, 2)</code>), les
+                <strong>3 catégories</strong> au plus gros chiffre d'affaires : <code class="i">heure</code>, <code
+                  class="i">categorie</code>, <code class="i">ca</code> (2 décimales), <code class="i">rang</code>
+                (<code class="i">RANK</code> par heure). Tri par heure puis rang.</td>
+            </tr>
+          </table>
+        </div>
+        <h3>Point de départ</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+-- Squelette de départ : une table Gold se crée ainsi
+CREATE OR REPLACE TABLE gold_risque_pays AS
+SELECT ...
+FROM silver_transactions
+...;
+
+SELECT * FROM gold_risque_pays;</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+-- Squelette de départ : une table Gold se crée ainsi
+CREATE OR REPLACE TABLE gold_delais_colis AS
+SELECT ...
+FROM silver_evenements
+...;
+
+SELECT COUNT(*) FROM gold_delais_colis;</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+-- Squelette de départ : une table Gold se crée ainsi
+CREATE OR REPLACE TABLE gold_ca_categorie AS
+SELECT ...
+FROM silver_ventes
+...;
+
+SELECT * FROM gold_ca_categorie;</code></pre>
+          </div>
+        </div>
+        <div class="note info"><i class="ti ti-bulb" aria-hidden="true"></i>
+          <div>Reprenez vos requêtes du Lab 3 : agrégation et <code class="i">CASE WHEN</code> (section 3), fonctions de
+            fenêtre puis filtre sur le rang (section 6). Une fenêtre ne peut pas être filtrée dans le même <code
+              class="i">SELECT</code> : passez par une CTE (<code class="i">WITH</code>) ou une sous-requête.</div>
+        </div>
+        <div class="reflect"><label for="r7"><span class="rn">R7</span>Recopiez vos requêtes Gold complètes et les trois
+            premières lignes de chaque table.</label><textarea id="r7"
+            data-label="R7 — Requêtes Gold et résultats"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r8"><span class="rn">R8</span>Interprétez une table Gold pour un responsable
+            métier de votre filière, en trois phrases au plus : qu'apprend-on, et quelle action pourrait-on décider
+            ?</label><textarea id="r8" data-label="R8 — Lecture métier de Gold"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q3" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi la table Gold est-elle recalculée (<code class="i">CREATE OR REPLACE</code>) et non
+            alimentée en <code class="i">append</code> ?</p><button class="opt" type="button" data-v="a">Parce que Delta
+            interdit append sur une table Gold</button><button class="opt" type="button" data-v="b">Parce qu'elle est
+            entièrement dérivée de Silver : un append additionnerait d'anciens agrégats aux nouveaux</button><button
+            class="opt" type="button" data-v="c">Pour économiser de l'espace disque</button>
+          <div class="fb" data-ok="Exact : Gold est une vue métier recalculable à partir de Silver."
+            data-ko="Gold dérive entièrement de Silver : la recalculer garantit des agrégats justes, alors qu'un append mélangerait anciens et nouveaux totaux.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 4 ============ -->
+    <section class="section" data-sec="4">
+      <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Lire l'exécution,
+          entretenir la table Delta</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>25
+          min</span><span class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <h3>1. Le plan d'une requête avec fonction de fenêtre</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+EXPLAIN FORMATTED
+SELECT country, client_id, montant_risque,
+       ROW_NUMBER() OVER (PARTITION BY country ORDER BY montant_risque DESC) AS rang
+FROM (SELECT country, client_id, SUM(amount) AS montant_risque
+      FROM silver_transactions WHERE risk_score &gt;= 70
+      GROUP BY country, client_id)</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+EXPLAIN FORMATTED
+SELECT transporteur, colis_id, delai_h,
+       ROW_NUMBER() OVER (PARTITION BY transporteur ORDER BY delai_h DESC) AS rang
+FROM gold_delais_colis</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+EXPLAIN FORMATTED
+SELECT heure, categorie, ca,
+       RANK() OVER (PARTITION BY heure ORDER BY ca DESC) AS rang
+FROM (SELECT substr(heure, 1, 2) AS heure, categorie, SUM(montant) AS ca
+      FROM silver_ventes GROUP BY substr(heure, 1, 2), categorie)</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Repérez les opérateurs <code
+              class="i">Window</code>, <code class="i">Sort</code> et <code class="i">Exchange</code> dans
+            l'arbre.</span></div>
+        <h3>2. Le détail physique de Silver</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE DETAIL silver_transactions</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE DETAIL silver_evenements</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+DESCRIBE DETAIL silver_ventes</code></pre>
+          </div>
+        </div>
+        <h3>3. Tenter une écriture non conforme</h3>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>avant = spark.table(&quot;silver_transactions&quot;).count()
+mauvais = spark.table(&quot;silver_transactions&quot;).limit(1).withColumn(&quot;amount&quot;, F.lit(&quot;cent&quot;))
+try:
+    mauvais.write.mode(&quot;append&quot;).saveAsTable(&quot;silver_transactions&quot;)
+    print(&quot;Écriture acceptée : ce n&#x27;est pas le résultat attendu, signalez-le.&quot;)
+except Exception as e:
+    print(&quot;Écriture refusée :&quot;, str(e).splitlines()[0])
+print(&quot;Lignes avant :&quot;, avant, &quot;| après :&quot;, spark.table(&quot;silver_transactions&quot;).count())</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>avant = spark.table(&quot;silver_evenements&quot;).count()
+mauvais = spark.table(&quot;silver_evenements&quot;).limit(1).withColumn(&quot;promesse_h&quot;, F.lit(&quot;cent&quot;))
+try:
+    mauvais.write.mode(&quot;append&quot;).saveAsTable(&quot;silver_evenements&quot;)
+    print(&quot;Écriture acceptée : ce n&#x27;est pas le résultat attendu, signalez-le.&quot;)
+except Exception as e:
+    print(&quot;Écriture refusée :&quot;, str(e).splitlines()[0])
+print(&quot;Lignes avant :&quot;, avant, &quot;| après :&quot;, spark.table(&quot;silver_evenements&quot;).count())</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>avant = spark.table(&quot;silver_ventes&quot;).count()
+mauvais = spark.table(&quot;silver_ventes&quot;).limit(1).withColumn(&quot;montant&quot;, F.lit(&quot;cent&quot;))
+try:
+    mauvais.write.mode(&quot;append&quot;).saveAsTable(&quot;silver_ventes&quot;)
+    print(&quot;Écriture acceptée : ce n&#x27;est pas le résultat attendu, signalez-le.&quot;)
+except Exception as e:
+    print(&quot;Écriture refusée :&quot;, str(e).splitlines()[0])
+print(&quot;Lignes avant :&quot;, avant, &quot;| après :&quot;, spark.table(&quot;silver_ventes&quot;).count())</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>« Écriture refusée », suivi du motif, puis
+            un nombre de lignes inchangé.</span></div>
+        <h3>4. Compacter avec OPTIMIZE, nettoyer avec VACUUM</h3>
+        <p>Chaque écriture ajoute des fichiers : une table alimentée par petits lots finit avec beaucoup de
+          <strong>petits fichiers</strong>, coûteux à lire. <code class="i">OPTIMIZE</code> les regroupe ; <code
+            class="i">ZORDER BY</code> range en plus les valeurs proches de la colonne choisie dans les mêmes fichiers,
+          pour que le <em>data skipping</em> ignore les fichiers inutiles lors d'un filtre sur cette colonne. On
+          travaille sur une table d'essai, pour ne pas toucher à Silver.</p>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+# Table d&#x27;essai écrite en 5 petits lots : 5 commits, donc au moins 5 fichiers
+src = spark.table(&quot;silver_transactions&quot;)
+spark.sql(&quot;DROP TABLE IF EXISTS essai_fichiers&quot;)
+for i in range(5):
+    (src.filter(F.abs(F.hash(&quot;client_id&quot;)) % 5 == i)
+        .write.mode(&quot;append&quot;).saveAsTable(&quot;essai_fichiers&quot;))
+
+display(spark.sql(&quot;DESCRIBE DETAIL essai_fichiers&quot;).select(&quot;numFiles&quot;, &quot;sizeInBytes&quot;))</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+# Table d&#x27;essai écrite en 5 petits lots : 5 commits, donc au moins 5 fichiers
+src = spark.table(&quot;silver_evenements&quot;)
+spark.sql(&quot;DROP TABLE IF EXISTS essai_fichiers&quot;)
+for i in range(5):
+    (src.filter(F.abs(F.hash(&quot;colis_id&quot;)) % 5 == i)
+        .write.mode(&quot;append&quot;).saveAsTable(&quot;essai_fichiers&quot;))
+
+display(spark.sql(&quot;DESCRIBE DETAIL essai_fichiers&quot;).select(&quot;numFiles&quot;, &quot;sizeInBytes&quot;))</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>from pyspark.sql import functions as F
+
+# Table d&#x27;essai écrite en 5 petits lots : 5 commits, donc au moins 5 fichiers
+src = spark.table(&quot;silver_ventes&quot;)
+spark.sql(&quot;DROP TABLE IF EXISTS essai_fichiers&quot;)
+for i in range(5):
+    (src.filter(F.abs(F.hash(&quot;magasin&quot;)) % 5 == i)
+        .write.mode(&quot;append&quot;).saveAsTable(&quot;essai_fichiers&quot;))
+
+display(spark.sql(&quot;DESCRIBE DETAIL essai_fichiers&quot;).select(&quot;numFiles&quot;, &quot;sizeInBytes&quot;))</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Au moins 5 fichiers : relevez <code
+              class="i">numFiles</code> et <code class="i">sizeInBytes</code>.</span></div>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+OPTIMIZE essai_fichiers ZORDER BY (client_id)</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+OPTIMIZE essai_fichiers ZORDER BY (colis_id)</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+OPTIMIZE essai_fichiers ZORDER BY (magasin)</code></pre>
+          </div>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une ligne de métriques : nombre de
+            fichiers retirés et ajoutés.</span></div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+DESCRIBE DETAIL essai_fichiers</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+DESCRIBE HISTORY essai_fichiers</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Après <code class="i">OPTIMIZE</code>,
+            moins de fichiers (souvent un seul) ; l'historique montre les écritures (versions 0 à 4) puis l'opération
+            <code class="i">OPTIMIZE</code>.</span></div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+-- Version 4 : la dernière écriture AVANT le OPTIMIZE (adaptez si votre historique diffère)
+SELECT COUNT(*) AS nb_lignes FROM essai_fichiers VERSION AS OF 4</code></pre>
+        </div>
+        <div class="cmd">
+          <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+              SQL</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button>
+          </div>
+          <pre><code>%sql
+VACUUM essai_fichiers DRY RUN</code></pre>
+        </div>
+        <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le <code class="i">DRY RUN</code> liste
+            les fichiers que <code class="i">VACUUM</code> supprimerait, sans rien supprimer.</span></div>
+        <div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div>N'exécutez pas <code class="i">VACUUM … RETAIN 0 HOURS</code> : Delta le refuse par défaut, car on
+            perdrait le time travel et on risquerait de supprimer les fichiers d'une écriture en cours. La durée de
+            rétention par défaut est de 7 jours.</div>
+        </div>
+        <div class="note info"><i class="ti ti-info-circle" aria-hidden="true"></i>
+          <div>Sur des tables aussi petites, aucun gain de temps n'est mesurable : on observe le compactage. Pour une
+            nouvelle table, Databricks recommande aujourd'hui le <em>liquid clustering</em> (<code
+              class="i">CLUSTER BY</code>) plutôt que le partitionnement et <code class="i">ZORDER</code> (chapitre 3,
+            partie 4).</div>
+        </div>
+        <div class="reflect"><label for="r9"><span class="rn">R9</span>Dans le plan : pourquoi une fonction de fenêtre
+            partitionnée par <code class="i">country</code>, <code class="i">transporteur</code> ou <code
+              class="i">heure</code> impose-t-elle un <code class="i">Exchange</code> puis un <code
+              class="i">Sort</code> ? Faites le lien avec les stages du Lab 2.</label><textarea id="r9"
+            data-label="R9 — Plan d'une fenêtre"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r10"><span class="rn">R10</span>Format, nombre de fichiers et taille de votre
+            table Silver. Résumez le message d'erreur de l'étape 3 : quelle propriété de Delta Lake a joué
+            ?</label><textarea id="r10" data-label="R10 — Détail Delta et schema enforcement"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="reflect"><label for="r13"><span class="rn">R13</span>Nombre de fichiers de <code
+              class="i">essai_fichiers</code> avant et après <code class="i">OPTIMIZE</code>. Pourquoi la lecture <code
+              class="i">VERSION AS OF 4</code> fonctionne-t-elle encore ? Que renvoie <code
+              class="i">VACUUM … DRY RUN</code>, pourquoi, et que perdrait-on avec <code class="i">RETAIN 0 HOURS</code>
+            ?</label><textarea id="r13" data-label="R13 — OPTIMIZE, VACUUM et time travel"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q4" data-answer="c">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Pourquoi Delta refuse-t-il l'écriture de l'étape 3 ?</p><button class="opt" type="button"
+            data-v="a">La table est en lecture seule</button><button class="opt" type="button" data-v="b">La ligne est
+            un doublon</button><button class="opt" type="button" data-v="c">Le type de la colonne ne correspond pas au
+            schéma de la table</button>
+          <div class="fb" data-ok="Exact : c'est le schema enforcement, porté par le journal Delta."
+            data-ko="C'est le schema enforcement : le journal Delta connaît le schéma et refuse une écriture dont une colonne n'a pas le bon type.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 5 ============ -->
+    <section class="section" data-sec="5">
+      <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">Visualiser une table
+          Gold</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>display(spark.table(&quot;gold_risque_pays&quot;))</code></pre>
+          </div>
+          <p>Sous le résultat : <strong>+</strong> → <strong>Visualization</strong> → <strong>Bar</strong>, axe X :
+            <code class="i">country</code>, axe Y : <code class="i">taux_risque_eleve</code> → <strong>Save</strong>.
+          </p>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>display(spark.table(&quot;gold_retard_transporteur&quot;))</code></pre>
+          </div>
+          <p>Sous le résultat : <strong>+</strong> → <strong>Visualization</strong> → <strong>Bar</strong>, axe X :
+            <code class="i">transporteur</code>, axe Y : <code class="i">taux_retard</code> → <strong>Save</strong>.</p>
+        </div>
+        <div data-fil="BI&amp;A">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-brand-python" aria-hidden="true"></i>Databricks
+                · Python</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>display(spark.table(&quot;gold_ca_categorie&quot;))</code></pre>
+          </div>
+          <p>Sous le résultat : <strong>+</strong> → <strong>Visualization</strong> → <strong>Bar</strong>, axe X :
+            <code class="i">categorie</code>, axe Y : <code class="i">ca</code> → <strong>Save</strong>.</p>
+        </div>
+        <div class="reflect"><label for="r11"><span class="rn">R11</span>Quelle conclusion tirez-vous du graphique, en
+            trois lignes au plus ? Quelle limite des données faut-il garder en tête (taille, période, caractère fictif
+            ou extrait) ?</label><textarea id="r11" data-label="R11 — Conclusion du graphique et limites"></textarea>
+          <div class="saved"></div>
+        </div>
+        <div class="quiz" data-q="q5" data-answer="a">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">De nouvelles données arrivent en Bronze. Que faire pour que le graphique soit à jour ?</p><button
+            class="opt" type="button" data-v="a">Rejouer Silver puis Gold : le graphique relit Gold</button><button
+            class="opt" type="button" data-v="b">Rien : il lit les fichiers bruts</button><button class="opt"
+            type="button" data-v="c">Refaire le graphique à la main</button>
+          <div class="fb"
+            data-ok="Exact : c'est la chaîne Bronze → Silver → Gold qu'il faut rejouer, idéalement automatiquement (chapitre 6)."
+            data-ko="Le graphique lit Gold : il faut rejouer Silver puis Gold. Automatiser cette chaîne est l'objet de l'orchestration (chapitre 6).">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 6 ============ -->
+    <section class="section" data-sec="6">
+      <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">Synthèse et
+          rendu</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span
+          class="sec-status">À faire</span></button>
+      <div class="sec-body">
+        <div class="reflect"><label for="r12"><span class="rn">R12</span>En 5 lignes au plus : comment ce pipeline se
+            transpose-t-il au projet fil rouge (jalon J2) ? Que faudrait-il changer pour des données qui arrivent en
+            continu, et comment éviter les doublons lors des rechargements ?</label><textarea id="r12"
+            data-label="R12 — Synthèse : vers le projet"></textarea>
+          <div class="saved"></div>
+        </div>
+        <p>Envoyez vos réponses avec le bouton ci-dessous <strong>avant la fin de la séance</strong>. Gardez votre
+          notebook : il sert de base au jalon J2.</p>
+        <div class="quiz" data-q="q6" data-answer="b">
+          <div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div>
+          <p class="q">Quel mécanisme rend un rechargement idempotent dans Silver ?</p><button class="opt" type="button"
+            data-v="a">Une écriture en append</button><button class="opt" type="button" data-v="b">Un MERGE sur une
+            clé</button><button class="opt" type="button" data-v="c">Un RESTORE après chaque chargement</button>
+          <div class="fb"
+            data-ok="Exact : MERGE sur une clé met à jour les lignes existantes au lieu de les dupliquer (voir le bonus)."
+            data-ko="C'est le MERGE sur une clé : rejouer le même lot ne crée pas de doublon. Append duplique, et RESTORE corrige après coup.">
+          </div>
+        </div>
+        <button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section
+          terminée</button>
+        <div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+      </div>
+    </section>
+
+    <!-- ============ BONUS ============ -->
+    <section class="section bonus" data-sec="bonus">
+      <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star"
+            aria-hidden="true"></i></span><span class="sec-title">Pour aller plus loin (facultatif) : un rechargement
+          idempotent avec MERGE</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15
+          min</span><span class="sec-status">Bonus</span></button>
+      <div class="sec-body">
+        <p>À la section 1, rejouer l'ingestion en <code class="i">append</code> a doublé la table. Ici, on rejoue un lot
+          dans Silver avec <code class="i">MERGE</code> : le nombre de lignes ne doit pas changer.</p>
+        <div data-fil="IDF">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+CREATE OR REPLACE TEMP VIEW lot AS SELECT * FROM silver_transactions;   -- même lot, rejoué
+
+MERGE INTO silver_transactions AS s
+USING lot AS l
+  ON s.transaction_id = l.transaction_id
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;
+
+SELECT COUNT(*) AS nb_lignes FROM silver_transactions;</code></pre>
+          </div>
+        </div>
+        <div data-fil="2SCL">
+          <div class="cmd">
+            <div class="cmd-head"><span class="term db"><i class="ti ti-database" aria-hidden="true"></i>Databricks ·
+                SQL</span><button class="copy" type="button"><i class="ti ti-copy"
+                  aria-hidden="true"></i>Copier</button></div>
+            <pre><code>%sql
+CREATE OR REPLACE TEMP VIEW lot AS SELECT * FROM silver_evenements;      -- même lot, rejoué
+
+MERGE INTO silver_evenements AS s
+USING lot AS l
+  ON s.colis_id = l.colis_id AND s.etape = l.etape AND s.ts = l.ts
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;
+
+SELECT COUNT(*) AS nb_lignes FROM silver_evenements;</code></pre>
+          </div>
+        </div>
+        <div data-fil="BI&amp;A">
+          <p>Les ventes n'ont <strong>pas d'identifiant</strong>. Proposez une clé qui permettrait un <code
+              class="i">MERGE</code>. Deux ventes réellement distinctes peuvent-elles avoir les mêmes valeurs sur toutes
+            les colonnes ? Qu'en déduisez-vous sur le <code class="i">dropDuplicates()</code> de la section 2 ?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RENDU ============ -->
+    <div class="final">
+      <h2>Rendre votre travail</h2>
+      <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R12 et vos résultats aux questions de
+        validation sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en
+        compte. Envoyez <strong>avant la fin de la séance</strong>.</p>
+      <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si
+        vous changez de poste ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
+      <div class="btn-row">
+        <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à
+          l'enseignant</button>
+        <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger
+          une copie</button>
+        <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes
+          réponses</button>
+      </div>
+      <div class="export-msg" id="exportmsg" role="status"></div>
+    </div>
+
+
+    <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i>
+      <div>
+        <strong>En cas de problème</strong>
+        <ul style="margin:6px 0 0 18px">
+          <li><code class="i">TABLE_OR_VIEW_NOT_FOUND</code> : exécutez la cellule <code
+              class="i">USE CATALOG workspace</code> / <code class="i">USE SCHEMA lab4</code> (section 0).</li>
+          <li>La table Bronze contient deux fois trop de lignes : refaites le <code
+              class="i">RESTORE … TO VERSION AS OF 0</code>, puis rejouez Silver et Gold.</li>
+          <li><code class="i">SyntaxError</code> ou <code class="i">PARSE_SYNTAX_ERROR</code> : il reste un <code
+              class="i">___</code> dans votre code.</li>
+          <li>Le bilan ne tombe pas juste : vérifiez la clé de <code class="i">dropDuplicates</code> et que la
+            quarantaine reçoit bien toutes les lignes non valides.</li>
+          <li>Erreur de conversion (CAST_INVALID_INPUT ou équivalent) : un <code class="i">cast</code> a été écrit à la
+            place d'un <code class="i">try_cast</code>.</li>
+          <li>Une fenêtre filtrée dans le même <code class="i">SELECT</code> échoue : calculez le rang dans une CTE,
+            puis filtrez dans la requête suivante.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>ENSIAS · Big Data &amp; Applications · 2SCL, IDF &amp; BI&amp;A · 2026-2027</footer>
+  </main>
+
+  <script>
+    (function () {
+      // Adresse du script Google fournie par l'enseignant (voir le guide enseignant)
+      var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwIGriq5SYt4FccF6Wh2qLGHvatUwBrD9V6FztLf00nsNja4cugPbmVPeUNeYM1wVoi/exec';
+      var TP = 'LAB4';
+      var KEY = 'ensias-bd-lab4-v1';
+      var TOTAL = 7;
+      var state = { done: [], quiz: {}, text: {}, nom: '', filiere: '' };
+
+      function load() { try { var s = localStorage.getItem(KEY); if (s) { var p = JSON.parse(s); state = Object.assign(state, p); } } catch (e) { } }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; } }
+      load();
+
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
+      var bonus = document.querySelector('.section.bonus');
+
+      function isDone(i) { return state.done.indexOf(i) !== -1; }
+      function unlocked(i) { return i === 0 || isDone(i - 1); }
+
+      function refresh() {
+        sections.forEach(function (sec, i) {
+          sec.classList.toggle('done', isDone(i));
+          sec.classList.toggle('locked', !unlocked(i));
+          var st = sec.querySelector('.sec-status');
+          st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
+          sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
+          var btn = sec.querySelector('.done-btn');
+          var quizzes = sec.querySelectorAll('.quiz');
+          var allAnswered = Array.prototype.every.call(quizzes, function (q) { return state.quiz[q.dataset.q]; });
+          if (btn) {
+            btn.disabled = !allAnswered || isDone(i);
+            btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
+            var hint = sec.querySelector('.done-hint');
+            if (hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+          }
+        });
+        var n = state.done.length;
+        document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
+        document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
+      }
+
+      function openSection(sec) {
+        sections.concat([bonus]).forEach(function (s) { if (s !== sec) s.classList.remove('open'); });
+        sec.classList.add('open');
+        refresh();
+      }
+
+      sections.forEach(function (sec, i) {
+        sec.querySelector('.sec-head').addEventListener('click', function () {
+          if (!unlocked(i)) return;
+          if (sec.classList.contains('open')) { sec.classList.remove('open'); refresh(); }
+          else { openSection(sec); }
+        });
+        var btn = sec.querySelector('.done-btn');
+        if (btn) btn.addEventListener('click', function () {
+          if (!isDone(i)) state.done.push(i);
+          save();
+          sec.classList.remove('open');
+          if (sections[i + 1]) { openSection(sections[i + 1]); sections[i + 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          refresh();
+        });
+      });
+      bonus.querySelector('.sec-head').addEventListener('click', function () {
+        if (bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
+      });
+
+      // Questions de validation (réponse révélée après 3 s)
+      document.querySelectorAll('.quiz').forEach(function (q) {
+        var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
+        var opts = q.querySelectorAll('.opt');
+        function reveal(choice, instant) {
+          opts.forEach(function (o) { o.disabled = true; if (o.dataset.v === choice) o.classList.add('chosen'); });
+          function show() {
+            opts.forEach(function (o) { if (o.dataset.v === answer) o.classList.add('right'); else if (o.dataset.v === choice) o.classList.add('wrong'); });
+            var ok = choice === answer;
+            fb.className = 'fb ' + (ok ? 'ok' : 'ko');
+            fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+            refresh();
+          }
+          if (instant) show();
+          else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
+        }
+        opts.forEach(function (o) {
+          o.addEventListener('click', function () {
+            if (state.quiz[id]) return;
+            state.quiz[id] = { choice: o.dataset.v, correct: o.dataset.v === answer };
+            save();
+            reveal(o.dataset.v, false);
+          });
+        });
+        if (state.quiz[id]) reveal(state.quiz[id].choice, true);
+      });
+
+      // Réponses écrites
+      document.querySelectorAll('.reflect textarea').forEach(function (t) {
+        var info = t.parentNode.querySelector('.saved');
+        t.value = state.text[t.id] || '';
+        var timer;
+        t.addEventListener('input', function () {
+          state.text[t.id] = t.value;
+          clearTimeout(timer);
+          timer = setTimeout(function () { info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
+        });
+      });
+
+      // Identité
+      var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
+      nom.value = state.nom || ''; fil.value = state.filiere || '';
+      nom.addEventListener('input', function () { state.nom = nom.value; save(); });
+      fil.addEventListener('change', function () { state.filiere = fil.value; save(); });
+
+      // Boutons Copier
+      document.querySelectorAll('.copy').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = b.closest('.cmd').querySelector('pre').innerText.trim();
+          function done() { b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function () { b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
+          if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+          function fallback() { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } document.body.removeChild(ta); }
+        });
+      });
+
+      // Envoi direct à l'enseignant (Google Sheets via Apps Script)
+      document.getElementById('send').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
+        if (ENDPOINT.indexOf('http') !== 0) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
+        var qs = Object.keys(state.quiz);
+        var data = {
+          tp: TP, date: new Date().toLocaleString('fr-FR'), nom: state.nom.trim(), filiere: state.filiere || '',
+          sections: state.done.length + ' / ' + TOTAL,
+          score: qs.filter(function (k) { return state.quiz[k].correct; }).length + ' / ' + qs.length
+        };
+        document.querySelectorAll('.reflect textarea').forEach(function (t) { data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
+        var btn = this; btn.disabled = true;
+        msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
+        fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+          .then(function () { msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
+          .catch(function () { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
+          .then(function () { btn.disabled = false; });
+      });
+
+      // Export
+      document.getElementById('export').addEventListener('click', function () {
+        var msg = document.getElementById('exportmsg');
+        if (!state.nom.trim()) { msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
+        var qs = Object.keys(state.quiz).sort();
+        var score = qs.filter(function (k) { return state.quiz[k].correct; }).length;
+        var lines = ['# Lab 4 — Lakehouse Bronze, Silver, Gold', '',
+          '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
+          '- **Export** : ' + new Date().toLocaleString('fr-FR'),
+          '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
+          '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
+        document.querySelectorAll('.reflect textarea').forEach(function (t) {
+          lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
+        });
+        var blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Lab4_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        msg.style.color = 'var(--success-text)';
+        msg.textContent = 'Copie téléchargée sur votre ordinateur.';
+      });
+
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        location.reload();
+      });
+
+      // Ouvrir la première section non terminée
+      var first = sections.find(function (s, i) { return !isDone(i) && unlocked(i); });
+      if (first) first.classList.add('open');
+      refresh();
+    })();
+  </script>
+  <script>
+    (function () {
+      var sel = document.getElementById('filiere');
+      function apply() {
+        var v = sel.value;
+        document.querySelectorAll('[data-fil]').forEach(function (e) { e.hidden = !(v && e.getAttribute('data-fil') === v); });
+        document.getElementById('filwarn').hidden = !!v;
+      }
+      sel.addEventListener('change', apply);
+      apply();
+    })();
+  </script>
+</body>
+
+</html>
