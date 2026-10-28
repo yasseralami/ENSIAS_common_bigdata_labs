@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Big Data & Applications · Labs · ENSIAS</title>
+<meta name="description" content="Labs et projet du module Big Data & Applications, ENSIAS, Université Mohammed V de Rabat, 2026-2027.">
+<meta property="og:title" content="Big Data & Applications · Labs · ENSIAS">
+<meta property="og:description" content="Labs et projet du module Big Data & Applications, ENSIAS, Université Mohammed V de Rabat, 2026-2027.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8B84B'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%231E2761' font-family='serif'%3EBD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2761;--gold:#E8B84B;--teal:#0f766e;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#5b6380;
+--soft:#eef1fb;--hero:#1E2761;--hero-text:#fff;--link:#1E2761;--idf:#1d4ed8;--scl:#0f766e;--bia:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1430;--card:#171d40;--border:#2a3363;--text:#e6e9f5;--muted:#a3abc9;
+--soft:#1e2550;--hero:#141a3c;--link:#E8B84B;--idf:#93b4ff;--scl:#5eead4;--bia:#fcd34d}}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+a{color:var(--link);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;background:var(--gold);color:#1E2761;padding:6px 12px;z-index:10}
+header.top{background:var(--hero);color:var(--hero-text)}
+.bar{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{width:32px;height:32px;background:var(--gold);color:#1E2761;border-radius:8px;display:grid;place-items:center;font-family:'DM Serif Display',serif}
+.bar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}.bar nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.85}
+.bar nav a:hover,.bar nav a[aria-current]{opacity:1;text-decoration:underline}
+.hero{max-width:1040px;margin:0 auto;padding:28px 16px 36px}
+.hero p.kicker{color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.hero h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(28px,5vw,42px);line-height:1.15;margin:6px 0 10px}
+.hero p.lead{max-width:720px;opacity:.9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:3px 12px;font-size:13px}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+section{margin:0 0 40px}
+h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(22px,3.5vw,28px);color:var(--text);margin-bottom:4px}
+h2::after{content:'';display:block;width:56px;height:3px;background:var(--gold);margin-top:6px}
+h3{font-size:18px;margin:18px 0 6px}
+p,ul,ol{margin:10px 0}ul,ol{padding-left:22px}li{margin:4px 0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;background:var(--card);border-radius:12px;overflow:hidden}
+.tbl th,.tbl td{border-bottom:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+.tbl th{background:var(--soft);font-weight:600}
+.scroll{overflow-x:auto}
+code{font-family:'DM Mono',monospace;font-size:.88em;background:var(--soft);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.pipe span.box{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:14px}
+.pipe i.arr{color:var(--muted);font-style:normal}
+.rule{border-left:4px solid var(--teal);background:var(--card);border-radius:0 12px 12px 0;padding:14px 18px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.filters button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:99px;padding:5px 14px;cursor:pointer}
+.filters button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.filters button[aria-pressed=true]{background:var(--gold);color:#1E2761;border-color:var(--gold)}}
+.sujet{display:flex;flex-direction:column;gap:6px}
+.sujet .tag{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:6px;padding:2px 8px;border:1px solid currentColor}
+.tag.IDF{color:var(--idf)}.tag.SCL{color:var(--scl)}.tag.BIA{color:var(--bia)}
+.sujet h3{margin:4px 0 2px;font-family:'DM Serif Display',serif;font-weight:400;font-size:21px}
+.sujet .rq{font-style:italic}
+.sujet dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14.5px;margin-top:6px}
+.sujet dt{font-weight:600;color:var(--muted)}
+.sujet details{font-size:14.5px;margin-top:4px}.sujet summary{cursor:pointer;font-weight:600}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+footer div{max-width:1040px;margin:0 auto;padding:18px 16px}
+@media (max-width:560px){.sujet dl{grid-template-columns:1fr}.bar nav{margin-left:0}}
+@media print{header.top,.filters,.skip{display:none}body{background:#fff;color:#000}.card{break-inside:avoid}}
+
+.labs{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.lab{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;transition:border-color .15s,transform .15s}
+a.lab:hover{border-color:var(--gold);transform:translateY(-2px)}
+.lab .num{font-family:'DM Serif Display',serif;font-size:34px;line-height:1;color:var(--gold)}
+.lab h3{margin:0;font-size:17px;line-height:1.35}
+.lab .meta{font-size:13.5px;color:var(--muted)}
+.lab .go{margin-top:auto;font-weight:600;font-size:14px;color:var(--link)}
+.lab.soon{opacity:.65;border-style:dashed}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:4px 0 4px 40px;margin:8px 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+@media (prefers-color-scheme:dark){.steps li::before{background:var(--gold);color:#1E2761}}
+pre.cmd{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:13.5px;margin:8px 0}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cta{display:inline-block;margin-top:8px;font-weight:600;background:var(--navy);color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px}
+@media (prefers-color-scheme:dark){.cta{background:var(--gold);color:#1E2761}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="bar"><span class="logo" aria-hidden="true">BD</span><strong>Big Data &amp; Applications · ENSIAS</strong><nav aria-label="Navigation principale"><a href="index.html" aria-current="page">Accueil</a><a href="index.html#labs">Labs</a><a href="projet/projet.html">Projet</a><a href="projet/suivi.html">Suivi</a><a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs">Dépôt GitHub</a></nav></div>
+  <div class="hero"><p class="kicker">Cycle ingénieur · 3e année · 2026-2027</p>
+<h1>Big Data &amp; Applications</h1>
+<p class="lead">Les énoncés des labs, le projet fil rouge et tout ce qu'il faut pour travailler dans Codespaces, Databricks et MongoDB Atlas.</p>
+<div class="chips"><span class="chip">Hadoop</span><span class="chip">Spark</span><span class="chip">Delta Lake</span><span class="chip">MongoDB</span><span class="chip">Kafka</span><span class="chip">Airflow</span></div></div>
+</header>
+<main id="contenu">
+
+<section aria-labelledby="labs">
+  <h2 id="labs">Les labs</h2>
+  <p>Un lab par semaine, à ouvrir à côté de votre environnement. Les sections se débloquent dans l'ordre ; vos réponses sont gardées dans votre navigateur jusqu'à l'envoi.</p>
+  <div class="labs"><a class="lab" href="lab0/lab0.html"><span class="num" aria-hidden="true">0</span><h3>Lab 0 · Diagnostiquer un besoin Big Data</h3><span class="meta">Semaine 1 · Navigateur<br>Chapitre 1 · Non noté</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab1/lab1.html"><span class="num" aria-hidden="true">1</span><h3>Lab 1 · Cluster Hadoop, HDFS et MapReduce</h3><span class="meta">Semaine 1 · Codespaces<br>Chapitres 1 et 2 · Validé par réalisation</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab2/lab2.html"><span class="num" aria-hidden="true">2</span><h3>Lab 2 · Cluster Spark, RDD et Spark UI</h3><span class="meta">Semaine 2 · Codespaces<br>Chapitre 3 · Noté sur 20</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab3/lab3.html"><span class="num" aria-hidden="true">3</span><h3>Lab 3 · DataFrames et Spark SQL</h3><span class="meta">Semaine 3 · Databricks Free Edition<br>Chapitre 3 · Noté sur 20</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab4/lab4.html"><span class="num" aria-hidden="true">4</span><h3>Lab 4 · Lakehouse Bronze, Silver, Gold</h3><span class="meta">Semaine 4 · Databricks Free Edition<br>Chapitre 4 · Noté sur 20</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab5/lab5.html"><span class="num" aria-hidden="true">5</span><h3>Lab 5 · MongoDB : modélisation, agrégation, index, Charts</h3><span class="meta">Semaine 5 · MongoDB Atlas<br>Chapitre 5 · Noté sur 20</span><span class="go">Ouvrir l'énoncé →</span></a><a class="lab" href="lab6/lab6.html"><span class="num" aria-hidden="true">6</span><h3>Lab 6 · Kafka, Spark Structured Streaming, alertes MongoDB</h3><span class="meta">Semaine 6 · Codespaces + Atlas<br>Chapitre 6 · Noté sur 20</span><span class="go">Ouvrir l'énoncé →</span></a><div class="lab soon"><span class="num" aria-hidden="true">7</span><h3>Lab 7 · Orchestration et qualité avec Airflow</h3><span class="meta">Semaine 7 · Codespaces<br>Chapitre 7 · Noté sur 20</span><span class="go">À venir</span></div></div>
+</section>
+
+<section aria-labelledby="projet">
+  <h2 id="projet">Le projet fil rouge</h2>
+  <div class="two">
+    <div class="card"><h3>Sujets et consignes</h3><p>Six sujets sur données réelles, deux par filière, avec un flux en direct, un historique et une question de recherche. Équipes de 3 ou 4.</p><a class="cta" href="projet/projet.html">Voir le projet</a></div>
+    <div class="card"><h3>Suivi d'équipe</h3><p>Rapport de jalon à chaque étape (J0 à J6) et évaluation par les pairs à la fin du projet.</p><a class="cta" href="projet/suivi.html">Ouvrir le suivi</a></div>
+  </div>
+</section>
+
+<section aria-labelledby="commencer">
+  <h2 id="commencer">Avant de commencer</h2>
+  <div class="scroll"><table class="tbl">
+    <tr><th>Compte</th><th>Pour</th><th>Quand le créer</th></tr>
+    <tr><td><strong>GitHub</strong></td><td>Codespaces (Labs 1, 2, 6, 7) et projet</td><td>Avant le Lab 1</td></tr>
+    <tr><td><strong>Databricks Free Edition</strong> (<a href="https://www.databricks.com/learn/free-edition" target="_blank" rel="noopener">inscription</a>)</td><td>Labs 3 et 4</td><td>Avant le Lab 3 : la création de l'espace peut prendre du temps</td></tr>
+    <tr><td><strong>MongoDB Atlas</strong>, offre gratuite</td><td>Labs 5 et 6</td><td>Avant le Lab 5</td></tr>
+  </table></div>
+</section>
+
+<section aria-labelledby="cluster">
+  <h2 id="cluster">Démarrer le cluster dans Codespaces</h2>
+  <ol class="steps">
+    <li>Sur la page du <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs" target="_blank" rel="noopener">dépôt</a> : <em>Code</em> → <em>Codespaces</em> → <em>Create codespace on main</em> (ou rouvrez votre Codespace existant).</li>
+    <li>Dans le terminal du Codespace, mettez le dépôt à jour et démarrez les conteneurs :<pre class="cmd">git pull
+docker compose up -d</pre></li>
+    <li>Ouvrez un terminal dans le conteneur maître :<pre class="cmd">docker exec -it cluster-master bash</pre></li>
+    <li>Ouvrez les interfaces web depuis l'onglet <em>Ports</em> : 9870 (HDFS), 8088 (YARN), 4040 et 4041 (Spark UI), 8081 (Kafka UI).</li>
+    <li>En fin de séance : <code>docker compose stop</code>, puis arrêtez le Codespace sur <a href="https://github.com/codespaces" target="_blank" rel="noopener">github.com/codespaces</a>.</li>
+  </ol>
+  <p class="muted">Ne modifiez pas <code>docker-compose.yml</code> : quand un lab a besoin d'un outil en plus, son énoncé indique comment l'installer. Préférez <code>stop</code> à <code>down</code>, qui supprime les conteneurs et ce que vous y avez installé.</p>
+</section>
+
+<section aria-labelledby="filiere">
+  <h2 id="filiere">Choisir sa filière</h2>
+  <p>Les labs sont communs, mais leurs données et leurs questions métier dépendent de votre filière : choisissez-la dans l'encart d'identité en haut de chaque lab.</p>
+  <div class="scroll"><table class="tbl">
+    <tr><th>Filière</th><th>Cas d'étude des labs</th></tr>
+    <tr><td><strong>IDF</strong></td><td>Transactions bancaires et détection de fraude</td></tr>
+    <tr><td><strong>2SCL</strong></td><td>Suivi d'expéditions et de colis</td></tr>
+    <tr><td><strong>BI&amp;A</strong></td><td>Ventes et performance des magasins</td></tr>
+  </table></div>
+</section>
+
+<section aria-labelledby="rendre">
+  <h2 id="rendre">Rendre son travail</h2>
+  <ul>
+    <li>À la fin de chaque lab, cliquez sur <strong>« Envoyer à l'enseignant »</strong>, avant la date limite annoncée.</li>
+    <li>Gardez une copie avec <strong>« Télécharger une copie »</strong> ; si l'envoi échoue, transmettez ce fichier à l'enseignant.</li>
+    <li>Rédigez vous-même les réponses de réflexion : l'IA générative est autorisée comme assistant en lab, pas pour écrire vos réponses.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="depannage">
+  <h2 id="depannage">Dépannage</h2>
+  <div class="scroll"><table class="tbl">
+    <tr><th>Problème</th><th>Solution</th></tr>
+    <tr><td><code>ssh: connect to host hadoop-slave1 port 22: Connection timed out</code></td><td>Le pare-feu du Codespace bloque le réseau des conteneurs : suivez le <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs/blob/main/CODESPACES-HADOOP-SSH.md" target="_blank" rel="noopener">guide de correction</a>.</td></tr>
+    <tr><td><code>Live datanodes (0)</code> ou un seul DataNode</td><td>Même correction, puis <code>stop-all.sh</code> et <code>start-all.sh</code> dans <code>cluster-master</code>.</td></tr>
+    <tr><td>Le Spark UI ne s'ouvre pas</td><td>Vérifiez que l'application tourne encore, puis ouvrez le port 4040 (ou 4041) dans l'onglet <em>Ports</em>.</td></tr>
+    <tr><td>Kafka UI ne montre aucun topic</td><td>Vérifiez que Kafka tourne (<code>jps</code> dans <code>cluster-master</code>) et ouvrez le port 8081, pas 8080.</td></tr>
+    <tr><td><code>TABLE_OR_VIEW_NOT_FOUND</code> sur Databricks</td><td>Réexécutez la cellule <code>USE CATALOG</code> / <code>USE SCHEMA</code> de la section 0 du lab.</td></tr>
+    <tr><td>Connexion refusée par MongoDB Atlas</td><td>Dans <em>Network Access</em>, ajoutez l'adresse demandée par le lab, puis vérifiez la chaîne de connexion.</td></tr>
+    <tr><td>Le bouton d'envoi échoue</td><td>Téléchargez la copie de vos réponses et transmettez-la à l'enseignant.</td></tr>
+  </table></div>
+  <p class="muted">Chaque lab a aussi son encadré « En cas de problème ».</p>
+</section>
+
+<section aria-labelledby="module">
+  <h2 id="module">Le module</h2>
+  <p>Sept semaines de 2 h de cours et 2 h de lab. Évaluation : écrit final 40 %, projet 30 %, labs 30 %.</p>
+  <div class="scroll"><table class="tbl"><tr><th>Semaine</th><th>Cours</th><th>Lab</th></tr><tr><td>1</td><td>Chapitre 1 · Introduction au Big Data</td><td>Labs 0 et 1</td></tr><tr><td>2</td><td>Chapitre 2 · Infrastructure et architecture Big Data (Hadoop)</td><td>Lab 2</td></tr><tr><td>3</td><td>Chapitre 3 · Traitement distribué de données massives (Spark)</td><td>Lab 3</td></tr><tr><td>4</td><td>Chapitre 4 · Plateformes de données et architecture lakehouse (Delta Lake)</td><td>Lab 4</td></tr><tr><td>5</td><td>Chapitre 5 · Bases de données NoSQL et bases vectorielles (MongoDB)</td><td>Lab 5</td></tr><tr><td>6</td><td>Chapitre 6 · Traitement de flux en temps réel (Kafka)</td><td>Lab 6</td></tr><tr><td>7</td><td>Chapitre 7 · Orchestration et qualité des pipelines de données (Airflow)</td><td>Lab 7</td></tr></table></div>
+</section>
+
+</main>
+<footer><div>Module Big Data &amp; Applications · ENSIAS, Université Mohammed V de Rabat · 2026-2027 · Enseignant : Yasser El Madani El Alami<br>Énoncés sous licence CC BY-NC-SA 4.0, scripts sous licence MIT : voir <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs/blob/main/LICENSE">LICENSE</a>.</div></footer>
+
+</body>
+</html>

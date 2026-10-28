@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page introuvable · Big Data & Applications · ENSIAS</title>
+<meta name="description" content="Page introuvable.">
+<meta property="og:title" content="Page introuvable · Big Data & Applications · ENSIAS">
+<meta property="og:description" content="Page introuvable.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8B84B'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%231E2761' font-family='serif'%3EBD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2761;--gold:#E8B84B;--teal:#0f766e;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#5b6380;
+--soft:#eef1fb;--hero:#1E2761;--hero-text:#fff;--link:#1E2761;--idf:#1d4ed8;--scl:#0f766e;--bia:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1430;--card:#171d40;--border:#2a3363;--text:#e6e9f5;--muted:#a3abc9;
+--soft:#1e2550;--hero:#141a3c;--link:#E8B84B;--idf:#93b4ff;--scl:#5eead4;--bia:#fcd34d}}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+a{color:var(--link);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;background:var(--gold);color:#1E2761;padding:6px 12px;z-index:10}
+header.top{background:var(--hero);color:var(--hero-text)}
+.bar{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{width:32px;height:32px;background:var(--gold);color:#1E2761;border-radius:8px;display:grid;place-items:center;font-family:'DM Serif Display',serif}
+.bar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}.bar nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.85}
+.bar nav a:hover,.bar nav a[aria-current]{opacity:1;text-decoration:underline}
+.hero{max-width:1040px;margin:0 auto;padding:28px 16px 36px}
+.hero p.kicker{color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.hero h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(28px,5vw,42px);line-height:1.15;margin:6px 0 10px}
+.hero p.lead{max-width:720px;opacity:.9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:3px 12px;font-size:13px}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+section{margin:0 0 40px}
+h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(22px,3.5vw,28px);color:var(--text);margin-bottom:4px}
+h2::after{content:'';display:block;width:56px;height:3px;background:var(--gold);margin-top:6px}
+h3{font-size:18px;margin:18px 0 6px}
+p,ul,ol{margin:10px 0}ul,ol{padding-left:22px}li{margin:4px 0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;background:var(--card);border-radius:12px;overflow:hidden}
+.tbl th,.tbl td{border-bottom:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+.tbl th{background:var(--soft);font-weight:600}
+.scroll{overflow-x:auto}
+code{font-family:'DM Mono',monospace;font-size:.88em;background:var(--soft);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.pipe span.box{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:14px}
+.pipe i.arr{color:var(--muted);font-style:normal}
+.rule{border-left:4px solid var(--teal);background:var(--card);border-radius:0 12px 12px 0;padding:14px 18px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.filters button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:99px;padding:5px 14px;cursor:pointer}
+.filters button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.filters button[aria-pressed=true]{background:var(--gold);color:#1E2761;border-color:var(--gold)}}
+.sujet{display:flex;flex-direction:column;gap:6px}
+.sujet .tag{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:6px;padding:2px 8px;border:1px solid currentColor}
+.tag.IDF{color:var(--idf)}.tag.SCL{color:var(--scl)}.tag.BIA{color:var(--bia)}
+.sujet h3{margin:4px 0 2px;font-family:'DM Serif Display',serif;font-weight:400;font-size:21px}
+.sujet .rq{font-style:italic}
+.sujet dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14.5px;margin-top:6px}
+.sujet dt{font-weight:600;color:var(--muted)}
+.sujet details{font-size:14.5px;margin-top:4px}.sujet summary{cursor:pointer;font-weight:600}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+footer div{max-width:1040px;margin:0 auto;padding:18px 16px}
+@media (max-width:560px){.sujet dl{grid-template-columns:1fr}.bar nav{margin-left:0}}
+@media print{header.top,.filters,.skip{display:none}body{background:#fff;color:#000}.card{break-inside:avoid}}
+
+.labs{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.lab{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;transition:border-color .15s,transform .15s}
+a.lab:hover{border-color:var(--gold);transform:translateY(-2px)}
+.lab .num{font-family:'DM Serif Display',serif;font-size:34px;line-height:1;color:var(--gold)}
+.lab h3{margin:0;font-size:17px;line-height:1.35}
+.lab .meta{font-size:13.5px;color:var(--muted)}
+.lab .go{margin-top:auto;font-weight:600;font-size:14px;color:var(--link)}
+.lab.soon{opacity:.65;border-style:dashed}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:4px 0 4px 40px;margin:8px 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+@media (prefers-color-scheme:dark){.steps li::before{background:var(--gold);color:#1E2761}}
+pre.cmd{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:13.5px;margin:8px 0}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cta{display:inline-block;margin-top:8px;font-weight:600;background:var(--navy);color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px}
+@media (prefers-color-scheme:dark){.cta{background:var(--gold);color:#1E2761}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="bar"><span class="logo" aria-hidden="true">BD</span><strong>Big Data &amp; Applications · ENSIAS</strong><nav aria-label="Navigation principale"><a href="/ENSIAS_common_bigdata_labs/index.html">Accueil</a><a href="/ENSIAS_common_bigdata_labs/index.html#labs">Labs</a><a href="/ENSIAS_common_bigdata_labs/projet/projet.html">Projet</a><a href="/ENSIAS_common_bigdata_labs/projet/suivi.html">Suivi</a><a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs">Dépôt GitHub</a></nav></div>
+  <div class="hero"><p class="kicker">Erreur 404</p><h1>Page introuvable</h1><p class="lead">Cette adresse n'existe pas ou a changé.</p></div>
+</header>
+<main id="contenu">
+<section><p>Les énoncés sont tous listés sur la <a href="/ENSIAS_common_bigdata_labs/">page d'accueil</a>. Si vous suiviez un ancien lien vers un « TP », cherchez le lab du même numéro.</p><p><a class="cta" href="/ENSIAS_common_bigdata_labs/">Retour à l'accueil</a></p></section>
+</main>
+<footer><div>Module Big Data &amp; Applications · ENSIAS, Université Mohammed V de Rabat · 2026-2027 · Enseignant : Yasser El Madani El Alami<br>Énoncés sous licence CC BY-NC-SA 4.0, scripts sous licence MIT : voir <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs/blob/main/LICENSE">LICENSE</a>.</div></footer>
+
+</body>
+</html>

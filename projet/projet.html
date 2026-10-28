@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projet fil rouge · Big Data & Applications · ENSIAS</title>
+<meta name="description" content="Projet fil rouge du module Big Data & Applications (ENSIAS, 2026-2027) : six sujets sur données réelles, jalons, livrables et évaluation.">
+<meta property="og:title" content="Projet fil rouge · Big Data & Applications · ENSIAS">
+<meta property="og:description" content="Projet fil rouge du module Big Data & Applications (ENSIAS, 2026-2027) : six sujets sur données réelles, jalons, livrables et évaluation.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8B84B'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%231E2761' font-family='serif'%3EBD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2761;--gold:#E8B84B;--teal:#0f766e;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#5b6380;
+--soft:#eef1fb;--hero:#1E2761;--hero-text:#fff;--link:#1E2761;--idf:#1d4ed8;--scl:#0f766e;--bia:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1430;--card:#171d40;--border:#2a3363;--text:#e6e9f5;--muted:#a3abc9;
+--soft:#1e2550;--hero:#141a3c;--link:#E8B84B;--idf:#93b4ff;--scl:#5eead4;--bia:#fcd34d}}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+a{color:var(--link);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;background:var(--gold);color:#1E2761;padding:6px 12px;z-index:10}
+header.top{background:var(--hero);color:var(--hero-text)}
+.bar{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{width:32px;height:32px;background:var(--gold);color:#1E2761;border-radius:8px;display:grid;place-items:center;font-family:'DM Serif Display',serif}
+.bar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}.bar nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.85}
+.bar nav a:hover,.bar nav a[aria-current]{opacity:1;text-decoration:underline}
+.hero{max-width:1040px;margin:0 auto;padding:28px 16px 36px}
+.hero p.kicker{color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.hero h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(28px,5vw,42px);line-height:1.15;margin:6px 0 10px}
+.hero p.lead{max-width:720px;opacity:.9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:3px 12px;font-size:13px}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+section{margin:0 0 40px}
+h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(22px,3.5vw,28px);color:var(--text);margin-bottom:4px}
+h2::after{content:'';display:block;width:56px;height:3px;background:var(--gold);margin-top:6px}
+h3{font-size:18px;margin:18px 0 6px}
+p,ul,ol{margin:10px 0}ul,ol{padding-left:22px}li{margin:4px 0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;background:var(--card);border-radius:12px;overflow:hidden}
+.tbl th,.tbl td{border-bottom:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+.tbl th{background:var(--soft);font-weight:600}
+.scroll{overflow-x:auto}
+code{font-family:'DM Mono',monospace;font-size:.88em;background:var(--soft);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.pipe span.box{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:14px}
+.pipe i.arr{color:var(--muted);font-style:normal}
+.rule{border-left:4px solid var(--teal);background:var(--card);border-radius:0 12px 12px 0;padding:14px 18px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.filters button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:99px;padding:5px 14px;cursor:pointer}
+.filters button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.filters button[aria-pressed=true]{background:var(--gold);color:#1E2761;border-color:var(--gold)}}
+.sujet{display:flex;flex-direction:column;gap:6px}
+.sujet .tag{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:6px;padding:2px 8px;border:1px solid currentColor}
+.tag.IDF{color:var(--idf)}.tag.SCL{color:var(--scl)}.tag.BIA{color:var(--bia)}
+.sujet h3{margin:4px 0 2px;font-family:'DM Serif Display',serif;font-weight:400;font-size:21px}
+.sujet .rq{font-style:italic}
+.sujet dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14.5px;margin-top:6px}
+.sujet dt{font-weight:600;color:var(--muted)}
+.sujet details{font-size:14.5px;margin-top:4px}.sujet summary{cursor:pointer;font-weight:600}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+footer div{max-width:1040px;margin:0 auto;padding:18px 16px}
+@media (max-width:560px){.sujet dl{grid-template-columns:1fr}.bar nav{margin-left:0}}
+@media print{header.top,.filters,.skip{display:none}body{background:#fff;color:#000}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="bar"><span class="logo" aria-hidden="true">BD</span><strong>Big Data &amp; Applications · ENSIAS</strong><nav aria-label="Navigation principale"><a href="../index.html">Accueil</a><a href="../index.html#labs">Labs</a><a href="../projet/projet.html" aria-current="page">Projet</a><a href="../projet/suivi.html">Suivi</a><a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs">Dépôt GitHub</a></nav></div>
+  <div class="hero"><p class="kicker">Projet fil rouge · 30 % de la note</p>
+<h1>Un pipeline Big Data de bout en bout, sur données réelles</h1>
+<p class="lead">En équipe de 3 ou 4, vous construisez une chaîne complète, de la collecte en temps réel jusqu'au tableau de bord, autour d'un sujet qui intéresse l'industrie et qui pose une vraie question de recherche.</p>
+<div class="chips"><span class="chip">Kafka</span><span class="chip">Spark Structured Streaming</span><span class="chip">MongoDB</span><span class="chip">Delta Lake</span><span class="chip">Airflow</span></div></div>
+</header>
+<main id="contenu">
+
+<section aria-labelledby="chaine">
+  <h2 id="chaine">La chaîne attendue</h2>
+  <p>Chaque brique correspond à un chapitre et à un lab du module.</p>
+  <div class="pipe" role="img" aria-label="Source, puis producteur Python, Kafka, Spark Structured Streaming, MongoDB ; en parallèle Delta Lake et tableau de bord ; le tout orchestré par Airflow">
+    <span class="box">Source en direct ou rejeu</span><i class="arr">→</i><span class="box">Producteur Python</span><i class="arr">→</i><span class="box">Kafka (Lab 6)</span><i class="arr">→</i><span class="box">Spark Structured Streaming (Lab 6)</span><i class="arr">→</i><span class="box">Alertes MongoDB (Lab 5)</span>
+  </div>
+  <div class="pipe" aria-hidden="true">
+    <span class="box">Historique</span><i class="arr">→</i><span class="box">Delta Lake Bronze, Silver, Gold (Labs 3 et 4)</span><i class="arr">→</i><span class="box">Tableau de bord</span><i class="arr">·</i><span class="box">Orchestration Airflow (Lab 7)</span>
+  </div>
+  <p class="muted">Option bonus : une chaîne RAG sur les données du projet (MongoDB Atlas Vector Search, chapitre 5, annexe C).</p>
+</section>
+
+<section aria-labelledby="donnees">
+  <h2 id="donnees">Règle des données</h2>
+  <div class="rule">
+    <p>Chaque sujet repose sur <strong>trois sources</strong> :</p>
+    <ol>
+      <li><strong>un flux en direct</strong>, gratuit, pour Kafka et Structured Streaming ;</li>
+      <li><strong>un historique volumineux</strong>, téléchargeable, pour le lakehouse et l'entraînement des modèles ;</li>
+      <li><strong>un simulateur de rejeu</strong>, écrit par l'équipe sur le modèle de <code>simulateur_lab6.py</code>, qui republie l'historique dans Kafka à un débit réglable.</li>
+    </ol>
+    <p>Si une API tombe, change ses quotas ou bloque le Codespace, le projet continue avec le rejeu. Testez vos sources dès le jalon J1 et notez leurs limites (quotas, clés, conditions d'utilisation).</p>
+  </div>
+</section>
+
+<section aria-labelledby="sujets">
+  <h2 id="sujets">Les sujets</h2>
+  <p>Deux sujets par filière. Un sujet reste ouvert aux autres filières : choisir celui d'une autre filière se justifie au jalon J0.</p>
+  <div class="filters" role="group" aria-label="Filtrer par filière">
+    <button type="button" data-f="all" aria-pressed="true">Tous</button>
+    <button type="button" data-f="IDF" aria-pressed="false">IDF</button>
+    <button type="button" data-f="SCL" aria-pressed="false">2SCL</button>
+    <button type="button" data-f="BIA" aria-pressed="false">BI&amp;A</button>
+  </div>
+  <div class="grid">
+<article class="card sujet" data-fil="IDF">
+  <span class="tag IDF">Sujet 1 · IDF</span>
+  <h3>Surveillance anti-blanchiment sur la blockchain Bitcoin</h3>
+  <p>Les banques et les plateformes d'échange doivent repérer les flux liés au blanchiment de capitaux. Les transactions Bitcoin sont publiques : c'est l'une des rares sources réelles de transactions financières en accès libre.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Peut-on détecter les transactions illicites à partir de la structure du graphe des transactions ? Un modèle sur graphe fait-il mieux qu'un modèle tabulaire ?</p>
+  <dl><dt>En direct</dt><dd><a href="https://mempool.space/docs/api/rest" target="_blank" rel="noopener">API et WebSocket mempool.space</a> : nouvelles transactions, blocs, frais</dd><dt>Historique</dt><dd><a href="https://www.kaggle.com/datasets/ellipticco/elliptic-data-set" target="_blank" rel="noopener">Jeu Elliptic</a> (Kaggle) : plus de 200 000 transactions, en partie étiquetées licites ou illicites</dd><dt>Secours</dt><dd>rejeu du jeu Elliptic, pas de temps par pas de temps</dd><dt>ML</dt><dd>classification licite / illicite (forêt aléatoire, puis réseau de neurones sur graphe en option), puis application aux transactions en direct</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> les attributs d'Elliptic sont anonymisés : il faut définir des attributs comparables calculables sur le flux en direct.</p><ul><li><a href="https://arxiv.org/abs/1908.02591" target="_blank" rel="noopener">Weber, M. et al. (2019). Anti-Money Laundering in Bitcoin: Experimenting with Graph Convolutional Networks for Financial Forensics. KDD '19 Workshop on Anomaly Detection in Finance.</a></li></ul></details>
+</article>
+<article class="card sujet" data-fil="IDF">
+  <span class="tag IDF">Sujet 2 · IDF</span>
+  <h3>Volatilité des marchés et actualité</h3>
+  <p>Les salles de marché et les équipes de risque surveillent la volatilité en continu et cherchent à expliquer ses pics par l'actualité.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Le volume et le ton de l'actualité annoncent-ils les pics de volatilité d'un actif ? Avec quel décalage ?</p>
+  <dl><dt>En direct</dt><dd><a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams" target="_blank" rel="noopener">WebSocket publique de Binance</a> (transactions, sans clé) et <a href="https://www.gdeltproject.org/data.html" target="_blank" rel="noopener">GDELT 2.0</a> (articles de presse et leur ton, toutes les 15 minutes)</dd><dt>Historique</dt><dd><a href="https://data.binance.vision/" target="_blank" rel="noopener">data.binance.vision</a> (archives par jour) et archives GDELT</dd><dt>Secours</dt><dd>rejeu des archives Binance et GDELT</dd><dt>ML</dt><dd>indicateurs techniques (moyennes mobiles, RSI, MACD) ; prévision de la volatilité avec et sans les variables d'actualité (modèle de référence, puis LSTM ou gradient boosting)</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> l'accès à Binance peut dépendre du pays ou de l'hébergeur : à tester dès J1.</p><ul><li><a href="https://doi.org/10.1016/j.jocs.2010.12.007" target="_blank" rel="noopener">Bollen, J., Mao, H., Zeng, X. (2011). Twitter mood predicts the stock market. Journal of Computational Science, 2(1), 1-8.</a></li><li><a href="https://www.gdeltproject.org/data.html" target="_blank" rel="noopener">Leetaru, K., Schrodt, P. (2013). GDELT: Global Data on Events, Location and Tone, 1979-2012. ISA Annual Convention.</a></li></ul></details>
+</article>
+<article class="card sujet" data-fil="SCL">
+  <span class="tag SCL">Sujet 3 · 2SCL</span>
+  <h3>Congestion portuaire et heure d'arrivée des navires</h3>
+  <p>Un port planifie ses postes à quai, ses grues et ses camions à partir de l'heure d'arrivée prévue (ETA) des navires. Le détroit de Gibraltar et Tanger Med concentrent un trafic maritime important.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Peut-on prévoir l'heure d'arrivée d'un navire et la congestion d'un port à partir des seules positions AIS ?</p>
+  <dl><dt>En direct</dt><dd><a href="https://aisstream.io/documentation" target="_blank" rel="noopener">AISStream</a> : WebSocket gratuite (clé gratuite), filtrée par zone géographique</dd><dt>Historique</dt><dd><a href="https://hub.marinecadastre.gov/pages/vesseltraffic" target="_blank" rel="noopener">NOAA MarineCadastre</a> : positions AIS des eaux américaines, publiées par jour</dd><dt>Secours</dt><dd>rejeu d'une journée NOAA autour d'un grand port</dd><dt>ML</dt><dd>régression de l'heure d'arrivée (gradient boosting, puis modèle séquentiel en option) ; détection des navires au mouillage</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> la couverture d'AISStream autour du détroit est à mesurer au J1 ; la zone d'entraînement (États-Unis) diffère de la zone d'application.</p><ul><li><a href="https://ira.lib.polyu.edu.hk/handle/10397/98263" target="_blank" rel="noopener">Yang, D., Wu, L., Wang, S., Jia, H., Li, K. X. (2019). How big data enriches maritime research: a critical review of AIS data applications. Transport Reviews, 39(6), 755-773.</a></li></ul></details>
+</article>
+<article class="card sujet" data-fil="SCL">
+  <span class="tag SCL">Sujet 4 · 2SCL</span>
+  <h3>Rééquilibrage des vélos en libre-service</h3>
+  <p>Dans un réseau de vélos en libre-service, des stations se vident et d'autres débordent ; l'opérateur déplace des vélos par camion. C'est un problème de logistique urbaine du dernier kilomètre.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Peut-on prévoir la demande par station à une heure, puis planifier les tournées de rééquilibrage qui réduisent le plus les stations vides ou pleines ?</p>
+  <dl><dt>En direct</dt><dd><a href="https://github.com/MobilityData/gbfs" target="_blank" rel="noopener">flux GBFS</a> (standard ouvert, ex. Citi Bike) et <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (météo, sans clé)</dd><dt>Historique</dt><dd><a href="https://citibikenyc.com/system-data" target="_blank" rel="noopener">trajets Citi Bike</a>, publiés chaque mois</dd><dt>Secours</dt><dd>rejeu des trajets d'un mois</dd><dt>ML</dt><dd>prévision de la demande (gradient boosting avec la météo) ; tournées de rééquilibrage par une heuristique ou un modèle linéaire en nombres entiers (OR-Tools, PuLP)</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> un flux GBFS marocain, s'il existe, est à rechercher par l'équipe ; sinon, travailler sur une ville étrangère.</p><ul><li><a href="https://doi.org/10.1007/s13676-012-0017-6" target="_blank" rel="noopener">Raviv, T., Tzur, M., Forma, I. A. (2013). Static repositioning in a bike-sharing system: models and solution approaches. EURO Journal on Transportation and Logistics, 2, 187-229.</a></li></ul></details>
+</article>
+<article class="card sujet" data-fil="BIA">
+  <span class="tag BIA">Sujet 5 · BI&amp;A</span>
+  <h3>Parcours client e-commerce en temps réel</h3>
+  <p>Un site marchand suit en continu son tunnel de conversion (vue, panier, achat), détecte les paniers abandonnés et recommande des produits pendant la visite.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Peut-on recommander le prochain produit à partir de la seule session en cours, sans historique du client ?</p>
+  <dl><dt>En direct</dt><dd>aucun flux de ventes ouvert n'existe : le flux est un <strong>rejeu</strong> de l'historique à vitesse accélérée</dd><dt>Historique</dt><dd><a href="https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store" target="_blank" rel="noopener">REES46 « eCommerce behavior data »</a> (Kaggle) : événements de navigation, plusieurs Go par mois</dd><dt>Secours</dt><dd>le rejeu est la source principale</dd><dt>ML</dt><dd>recommandation par session (règles d'association, puis modèle séquentiel en option) ; segmentation RFM des clients</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> le flux est simulé : l'intérêt porte sur la volumétrie et la logique de session (fenêtres, watermark).</p><ul><li><a href="https://arxiv.org/abs/1511.06939" target="_blank" rel="noopener">Hidasi, B., Karatzoglou, A., Baltrunas, L., Tikk, D. (2016). Session-based Recommendations with Recurrent Neural Networks. ICLR 2016.</a></li></ul></details>
+</article>
+<article class="card sujet" data-fil="BIA">
+  <span class="tag BIA">Sujet 6 · BI&amp;A</span>
+  <h3>Écoute des clients et image de marque</h3>
+  <p>Les marques suivent ce qui se dit d'elles sur les réseaux sociaux et dans la presse, pour mesurer leur image et détecter une crise naissante.</p>
+  <p class="rq"><strong>Question de recherche.</strong> Peut-on détecter une crise d'image (pic de messages négatifs) avant qu'elle n'apparaisse dans la presse ? Sur quels aspects (prix, livraison, service) porte le mécontentement ?</p>
+  <dl><dt>En direct</dt><dd><a href="https://docs.bsky.app/blog/jetstream" target="_blank" rel="noopener">Bluesky Jetstream</a> (flux public du réseau social, JSON, sans clé) et <a href="https://www.gdeltproject.org/data.html" target="_blank" rel="noopener">GDELT</a> pour la presse</dd><dt>Historique</dt><dd><a href="https://amazon-reviews-2023.github.io/" target="_blank" rel="noopener">Amazon Reviews 2023</a> : avis clients avec note, pour entraîner le modèle de sentiment</dd><dt>Secours</dt><dd>rejeu des avis d'une catégorie</dd><dt>ML</dt><dd>modèle de sentiment entraîné sur les avis et comparé à des outils existants (VADER, TextBlob) ; sentiment par aspect en option ; graphe des mentions en option</dd></dl>
+  <details><summary>Limites et références</summary><p><strong>Limites :</strong> messages surtout en anglais ; respect des conditions d'utilisation et des données personnelles (pseudonymisation des comptes, loi 09-08).</p><ul><li><a href="https://arxiv.org/abs/2403.03952" target="_blank" rel="noopener">Hou, Y. et al. (2024). Bridging Language and Items for Retrieval and Recommendation (jeu Amazon Reviews 2023).</a></li><li><a href="https://aclanthology.org/S14-2004/" target="_blank" rel="noopener">Pontiki, M. et al. (2014). SemEval-2014 Task 4: Aspect Based Sentiment Analysis. SemEval 2014.</a></li></ul></details>
+</article>
+  </div>
+  <h3>Proposer son propre sujet</h3>
+  <p>Une équipe peut proposer un autre sujet s'il respecte la règle des données et pose une question de recherche. Pistes déjà repérées :</p>
+  <ul><li>Séismes : surveillance et alertes (flux GeoJSON USGS)</li><li>Trafic aérien au-dessus du Maroc (API OpenSky)</li><li>Qualité de l'air et vagues de chaleur (Open-Meteo)</li><li>Actualité et tendances : Wikipédia en temps réel (Wikimedia EventStreams)</li><li>Football : événements de match (StatsBomb Open Data)</li></ul>
+</section>
+
+<section aria-labelledby="jalons">
+  <h2 id="jalons">Jalons</h2>
+  <div class="scroll"><table class="tbl"><tr><th>Semaine</th><th>Jalon</th><th>Attendu</th></tr><tr><td>1</td><td><strong>J0</strong></td><td>Équipe constituée et sujet choisi</td></tr><tr><td>2</td><td><strong>J1</strong></td><td>Cahier des charges : sources testées, volumétrie mesurée, questions métier, contraintes légales</td></tr><tr><td>3</td><td><strong>J2</strong></td><td>Couches Bronze et Silver : ingestion par lots de l'historique</td></tr><tr><td>4</td><td><strong>J3</strong></td><td>Producteur d'événements branché sur la source, et simulateur de rejeu</td></tr><tr><td>5</td><td><strong>J4</strong></td><td>Alertes en temps réel écrites dans MongoDB</td></tr><tr><td>6</td><td><strong>J5</strong></td><td>DAG Airflow de collecte et de contrôle qualité</td></tr><tr><td>7</td><td><strong>J6</strong></td><td>Pipeline intégré, démonstration de bout en bout</td></tr></table></div>
+  <p class="muted">Les soutenances ont lieu 2 à 3 semaines après la fin du module.</p>
+</section>
+
+<section aria-labelledby="orga">
+  <h2 id="orga">Organisation de l'équipe</h2>
+  <ul>
+    <li>Équipes de <strong>3 ou 4</strong> étudiants.</li>
+    <li>Chaque membre a une mission clairement définie et équilibrée par rapport aux autres.</li>
+    <li>Découpez le travail en tâches indépendantes, pour avancer en parallèle, et rédigez des <strong>documents d'interface</strong> (format des messages Kafka, schéma des collections et des tables) entre les tâches.</li>
+    <li>Suivez l'avancement dans un tableau <strong>GitHub Projects</strong> lié au dépôt, selon la méthode Data Driven Scrum, et invitez l'enseignant comme collaborateur.</li>
+    <li>Envoyez un <a href="suivi.html">rapport de jalon</a> à chaque jalon, avec un tag Git sur le commit livré (<code>J0</code> à <code>J6</code>).</li>
+    <li>Tout le code est dans un dépôt GitHub de l'équipe ; l'historique des commits montre la contribution de chacun.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="livrables">
+  <h2 id="livrables">Livrables</h2>
+  <ul>
+    <li><strong>Dépôt GitHub</strong> documenté : README, instructions d'installation, simulateur de rejeu, DAG, notebooks.</li>
+    <li><strong>Rapport</strong> de 12 pages au plus, au format <a href="https://fr.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn" target="_blank" rel="noopener">IEEE conférence (modèle Overleaf)</a>, avec la déclaration d'usage de l'IA générative.</li>
+    <li><strong>Vidéo</strong> de démonstration de 5 minutes.</li>
+    <li><strong>Soutenance</strong> de 15 minutes.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="eval">
+  <h2 id="eval">Évaluation</h2>
+  <div class="scroll"><table class="tbl"><tr><th>Critère</th><th>Poids</th></tr><tr><td>Architecture et justification des choix</td><td>20 %</td></tr><tr><td>Réalisation du pipeline</td><td>30 %</td></tr><tr><td>Qualité des données, sécurité, conformité</td><td>15 %</td></tr><tr><td>Documentation et reproductibilité</td><td>15 %</td></tr><tr><td>Soutenance et démonstration</td><td>20 %</td></tr></table></div>
+  <p>La note d'équipe est modulée individuellement : évaluation par les pairs, historique Git, question posée à chaque membre en soutenance.</p>
+  <p><strong>Suivi</strong> : à chaque jalon, l'équipe envoie un rapport de jalon ; à la fin du projet, chaque étudiant envoie son évaluation par les pairs. Les deux formulaires sont sur la page <a href="suivi.html">Suivi du projet</a>. Les rapports de jalon comptent dans la note du projet.</p>
+  <p><strong>IA générative</strong> : utilisation libre, à condition de la déclarer dans le rapport et de pouvoir expliquer tout le code rendu.</p>
+  <p><strong>Conformité</strong> : respectez les conditions d'utilisation des sources et la protection des données personnelles (loi 09-08) ; pseudonymisez les identifiants de personnes.</p>
+</section>
+
+</main>
+<footer><div>Module Big Data &amp; Applications · ENSIAS, Université Mohammed V de Rabat · 2026-2027 · Enseignant : Yasser El Madani El Alami<br>Énoncés sous licence CC BY-NC-SA 4.0, scripts sous licence MIT : voir <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs/blob/main/LICENSE">LICENSE</a>.</div></footer>
+<script>
+(function(){var b=document.querySelectorAll('.filters button'),c=document.querySelectorAll('.sujet');
+b.forEach(function(x){x.addEventListener('click',function(){var f=x.getAttribute('data-f');
+b.forEach(function(y){y.setAttribute('aria-pressed',y===x?'true':'false')});
+c.forEach(function(k){k.hidden=!(f==='all'||k.getAttribute('data-fil')===f)});});});})();
+</script>
+</body>
+</html>

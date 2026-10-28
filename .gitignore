@@ -1,0 +1,17 @@
+# Systèmes et éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Fichiers produits pendant les labs (dans assets/, monté sous /shared_volume)
+assets/**/traites_*.txt
+assets/**/*.log
+derby.log
+metastore_db/
+spark-warehouse/

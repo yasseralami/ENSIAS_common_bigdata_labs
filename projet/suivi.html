@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi du projet · Big Data & Applications · ENSIAS</title>
+<meta name="description" content="Suivi du projet fil rouge (ENSIAS, 2026-2027) : rapport de jalon par équipe et évaluation par les pairs.">
+<meta property="og:title" content="Suivi du projet · Big Data & Applications · ENSIAS">
+<meta property="og:description" content="Suivi du projet fil rouge (ENSIAS, 2026-2027) : rapport de jalon par équipe et évaluation par les pairs.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8B84B'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%231E2761' font-family='serif'%3EBD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2761;--gold:#E8B84B;--teal:#0f766e;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#5b6380;
+--soft:#eef1fb;--hero:#1E2761;--hero-text:#fff;--link:#1E2761;--idf:#1d4ed8;--scl:#0f766e;--bia:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1430;--card:#171d40;--border:#2a3363;--text:#e6e9f5;--muted:#a3abc9;
+--soft:#1e2550;--hero:#141a3c;--link:#E8B84B;--idf:#93b4ff;--scl:#5eead4;--bia:#fcd34d}}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+a{color:var(--link);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;background:var(--gold);color:#1E2761;padding:6px 12px;z-index:10}
+header.top{background:var(--hero);color:var(--hero-text)}
+.bar{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{width:32px;height:32px;background:var(--gold);color:#1E2761;border-radius:8px;display:grid;place-items:center;font-family:'DM Serif Display',serif}
+.bar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}.bar nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.85}
+.bar nav a:hover,.bar nav a[aria-current]{opacity:1;text-decoration:underline}
+.hero{max-width:1040px;margin:0 auto;padding:28px 16px 36px}
+.hero p.kicker{color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.hero h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(28px,5vw,42px);line-height:1.15;margin:6px 0 10px}
+.hero p.lead{max-width:720px;opacity:.9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:3px 12px;font-size:13px}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+section{margin:0 0 40px}
+h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(22px,3.5vw,28px);color:var(--text);margin-bottom:4px}
+h2::after{content:'';display:block;width:56px;height:3px;background:var(--gold);margin-top:6px}
+h3{font-size:18px;margin:18px 0 6px}
+p,ul,ol{margin:10px 0}ul,ol{padding-left:22px}li{margin:4px 0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;background:var(--card);border-radius:12px;overflow:hidden}
+.tbl th,.tbl td{border-bottom:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+.tbl th{background:var(--soft);font-weight:600}
+.scroll{overflow-x:auto}
+code{font-family:'DM Mono',monospace;font-size:.88em;background:var(--soft);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.pipe span.box{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:14px}
+.pipe i.arr{color:var(--muted);font-style:normal}
+.rule{border-left:4px solid var(--teal);background:var(--card);border-radius:0 12px 12px 0;padding:14px 18px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.filters button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:99px;padding:5px 14px;cursor:pointer}
+.filters button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.filters button[aria-pressed=true]{background:var(--gold);color:#1E2761;border-color:var(--gold)}}
+.sujet{display:flex;flex-direction:column;gap:6px}
+.sujet .tag{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:6px;padding:2px 8px;border:1px solid currentColor}
+.tag.IDF{color:var(--idf)}.tag.SCL{color:var(--scl)}.tag.BIA{color:var(--bia)}
+.sujet h3{margin:4px 0 2px;font-family:'DM Serif Display',serif;font-weight:400;font-size:21px}
+.sujet .rq{font-style:italic}
+.sujet dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14.5px;margin-top:6px}
+.sujet dt{font-weight:600;color:var(--muted)}
+.sujet details{font-size:14.5px;margin-top:4px}.sujet summary{cursor:pointer;font-weight:600}
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+footer div{max-width:1040px;margin:0 auto;padding:18px 16px}
+@media (max-width:560px){.sujet dl{grid-template-columns:1fr}.bar nav{margin-left:0}}
+@media print{header.top,.filters,.skip{display:none}body{background:#fff;color:#000}.card{break-inside:avoid}}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{font:inherit;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;padding:8px 16px;cursor:pointer;font-weight:600}
+.tabs button[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.tabs button[aria-selected=true]{background:var(--gold);color:#1E2761;border-color:var(--gold)}}
+form .card{margin-bottom:16px}
+.f{display:flex;flex-direction:column;gap:4px;margin:10px 0}
+fieldset{border:0;padding:0;min-width:0}fieldset legend{padding:0;margin-bottom:4px}
+.f label,.f legend{font-weight:600;font-size:14.5px}
+.f small{color:var(--muted);font-size:13px}
+input[type=text],input[type=url],input[type=number],select,textarea{font:inherit;font-size:15px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:76px;resize:vertical}
+.row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.membre{border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin:8px 0}
+.membre h4{font-size:14px;color:var(--muted);margin-bottom:4px}
+.etat{display:flex;gap:14px;flex-wrap:wrap}
+.etat label{display:flex;gap:6px;align-items:center;font-weight:500}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.dod label{display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:4px 0}
+.notes{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+.btn.sec{background:var(--card);color:var(--text);border:1px solid var(--border)}
+@media (prefers-color-scheme:dark){.btn{background:var(--gold);color:#1E2761}}
+.msg{font-size:14.5px}
+.info{border-left:4px solid var(--gold);background:var(--card);border-radius:0 12px 12px 0;padding:12px 16px;font-size:14.5px}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="bar"><span class="logo" aria-hidden="true">BD</span><strong>Big Data &amp; Applications · ENSIAS</strong><nav aria-label="Navigation principale"><a href="../index.html">Accueil</a><a href="../index.html#labs">Labs</a><a href="../projet/projet.html">Projet</a><a href="../projet/suivi.html" aria-current="page">Suivi</a><a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs">Dépôt GitHub</a></nav></div>
+  <div class="hero"><p class="kicker">Projet fil rouge · suivi d'équipe</p>
+<h1>Rapport de jalon et évaluation par les pairs</h1>
+<p class="lead">À chaque jalon, une personne de l'équipe envoie le rapport de jalon (10 minutes). À la fin du projet, chaque étudiant envoie seul son évaluation de ses coéquipiers.</p></div>
+</header>
+<main id="contenu">
+
+<div class="tabs" role="tablist" aria-label="Formulaires">
+  <button type="button" role="tab" id="tab-j" aria-controls="pan-j" aria-selected="true">Rapport de jalon (équipe)</button>
+  <button type="button" role="tab" id="tab-p" aria-controls="pan-p" aria-selected="false">Évaluation par les pairs (individuelle)</button>
+</div>
+<datalist id="roles"><option value="Responsable produit et données"><option value="Ingénieur streaming (Kafka, Spark)"><option value="Ingénieur lakehouse (Delta)"><option value="Ingénieur ML"><option value="Orchestration et qualité (Airflow)"><option value="Scrum master"></datalist>
+
+<section id="pan-j" role="tabpanel" aria-labelledby="tab-j">
+<form id="fj" novalidate>
+  <div class="card">
+    <h2>Équipe</h2>
+    <p class="muted">Saisie une fois : ces informations restent dans ce navigateur pour les jalons suivants.</p>
+    <div class="row">
+      <div class="f"><label for="code">Code d'équipe</label><input type="text" id="code" placeholder="T01" maxlength="3"><small>Attribué par l'enseignant à J0.</small></div>
+      <div class="f"><label for="equipe">Nom de l'équipe</label><input type="text" id="equipe"></div>
+      <div class="f"><label for="sujet">Sujet</label><select id="sujet"><option value="">—</option>
+        <option>1 · Anti-blanchiment Bitcoin (IDF)</option><option>2 · Volatilité et actualité (IDF)</option>
+        <option>3 · Congestion portuaire (2SCL)</option><option>4 · Vélos en libre-service (2SCL)</option>
+        <option>5 · Parcours client e-commerce (BI&amp;A)</option><option>6 · Écoute des clients (BI&amp;A)</option>
+        <option>Sujet proposé par l'équipe</option></select></div>
+    </div>
+    <div class="row">
+      <div class="f"><label for="depot">Dépôt GitHub de l'équipe</label><input type="url" id="depot" placeholder="https://github.com/…"></div>
+      <div class="f"><label for="board">Tableau GitHub Projects</label><input type="url" id="board" placeholder="https://github.com/orgs/…/projects/…"></div>
+    </div>
+    <div class="membre"><h4>Membre 1 (obligatoire)</h4><div class="row"><div class="f"><label for="m1_nom">Nom et prénom</label><input type="text" id="m1_nom" autocomplete="off"></div><div class="f"><label for="m1_fil">Filière</label><select id="m1_fil"><option value="">—</option><option>IDF</option><option>2SCL</option><option>BI&amp;A</option></select></div><div class="f"><label for="m1_role">Rôle</label><input type="text" id="m1_role" list="roles"></div><div class="f"><label for="m1_gh">Identifiant GitHub</label><input type="text" id="m1_gh" placeholder="sans @"></div></div></div><div class="membre"><h4>Membre 2 (obligatoire)</h4><div class="row"><div class="f"><label for="m2_nom">Nom et prénom</label><input type="text" id="m2_nom" autocomplete="off"></div><div class="f"><label for="m2_fil">Filière</label><select id="m2_fil"><option value="">—</option><option>IDF</option><option>2SCL</option><option>BI&amp;A</option></select></div><div class="f"><label for="m2_role">Rôle</label><input type="text" id="m2_role" list="roles"></div><div class="f"><label for="m2_gh">Identifiant GitHub</label><input type="text" id="m2_gh" placeholder="sans @"></div></div></div><div class="membre"><h4>Membre 3 (obligatoire)</h4><div class="row"><div class="f"><label for="m3_nom">Nom et prénom</label><input type="text" id="m3_nom" autocomplete="off"></div><div class="f"><label for="m3_fil">Filière</label><select id="m3_fil"><option value="">—</option><option>IDF</option><option>2SCL</option><option>BI&amp;A</option></select></div><div class="f"><label for="m3_role">Rôle</label><input type="text" id="m3_role" list="roles"></div><div class="f"><label for="m3_gh">Identifiant GitHub</label><input type="text" id="m3_gh" placeholder="sans @"></div></div></div><div class="membre"><h4>Membre 4 (facultatif)</h4><div class="row"><div class="f"><label for="m4_nom">Nom et prénom</label><input type="text" id="m4_nom" autocomplete="off"></div><div class="f"><label for="m4_fil">Filière</label><select id="m4_fil"><option value="">—</option><option>IDF</option><option>2SCL</option><option>BI&amp;A</option></select></div><div class="f"><label for="m4_role">Rôle</label><input type="text" id="m4_role" list="roles"></div><div class="f"><label for="m4_gh">Identifiant GitHub</label><input type="text" id="m4_gh" placeholder="sans @"></div></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Jalon</h2>
+    <div class="row">
+      <div class="f"><label for="jalon">Jalon</label><select id="jalon"><option value="">—</option>
+        <option>J0</option><option>J1</option><option>J2</option><option>J3</option><option>J4</option><option>J5</option><option>J6</option></select></div>
+      <div class="f"><label for="tag">Tag Git du jalon</label><input type="text" id="tag" placeholder="J2"><small>Créé sur le commit livré : <code>git tag J2 &amp;&amp; git push --tags</code></small></div>
+    </div>
+    <fieldset class="f"><legend>État global</legend><div class="etat">
+      <label><input type="radio" name="etat" value="vert"><span class="dot" style="background:#16a34a"></span>Vert : jalon atteint</label>
+      <label><input type="radio" name="etat" value="orange"><span class="dot" style="background:#f59e0b"></span>Orange : en partie, rattrapable</label>
+      <label><input type="radio" name="etat" value="rouge"><span class="dot" style="background:#dc2626"></span>Rouge : bloqué, besoin d'aide</label>
+    </div></fieldset>
+    <fieldset class="f dod"><legend>Definition of Done du jalon</legend><div id="dod"><p class="muted">Choisissez un jalon.</p></div></fieldset>
+    <div class="f"><label for="mesures">Mesures</label><textarea id="mesures" placeholder="Ex. : 120 événements/s, 2,3 Go en Bronze, 48 alertes en 10 min, latence de 5 s"></textarea><small>Valeurs mesurées par l'équipe, avec la façon de les obtenir.</small></div>
+  </div>
+
+  <div class="card">
+    <h2>Avancement</h2>
+    <div class="f"><label for="fait">Fait depuis le dernier jalon</label><textarea id="fait"></textarea></div>
+    <div class="f"><label for="prevu">Prévu pour le prochain jalon</label><textarea id="prevu"></textarea></div>
+    <div class="f"><label for="blocages">Blocages</label><textarea id="blocages"></textarea></div>
+    <h3>Contribution de chacun depuis le dernier jalon</h3>
+    <div class="row"><div class="f" style="grid-column:span 3"><label for="c1_txt">Membre 1 <span class="cn" data-i="1"></span> : tâches réalisées</label><textarea id="c1_txt" style="min-height:56px"></textarea></div><div class="f"><label for="c1_h">Heures</label><input type="number" id="c1_h" min="0" max="80" step="0.5"></div></div><div class="row"><div class="f" style="grid-column:span 3"><label for="c2_txt">Membre 2 <span class="cn" data-i="2"></span> : tâches réalisées</label><textarea id="c2_txt" style="min-height:56px"></textarea></div><div class="f"><label for="c2_h">Heures</label><input type="number" id="c2_h" min="0" max="80" step="0.5"></div></div><div class="row"><div class="f" style="grid-column:span 3"><label for="c3_txt">Membre 3 <span class="cn" data-i="3"></span> : tâches réalisées</label><textarea id="c3_txt" style="min-height:56px"></textarea></div><div class="f"><label for="c3_h">Heures</label><input type="number" id="c3_h" min="0" max="80" step="0.5"></div></div><div class="row"><div class="f" style="grid-column:span 3"><label for="c4_txt">Membre 4 <span class="cn" data-i="4"></span> : tâches réalisées</label><textarea id="c4_txt" style="min-height:56px"></textarea></div><div class="f"><label for="c4_h">Heures</label><input type="number" id="c4_h" min="0" max="80" step="0.5"></div></div>
+    <div class="f"><label for="risques">Risques (risque, impact, action prévue)</label><textarea id="risques"></textarea></div>
+    <div class="f"><label for="ia">Usage de l'IA générative (outil, pour quoi faire)</label><textarea id="ia"></textarea></div>
+    <div class="f"><label for="question">Question pour l'enseignant (facultatif)</label><textarea id="question"></textarea></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" type="button" id="envoyer-j">Envoyer le rapport</button>
+    <button class="btn sec" type="button" id="copie-j">Télécharger une copie</button>
+    <span class="msg" id="msg-j" role="status"></span>
+  </div>
+</form>
+</section>
+
+<section id="pan-p" role="tabpanel" aria-labelledby="tab-p" hidden>
+<form id="fp" novalidate>
+  <div class="info"><strong>Confidentiel.</strong> Remplissez cette évaluation seul, à la fin du projet (après J6). Seul l'enseignant la lit ; elle sert à moduler la note individuelle. Appuyez vos notes sur des faits : tâches, commits, réunions.</div>
+  <div class="card" style="margin-top:16px">
+    <h2>Vous</h2>
+    <div class="row">
+      <div class="f"><label for="ev_nom">Nom et prénom</label><input type="text" id="ev_nom"></div>
+      <div class="f"><label for="ev_fil">Filière</label><select id="ev_fil"><option value="">—</option><option>IDF</option><option>2SCL</option><option>BI&amp;A</option></select></div>
+      <div class="f"><label for="ev_code">Code d'équipe</label><input type="text" id="ev_code" placeholder="T01" maxlength="3"></div>
+    </div>
+    <p class="muted">Échelle : 1 très insuffisant, 2 insuffisant, 3 attendu, 4 au-delà de l'attendu, 5 exceptionnel.</p>
+  </div>
+  <div class="card">
+    <h2>Vos coéquipiers</h2>
+    <div class="membre"><h4>Coéquipier 1</h4><div class="f"><label for="p1_nom">Nom et prénom</label><input type="text" id="p1_nom"></div><div class="notes"><div class="f"><label for="p1_contrib">Contribution</label><select id="p1_contrib"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p1_qualite">Qualité du travail</label><select id="p1_qualite"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p1_engag">Respect des engagements</label><select id="p1_engag"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p1_comm">Communication</label><select id="p1_comm"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p1_comp">Compétences apportées</label><select id="p1_comp"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div><div class="f"><label for="p1_just">Justification (une ou deux phrases, faits précis)</label><textarea id="p1_just" style="min-height:56px"></textarea></div></div><div class="membre"><h4>Coéquipier 2</h4><div class="f"><label for="p2_nom">Nom et prénom</label><input type="text" id="p2_nom"></div><div class="notes"><div class="f"><label for="p2_contrib">Contribution</label><select id="p2_contrib"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p2_qualite">Qualité du travail</label><select id="p2_qualite"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p2_engag">Respect des engagements</label><select id="p2_engag"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p2_comm">Communication</label><select id="p2_comm"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p2_comp">Compétences apportées</label><select id="p2_comp"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div><div class="f"><label for="p2_just">Justification (une ou deux phrases, faits précis)</label><textarea id="p2_just" style="min-height:56px"></textarea></div></div><div class="membre"><h4>Coéquipier 3</h4><div class="f"><label for="p3_nom">Nom et prénom</label><input type="text" id="p3_nom"></div><div class="notes"><div class="f"><label for="p3_contrib">Contribution</label><select id="p3_contrib"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p3_qualite">Qualité du travail</label><select id="p3_qualite"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p3_engag">Respect des engagements</label><select id="p3_engag"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p3_comm">Communication</label><select id="p3_comm"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="f"><label for="p3_comp">Compétences apportées</label><select id="p3_comp"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div><div class="f"><label for="p3_just">Justification (une ou deux phrases, faits précis)</label><textarea id="p3_just" style="min-height:56px"></textarea></div></div>
+    <div class="f"><label for="ev_equipe">Fonctionnement de l'équipe (facultatif)</label><textarea id="ev_equipe"></textarea></div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button" id="envoyer-p">Envoyer mon évaluation</button>
+    <span class="msg" id="msg-p" role="status"></span>
+  </div>
+</form>
+</section>
+
+<section aria-labelledby="donnees-perso" style="margin-top:32px">
+  <h2 id="donnees-perso">Données personnelles</h2>
+  <p class="muted">Ces formulaires recueillent les noms, filières et identifiants GitHub des membres, et leur contribution au projet. Ils servent uniquement au suivi et à l'évaluation du projet (loi 09-08). Ne saisissez ni e-mail ni téléphone.</p>
+</section>
+
+</main>
+<footer><div>Module Big Data &amp; Applications · ENSIAS, Université Mohammed V de Rabat · 2026-2027 · Enseignant : Yasser El Madani El Alami<br>Énoncés sous licence CC BY-NC-SA 4.0, scripts sous licence MIT : voir <a href="https://github.com/yasseralami/ENSIAS_common_bigdata_labs/blob/main/LICENSE">LICENSE</a>.</div></footer>
+<script>
+(function(){
+var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwIGriq5SYt4FccF6Wh2qLGHvatUwBrD9V6FztLf00nsNja4cugPbmVPeUNeYM1wVoi/exec';
+var KEY = 'ensias-bd-projet-v1';
+var DOD = {
+ J0:['Équipe de 3 ou 4 constituée, rôles répartis','Sujet choisi (justifié s\'il vient d\'une autre filière)','Dépôt GitHub créé, enseignant invité','Tableau GitHub Projects créé avec les premières tâches'],
+ J1:['Source en direct testée (accès, quotas, conditions d\'utilisation)','Historique téléchargé, volumétrie mesurée','Questions métier et question de recherche rédigées','Contraintes légales identifiées (loi 09-08, licences)','Architecture cible dessinée'],
+ J2:['Historique ingéré en Bronze','Couche Silver avec règles de qualité','Schémas documentés dans le dépôt','Tag J2 poussé'],
+ J3:['Producteur branché sur la source en direct','Simulateur de rejeu fonctionnel','Format des messages documenté (document d\'interface)','Topics créés (partitions, clé justifiées)'],
+ J4:['Job Spark Structured Streaming en marche','Règles d\'alerte implémentées','Alertes écrites dans MongoDB','Écriture idempotente (rejeu sans doublon)'],
+ J5:['DAG Airflow de collecte','Contrôles de qualité dans le DAG','Reprise après échec testée','Modèle ML entraîné et évalué'],
+ J6:['Pipeline de bout en bout démontrable','Tableau de bord','Rapport IEEE rédigé','Vidéo de 5 minutes','README d\'installation à jour']
+};
+function $(id){ return document.getElementById(id); }
+function v(id){ var e=$(id); return e ? (e.value||'').trim() : ''; }
+var CHAMPS = ['code','equipe','sujet','depot','board','jalon','tag','mesures','fait','prevu','blocages','risques','ia','question','ev_nom','ev_fil','ev_code','ev_equipe'];
+for (var i=1;i<=4;i++){ ['nom','fil','role','gh'].forEach(function(k){ CHAMPS.push('m'+i+'_'+k); }); CHAMPS.push('c'+i+'_txt','c'+i+'_h'); }
+for (var j=1;j<=3;j++){ ['nom','contrib','qualite','engag','comm','comp','just'].forEach(function(k){ CHAMPS.push('p'+j+'_'+k); }); }
+var st = {};
+try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { st = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} }
+
+function dod(){
+  var box = $('dod'), j = v('jalon');
+  if (!DOD[j]) { box.innerHTML = '<p class="muted">Choisissez un jalon.</p>'; return; }
+  box.innerHTML = DOD[j].map(function(t,k){ var id='dod_'+j+'_'+k;
+    return '<label><input type="checkbox" id="'+id+'"'+(st[id]?' checked':'')+'> '+t+'</label>'; }).join('');
+  box.querySelectorAll('input').forEach(function(c){ c.addEventListener('change', function(){ st[c.id]=c.checked; save(); }); });
+}
+function noms(){ document.querySelectorAll('.cn').forEach(function(s){ var n=v('m'+s.getAttribute('data-i')+'_nom'); s.textContent = n ? '('+n+')' : ''; }); }
+
+CHAMPS.forEach(function(id){ var e=$(id); if(!e) return; if (st[id]!==undefined) e.value = st[id];
+  e.addEventListener('input', function(){ st[id]=e.value; save(); if(id==='jalon') dod(); noms(); });
+  e.addEventListener('change', function(){ st[id]=e.value; save(); if(id==='jalon') dod(); }); });
+document.querySelectorAll('input[name=etat]').forEach(function(r){ if(st.etat===r.value) r.checked=true;
+  r.addEventListener('change', function(){ st.etat=r.value; save(); }); });
+dod(); noms();
+
+var tabs = [['tab-j','pan-j'],['tab-p','pan-p']];
+tabs.forEach(function(t){ $(t[0]).addEventListener('click', function(){ tabs.forEach(function(u){
+  $(u[0]).setAttribute('aria-selected', u[0]===t[0]?'true':'false'); $(u[1]).hidden = u[0]!==t[0]; }); }); });
+
+function membres(){ var out=[]; for (var i=1;i<=4;i++){ if (v('m'+i+'_nom')) out.push({i:i, nom:v('m'+i+'_nom'), fil:v('m'+i+'_fil'), role:v('m'+i+'_role'), gh:v('m'+i+'_gh')}); } return out; }
+function msg(id, t, ok){ var m=$(id); m.textContent=t; m.style.color = ok ? 'var(--teal)' : '#b91c1c'; }
+function codeOk(c){ return /^T\d{2}$/.test(c); }
+function envoyer(data, mid, okTxt){
+  if (ENDPOINT.indexOf('http') !== 0) { msg(mid, 'Envoi non configuré : téléchargez une copie.', false); return; }
+  msg(mid, 'Envoi en cours…', true);
+  fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)})
+    .then(function(){ msg(mid, okTxt, true); })
+    .catch(function(){ msg(mid, 'Échec de l\'envoi : vérifiez la connexion, ou téléchargez une copie.', false); });
+}
+
+function rapport(){
+  var ms = membres(), j = v('jalon'), coch = [], tot = (DOD[j]||[]).length;
+  (DOD[j]||[]).forEach(function(t,k){ if (st['dod_'+j+'_'+k]) coch.push(t); });
+  var fils = []; ms.forEach(function(m){ if (m.fil && fils.indexOf(m.fil)<0) fils.push(m.fil); });
+  var d = {tp:'PROJET-JALON', date:new Date().toLocaleString('fr-FR'),
+    nom: v('code')+' · '+v('equipe')+' — '+ms.map(function(m){ return m.nom; }).join(', '),
+    filiere: fils.join(', '), sections: j, score: st.etat || ''};
+  var R = [v('sujet'), v('depot'), v('board'),
+    ms.map(function(m){ return m.nom+' | '+m.fil+' | '+m.role+' | @'+m.gh; }).join(' ; '),
+    coch.length+'/'+tot+(coch.length ? ' : '+coch.join(' ; ') : ''),
+    v('tag'), v('mesures'), v('fait'), v('prevu'), v('blocages')];
+  for (var i=1;i<=4;i++){ var n=v('m'+i+'_nom'); R.push(n ? n+' : '+v('c'+i+'_txt')+(v('c'+i+'_h') ? ' ('+v('c'+i+'_h')+' h)' : '') : ''); }
+  R.push(v('risques'), v('ia'), v('question'));
+  R.forEach(function(x,k){ d['R'+(k+1)] = x; });
+  return d;
+}
+$('envoyer-j').addEventListener('click', function(){
+  var ms = membres();
+  if (!codeOk(v('code'))) { msg('msg-j','Code d\'équipe attendu : T suivi de deux chiffres (ex. T03).', false); $('code').focus(); return; }
+  if (!v('equipe') || !v('sujet')) { msg('msg-j','Indiquez le nom de l\'équipe et le sujet.', false); return; }
+  if (ms.length < 3 || ms.some(function(m){ return !m.role; })) { msg('msg-j','Indiquez au moins 3 membres, chacun avec son rôle.', false); return; }
+  if (!v('jalon') || !st.etat) { msg('msg-j','Choisissez le jalon et l\'état global.', false); return; }
+  envoyer(rapport(), 'msg-j', 'Rapport du jalon '+v('jalon')+' envoyé. Gardez aussi une copie.');
+});
+$('copie-j').addEventListener('click', function(){
+  var d = rapport(), L = ['Libellés : R1 sujet, R2 dépôt, R3 tableau, R4 membres, R5 Definition of Done, R6 tag, R7 mesures, R8 fait, R9 prévu, R10 blocages, R11-R14 contributions, R15 risques, R16 IA, R17 question', ''];
+  L.unshift('# Rapport de jalon '+d.sections+' — '+d.nom, '', '- État : '+d.score, '- Date : '+d.date, '');
+  for (var k=1;k<=17;k++) L.push('**R'+k+'** : '+(d['R'+k]||''), '');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([L.join('\n')], {type:'text/markdown'}));
+  a.download = 'Projet_'+(v('code')||'equipe')+'_'+(d.sections||'jalon')+'.md'; a.click();
+});
+$('envoyer-p').addEventListener('click', function(){
+  if (!v('ev_nom') || !codeOk(v('ev_code'))) { msg('msg-p','Indiquez votre nom et le code d\'équipe (ex. T03).', false); return; }
+  var d = {tp:'PROJET-PAIRS', date:new Date().toLocaleString('fr-FR'), nom:v('ev_nom'), filiere:v('ev_fil'), sections:v('ev_code'), score:''};
+  var n = 0;
+  for (var j=1;j<=3;j++){
+    var nm = v('p'+j+'_nom'), notes = ['contrib','qualite','engag','comm','comp'].map(function(k){ return v('p'+j+'_'+k); });
+    if (nm && notes.some(function(x){ return !x; })) { msg('msg-p','Il manque des notes pour '+nm, false); return; }
+    if (nm && !v('p'+j+'_just')) { msg('msg-p','Il manque la justification pour '+nm, false); return; }
+    if (nm) n++;
+    d['R'+j] = nm ? nm+' — contribution '+notes[0]+', qualité '+notes[1]+', engagements '+notes[2]+', communication '+notes[3]+', compétences '+notes[4]+' — '+v('p'+j+'_just') : '';
+  }
+  if (n < 2) { msg('msg-p','Évaluez au moins deux coéquipiers.', false); return; }
+  d.R4 = v('ev_equipe'); d.score = n+' coéquipier(s)';
+  envoyer(d, 'msg-p', 'Évaluation envoyée. Merci.');
+});
+})();
+</script>
+</body>
+</html>
