@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 6 — Kafka, Structured Streaming, MongoDB | ENSIAS 2026-2027</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2761;--navy-dark:#141c4a;--gold:#E8B84B;--bg:#f4f6ff;--card:#fff;--border:#dde3f5;--text:#1a2040;--muted:#64748b;--hint:#94a3b8;--success-bg:#ecfdf5;--success-text:#065f46;--success-border:#6ee7b7;--danger-bg:#fef2f2;--danger-text:#991b1b;--danger-border:#fca5a5;--info-bg:#eff6ff;--info-text:#1e40af;--info-border:#93c5fd;--warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fcd34d;--code-bg:#0f172a;--teal:#0f766e;--teal-bg:#e6f6f4}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{color:var(--info-text)}
+.site-header{background:var(--navy);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
+.header-inner{max-width:900px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--navy)}
+.header-title{font-size:13px;font-weight:600;color:#fff}
+.header-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
+.header-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--navy)}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.lab-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3068 100%);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.lab-hero::after{content:'6';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-family:'DM Serif Display',serif;font-size:120px;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
+.lab-tag{font-size:11px;font-weight:600;color:var(--gold);margin-bottom:.6rem}
+.lab-title{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,28px);color:#fff;margin-bottom:.5rem;font-weight:400}
+.lab-desc{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;max-width:580px;margin-bottom:1.1rem}
+.lab-meta{display:flex;gap:8px;flex-wrap:wrap}
+.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);padding:4px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.12)}
+.ident{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr 180px;gap:10px}
+.ident label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+.ident input,.ident select{width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
+.progress-wrap{margin-bottom:1.25rem}
+.progress-bar{background:var(--border);border-radius:99px;height:6px;overflow:hidden;margin-bottom:4px}
+.progress-fill{height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .5s}
+.progress-label{font-size:11px;color:var(--muted);text-align:right}
+.intro-note{margin-bottom:1.25rem}
+.section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.section.locked{opacity:.55}
+.sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;width:100%;background:none;border:0;font:inherit;text-align:left;color:inherit}
+.sec-head:hover{background:var(--bg)}
+.section.locked .sec-head{cursor:not-allowed}
+.sec-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:var(--bg);color:var(--navy);border:1px solid var(--border)}
+.section.done .sec-num{background:var(--success-text);color:#fff;border-color:var(--success-text)}
+.section.open .sec-num{background:var(--navy);color:#fff;border-color:var(--navy)}
+.sec-title{font-size:14px;font-weight:600;flex:1;line-height:1.35}
+.sec-time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
+.sec-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--warn-bg);color:var(--warn-text)}
+.section.done .sec-status{background:var(--success-bg);color:var(--success-text)}
+.section.locked .sec-status{background:var(--bg);color:var(--hint)}
+.sec-body{display:none;padding:4px 18px 18px;border-top:1px solid var(--border)}
+.section.open .sec-body{display:block}
+.sec-body p{font-size:13.5px;margin:12px 0}
+.sec-body h3{font-size:13px;font-weight:700;color:var(--navy);margin:18px 0 6px}
+.sec-body ul,.sec-body ol{font-size:13.5px;margin:8px 0 8px 20px}
+.sec-body li{margin:3px 0}
+code.i{font-family:'DM Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+.cmd{margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid #1e293b}
+.cmd-head{display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px}
+.term{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;display:flex;align-items:center;gap:4px}
+.term.cs{background:#dbeafe;color:#1e3a8a}
+.term.cm{background:var(--gold);color:var(--navy)}
+[hidden]{display:none!important}
+.copy{font:inherit;font-size:11px;font-weight:600;color:#cbd5e1;background:transparent;border:1px solid #475569;border-radius:6px;padding:3px 9px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.copy:hover{color:#fff;border-color:#94a3b8}
+.copy.ok{color:#6ee7b7;border-color:#6ee7b7}
+.cmd pre{background:var(--code-bg);color:#e2e8f0;padding:12px 14px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.7;margin:0}
+.cmd pre .c{color:#64748b}
+.expect{font-size:12.5px;background:var(--teal-bg);color:var(--teal);border-radius:8px;padding:8px 12px;margin:-2px 0 12px;display:flex;gap:8px}
+.expect i{margin-top:2px}
+.note{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0;display:flex;gap:9px;border:1px solid}
+.note i{font-size:17px;margin-top:1px}
+.note.info{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border)}
+.note.warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border)}
+.note.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
+table.t{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+table.t th,table.t td{border:1px solid var(--border);padding:6px 9px;text-align:left}
+table.t th{background:var(--bg);font-weight:600}
+.quiz{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin:16px 0}
+.quiz-tag{font-size:11px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.quiz .q{font-size:13.5px;font-weight:600;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:9px 12px;margin:6px 0;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;color:var(--text)}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.chosen{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+.opt.right{background:var(--success-bg);border-color:var(--success-border)}
+.opt.wrong{background:var(--danger-bg);border-color:var(--danger-border)}
+.opt:disabled{cursor:default}
+.fb{font-size:13px;margin-top:8px;display:none;border-radius:9px;padding:9px 12px}
+.fb.wait{display:block;color:var(--muted);background:#fff;border:1px dashed var(--border)}
+.fb.ok{display:block;background:var(--success-bg);color:var(--success-text)}
+.fb.ko{display:block;background:var(--danger-bg);color:var(--danger-text)}
+.reflect{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:16px 0;background:#fffdf6}
+.reflect label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.reflect label .rn{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:6px}
+.reflect textarea{width:100%;min-height:90px;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:#fff;color:var(--text)}
+.saved{font-size:11px;color:var(--hint);margin-top:3px}
+.done-btn{margin-top:14px;font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;border:0;background:var(--navy);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.done-btn:disabled{background:var(--hint);cursor:not-allowed}
+.done-hint{font-size:11.5px;color:var(--muted);margin-top:6px}
+.final{background:var(--card);border:2px solid var(--navy);border-radius:14px;padding:1.1rem 1.2rem;margin-top:1.5rem}
+.final h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:21px;color:var(--navy);margin-bottom:6px}
+.final p{font-size:13.5px;margin:6px 0}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--navy)}
+.btn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn.ghost{background:#fff;color:var(--navy)}
+.btn.danger{background:#fff;color:var(--danger-text);border-color:var(--danger-border)}
+.export-msg{font-size:12.5px;margin-top:8px}
+footer{text-align:center;font-size:11px;color:var(--hint);margin-top:2.5rem}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:640px){.ident{grid-template-columns:1fr}.sec-time{display:none}}
+@media (prefers-reduced-motion:reduce){.progress-fill{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-logo">BD</div>
+      <div>
+        <div class="header-title">Big Data &amp; Applications</div>
+        <div class="header-sub">ENSIAS · 2SCL, IDF &amp; BI&amp;A · 2026-2027</div>
+      </div>
+    </div>
+    <span class="header-badge">Lab 6</span>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="lab-hero">
+    <div class="lab-tag">Semaine 6 · En séance · noté sur 20</div>
+    <h1 class="lab-title">Lab 6 — Flux en temps réel : Kafka, Spark Structured Streaming, alertes MongoDB</h1>
+    <p class="lab-desc">Publier les événements de votre filière dans Kafka avec un producteur Python, observer partitions, offsets et retard, mesurer l'effet du moment de la validation des offsets, puis lire le flux avec Spark Structured Streaming, écrire la règle d'alerte de votre filière et enregistrer les alertes dans MongoDB Atlas.</p>
+    <div class="lab-meta">
+      <span class="meta-chip"><i class="ti ti-clock" aria-hidden="true"></i>2 h</span>
+      <span class="meta-chip"><i class="ti ti-brand-github" aria-hidden="true"></i>Codespaces</span>
+      <span class="meta-chip"><i class="ti ti-arrows-right-left" aria-hidden="true"></i>Kafka 3.5.1</span>
+      <span class="meta-chip"><i class="ti ti-bolt" aria-hidden="true"></i>Spark 3.2.4</span>
+      <span class="meta-chip"><i class="ti ti-cloud" aria-hidden="true"></i>MongoDB Atlas</span>
+    </div>
+  </div>
+
+  <div class="ident">
+    <div>
+      <label for="nom">Nom(s) et prénom(s)</label>
+      <input id="nom" type="text" placeholder="Ex. : Salma Bennani" autocomplete="name">
+    </div>
+    <div>
+      <label for="filiere">Filière (obligatoire)</label>
+      <select id="filiere">
+        <option value="">Choisir…</option>
+        <option>2SCL</option>
+        <option>IDF</option>
+        <option>BI&amp;A</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-label" id="plabel">0 / 8 sections terminées</div>
+  </div>
+
+  <div class="note info intro-note"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Les sections se débloquent dans l'ordre. Chaque section se termine par une question de validation, puis le bouton « Section terminée » débloque la suivante. Les questions de réflexion (encadrées en jaune) sont <strong>notées</strong> : vos réponses sont enregistrées automatiquement dans ce navigateur et envoyées à l'enseignant à la fin du lab.</div></div>
+
+  <div class="note warn" id="filwarn"><i class="ti ti-arrow-up" aria-hidden="true"></i><div><strong>Choisissez votre filière</strong> dans l'encart ci-dessus : les données et le code affichés dans les sections en dépendent.</div></div>
+
+
+  <!-- ============ SECTION 0 ============ -->
+  <section class="section" data-sec="0">
+    <button class="sec-head" type="button"><span class="sec-num">0</span><span class="sec-title">Démarrer le cluster, Kafka et la connexion à MongoDB</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Vous construisez une chaîne de traitement <strong>en temps réel</strong> : un simulateur publie des événements de votre filière dans <strong>Kafka</strong>, <strong>Spark Structured Streaming</strong> les lit en continu, applique une règle d'alerte et écrit les alertes dans <strong>MongoDB Atlas</strong>. C'est la chaîne du projet (chapitre 6, parties 3 à 5).</p>
+<div class="note warn"><i class="ti ti-arrow-up" aria-hidden="true"></i><div>Choisissez votre filière dans l'encart en haut de la page : les données, le code et les questions métier affichés en dépendent.</div></div>
+<table class="t"><tr><th>Filière</th><th>Événements</th><th>Topic</th><th>Clé du message</th><th>Alerte</th></tr><tr><td>IDF</td><td>transactions bancaires</td><td><code class="i">idf-transactions</code></td><td><code class="i">client_id</code></td><td><code class="i">fraude_probable</code></td></tr><tr><td>2SCL</td><td>scans de colis</td><td><code class="i">scl-scans</code></td><td><code class="i">colis</code></td><td><code class="i">retard</code></td></tr><tr><td>BI&amp;A</td><td>ventes des magasins</td><td><code class="i">bia-ventes</code></td><td><code class="i">store</code></td><td><code class="i">baisse_ca</code></td></tr></table>
+<h3>1. Le cluster et Kafka</h3>
+<p>Ouvrez votre Codespace du dépôt <code class="i">ENSIAS_common_bigdata_labs</code>, puis :</p>
+<div class="cmd"><div class="cmd-head"><span class="term cs"><i class="ti ti-terminal-2" aria-hidden="true"></i>Codespace</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>git pull
+docker compose up -d
+docker exec -it cluster-master bash</code></pre></div>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>./start-kafka-zookeeper.sh
+jps</code></pre></div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Après une dizaine de secondes, <code class="i">jps</code> affiche <code class="i">QuorumPeerMain</code> (ZooKeeper) et <code class="i">Kafka</code>. Appuyez sur Entrée pour retrouver l'invite. Si <code class="i">Kafka</code> manque, voir « En cas de problème ».</span></div>
+<h3>2. Python dans le conteneur</h3>
+<p>Le conteneur n'a pas de <code class="i">pip</code> : installez-le, puis les deux bibliothèques du lab (versions testées).</p>
+<div class="note warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div>Ne modifiez pas <code class="i">docker-compose.yml</code> : le cluster est celui des labs précédents. Ce qui manque s'installe à la main dans <code class="i">cluster-master</code> : <code class="i">pip</code>, <code class="i">kafka-python</code> et <code class="i">pymongo</code> ici, le connecteur Kafka de Spark au premier lancement de la section 4 (téléchargement automatique). Ces installations sont perdues si le conteneur est supprimé (<code class="i">docker compose down</code>) : il faut alors refaire cette étape.</div></div>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>curl -sS https://bootstrap.pypa.io/pip/3.8/get-pip.py | python3
+python3 -m pip install kafka-python==3.0.12 pymongo==4.10.1
+cd /shared_volume/lab6 &amp;&amp; ls</code></pre></div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les deux installations se terminent sans erreur (un avertissement sur l'utilisateur <code class="i">root</code> est normal). <code class="i">ls</code> affiche les quatre scripts du lab : <code class="i">simulateur_lab6.py</code>, <code class="i">consommateur_lab6.py</code>, <code class="i">alertes_lab6.py</code>, <code class="i">init_alertes.py</code>.</span></div>
+<h3>3. MongoDB Atlas</h3>
+<ol><li>Dans Atlas, <em>Network Access</em> : ajoutez de nouveau <code class="i">0.0.0.0/0</code> (retiré à la fin du Lab 5).</li><li>Reprenez la chaîne de connexion <code class="i">mongodb+srv://…</code> du Lab 5 et enregistrez-la dans le terminal <code class="i">cluster-master</code>, puis créez la collection des alertes :</li></ol>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>export MONGO_URI=&#x27;mongodb+srv://lab5:&lt;mot_de_passe&gt;@&lt;votre-cluster&gt;.mongodb.net/&#x27;
+python3 init_alertes.py</code></pre></div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span><code class="i">Collection lab6.alertes créée avec son validateur $jsonSchema.</code> C'est le validateur du bonus du Lab 5 : <code class="i">entite</code>, <code class="i">type</code>, <code class="i">ts</code> (date) et <code class="i">statut</code> obligatoires, <code class="i">score</code> entre 0 et 1.</span></div>
+<div class="note info"><i class="ti ti-info-circle" aria-hidden="true"></i><div>Toutes les commandes <code class="i">cluster-master</code> se lancent depuis <code class="i">/shared_volume/lab6</code> (le dossier <code class="i">assets/lab6</code> du dépôt). Vous ouvrirez un second terminal en section 2 : refaites-y <code class="i">docker exec -it cluster-master bash</code>, <code class="i">cd /shared_volume/lab6</code> et l'<code class="i">export MONGO_URI</code>.</div></div>
+<div class="quiz" data-q="q0" data-answer="c"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Pourquoi installer <code class="i">kafka-python</code> dans le conteneur <code class="i">cluster-master</code> et non dans le Codespace ?</p><button class="opt" type="button" data-v="a">Parce que Python n'existe pas dans le Codespace</button><button class="opt" type="button" data-v="b">Parce que Kafka refuse les clients Python hors du conteneur</button><button class="opt" type="button" data-v="c">Parce que le broker s'annonce sous le nom <code class="i">hadoop-master</code>, connu seulement dans le réseau des conteneurs</button><div class="fb" data-ok="Exact : un client reçoit du broker l'adresse à utiliser (chapitre 6, 3.4) ; ici <code class="i">hadoop-master:9092</code>, qui n'existe que dans le réseau Docker." data-ko="Le client se connecte d'abord à <code class="i">bootstrap.servers</code>, puis utilise l'adresse annoncée par le broker (<code class="i">hadoop-master</code>), joignable seulement depuis les conteneurs."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 1 ============ -->
+  <section class="section" data-sec="1">
+    <button class="sec-head" type="button"><span class="sec-num">1</span><span class="sec-title">Créer le topic de votre filière</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>10 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Le topic reçoit les événements de votre filière. On le découpe en <strong>3 partitions</strong> pour pouvoir paralléliser la lecture.</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-topics.sh --create --topic idf-transactions \
+  --bootstrap-server localhost:9092 \
+  --partitions 3 --replication-factor 1
+kafka-topics.sh --describe --topic idf-transactions \
+  --bootstrap-server localhost:9092</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-topics.sh --create --topic scl-scans \
+  --bootstrap-server localhost:9092 \
+  --partitions 3 --replication-factor 1
+kafka-topics.sh --describe --topic scl-scans \
+  --bootstrap-server localhost:9092</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-topics.sh --create --topic bia-ventes \
+  --bootstrap-server localhost:9092 \
+  --partitions 3 --replication-factor 1
+kafka-topics.sh --describe --topic bia-ventes \
+  --bootstrap-server localhost:9092</code></pre></div>
+</div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span><code class="i">Created topic …</code>, puis une ligne de synthèse et une ligne par partition (<code class="i">Partition</code>, <code class="i">Leader</code>, <code class="i">Replicas</code>, <code class="i">Isr</code>).</span></div>
+<div class="reflect"><label for="r1"><span class="rn">R1</span>D'après <code class="i">--describe</code> : combien de partitions et de répliques, quel broker est leader ? Que se passerait-il si ce broker tombait en panne ? Quel facteur de réplication et quel <code class="i">min.insync.replicas</code> choisiriez-vous en production pour votre flux, et pourquoi (chapitre 6, 3.7 et exercice 2) ?</label><textarea id="r1" data-label="R1 — Partitions, réplication"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q1" data-answer="a"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Un topic a 3 partitions. Combien de consommateurs d'un même groupe peuvent lire en parallèle ?</p><button class="opt" type="button" data-v="a">3 au plus</button><button class="opt" type="button" data-v="b">Autant qu'on veut</button><button class="opt" type="button" data-v="c">1 seul</button><div class="fb" data-ok="Exact : une partition est lue par un seul consommateur du groupe ; au-delà de 3, les consommateurs ajoutés restent inactifs." data-ko="Le parallélisme d'un groupe est borné par le nombre de partitions : min(consommateurs, partitions) = 3 au plus."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2 ============ -->
+  <section class="section" data-sec="2">
+    <button class="sec-head" type="button"><span class="sec-num">2</span><span class="sec-title">Publier des événements : le producteur Python</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Le simulateur publie environ 5 événements par seconde, avec une <strong>clé</strong> : <div data-fil="IDF"><code class="i">client_id</code></div>
+<div data-fil="2SCL"><code class="i">colis</code></div>
+<div data-fil="BI&amp;A"><code class="i">store</code></div>
+ Il démarre au début de la minute suivante et tourne 10 minutes (relancez-le si besoin). Ouvrez le script : la partie Kafka tient en quelques lignes (<code class="i">KafkaProducer</code>, <code class="i">acks</code>, <code class="i">send</code>).</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 1</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 simulateur_lab6.py IDF</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 1</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 simulateur_lab6.py 2SCL</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 1</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 simulateur_lab6.py BIA</code></pre></div>
+</div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Toutes les 20 publications, une ligne indique la clé du dernier événement, sa partition et son offset.</span></div>
+<p>Dans un <strong>second terminal</strong> (Codespace → <em>+</em>, puis <code class="i">docker exec -it cluster-master bash</code>), lisez le topic avec un consommateur d'un groupe nommé, pendant une vingtaine de secondes, puis arrêtez-le (<code class="i">Ctrl + C</code>) :</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-console-consumer.sh --topic idf-transactions --group console-test \
+  --bootstrap-server localhost:9092 --from-beginning \
+  --property print.key=true --property print.partition=true</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-console-consumer.sh --topic scl-scans --group console-test \
+  --bootstrap-server localhost:9092 --from-beginning \
+  --property print.key=true --property print.partition=true</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-console-consumer.sh --topic bia-ventes --group console-test \
+  --bootstrap-server localhost:9092 --from-beginning \
+  --property print.key=true --property print.partition=true</code></pre></div>
+</div>
+<p>Attendez une minute (le simulateur continue), puis regardez où en est le groupe :</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-consumer-groups.sh --describe --group console-test \
+  --bootstrap-server localhost:9092</code></pre></div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une ligne par partition : <code class="i">CURRENT-OFFSET</code>, <code class="i">LOG-END-OFFSET</code>, <code class="i">LAG</code>. <code class="i">CONSUMER-ID</code> est vide : le consommateur est arrêté.</span></div>
+<div class="reflect"><label for="r2"><span class="rn">R2</span>Relevez dans la sortie du consommateur deux événements de même clé : sont-ils dans la même partition ? Pourquoi est-ce garanti (chapitre 6, 3.3) ? Quel intérêt pour le traitement de <div data-fil="IDF">la fraude d'un client</div>
+<div data-fil="2SCL">l'historique d'un colis</div>
+<div data-fil="BI&amp;A">l'activité d'un magasin</div>
+ ?</label><textarea id="r2" data-label="R2 — Clé et partition"></textarea><div class="saved"></div></div>
+<div class="reflect"><label for="r3"><span class="rn">R3</span>Que vaut le <code class="i">LAG</code> total du groupe <code class="i">console-test</code> ? Comment évolue-t-il si vous relancez <code class="i">--describe</code> 30 s plus tard, et pourquoi ? Que ferait un consommateur relancé dans ce groupe, sans <code class="i">--from-beginning</code> ?</label><textarea id="r3" data-label="R3 — Retard d'un groupe"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q2" data-answer="b"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Le simulateur utilise <code class="i">acks="all"</code>. Sur ce cluster à un seul broker, qu'est-ce que cela change ?</p><button class="opt" type="button" data-v="a">Les messages sont copiés sur trois brokers</button><button class="opt" type="button" data-v="b">Peu de chose : l'ISR ne contient que le leader, qui confirme seul</button><button class="opt" type="button" data-v="c">Les envois sont refusés faute de répliques</button><div class="fb" data-ok="Exact : avec un facteur de réplication de 1, « toutes les répliques de l'ISR », c'est le seul leader." data-ko="acks=all attend les répliques de l'ISR ; avec un seul broker, l'ISR se réduit au leader : la garantie est la même qu'avec acks=1."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3 ============ -->
+  <section class="section" data-sec="3">
+    <button class="sec-head" type="button"><span class="sec-num">3</span><span class="sec-title">Garanties de livraison : quand valider les offsets ?</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Le script <code class="i">consommateur_lab6.py</code> lit des lots de 10 événements, « traite » chacun en 0,3 s et note ce qu'il a traité. <code class="i">Ctrl + C</code> simule une <strong>panne</strong> : le programme s'arrête sans valider ses offsets. Le simulateur peut continuer à tourner dans le terminal 1.</p>
+<h3>1. Valider après le traitement</h3>
+<p>Lancez le consommateur, laissez-le traiter une trentaine d'événements, puis <strong>Ctrl + C au milieu d'un lot</strong> (entre deux lignes <code class="i">-- commit</code>). Relancez-le, attendez quelques lignes, Ctrl + C, puis faites le bilan :</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py idf-transactions --groupe g-apres --commit apres
+python3 consommateur_lab6.py idf-transactions --groupe g-apres --commit apres
+python3 consommateur_lab6.py idf-transactions --groupe g-apres --bilan</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py scl-scans --groupe g-apres --commit apres
+python3 consommateur_lab6.py scl-scans --groupe g-apres --commit apres
+python3 consommateur_lab6.py scl-scans --groupe g-apres --bilan</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py bia-ventes --groupe g-apres --commit apres
+python3 consommateur_lab6.py bia-ventes --groupe g-apres --commit apres
+python3 consommateur_lab6.py bia-ventes --groupe g-apres --bilan</code></pre></div>
+</div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le bilan donne, par partition, les offsets traités, le nombre de traitements en double et le nombre d'offsets jamais traités.</span></div>
+<h3>2. Valider avant le traitement</h3>
+<p>Même manipulation avec un autre groupe :</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py idf-transactions --groupe g-avant --commit avant
+python3 consommateur_lab6.py idf-transactions --groupe g-avant --commit avant
+python3 consommateur_lab6.py idf-transactions --groupe g-avant --bilan</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py scl-scans --groupe g-avant --commit avant
+python3 consommateur_lab6.py scl-scans --groupe g-avant --commit avant
+python3 consommateur_lab6.py scl-scans --groupe g-avant --bilan</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 consommateur_lab6.py bia-ventes --groupe g-avant --commit avant
+python3 consommateur_lab6.py bia-ventes --groupe g-avant --commit avant
+python3 consommateur_lab6.py bia-ventes --groupe g-avant --bilan</code></pre></div>
+</div>
+<div class="reflect"><label for="r4"><span class="rn">R4</span>Donnez les deux bilans (doublons, trous). Expliquez chacun à partir du moment où le commit a lieu par rapport à la panne. Quelle garantie de livraison correspond à chaque mode ?</label><textarea id="r4" data-label="R4 — Commit et panne"></textarea><div class="saved"></div></div>
+<div class="reflect"><label for="r5"><span class="rn">R5</span>Pour les alertes de votre filière, quel mode choisissez-vous ? Que faut-il ajouter côté MongoDB pour qu'un doublon soit sans effet (chapitre 6, 5.7 et 5.8) ? Vous le retrouverez en section 6.</label><textarea id="r5" data-label="R5 — Choix pour votre filière"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q3" data-answer="c"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Un consommateur valide ses offsets <strong>après</strong> le traitement. Il tombe en panne au milieu d'un lot. Au redémarrage :</p><button class="opt" type="button" data-v="a">Le lot entier est perdu</button><button class="opt" type="button" data-v="b">Kafka sait quels événements ont été traités et reprend au bon endroit</button><button class="opt" type="button" data-v="c">Le début du lot est traité une seconde fois</button><div class="fb" data-ok="Exact : il reprend au dernier offset validé, avant le lot : au moins une fois, avec des doublons." data-ko="Kafka ne connaît que l'offset validé. Reprise au début du lot : les événements déjà traités le sont une seconde fois."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4 ============ -->
+  <section class="section" data-sec="4">
+    <button class="sec-head" type="button"><span class="sec-num">4</span><span class="sec-title">Lire le flux avec Spark Structured Streaming</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Spark lit le topic comme un tableau <strong>non borné</strong> : chaque micro-lot ajoute les nouvelles lignes. Le connecteur Kafka de Spark est téléchargé au premier lancement (une à deux minutes). Arrêtez d'abord le consommateur de la section 3 ; le simulateur doit tourner (relancez-le dans le terminal 1 s'il s'est arrêté).</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>export SUBMIT=&#x27;spark-submit --master local[2] --driver-java-options -Dfile.encoding=UTF-8 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.4&#x27;</code></pre></div>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py IDF lecture</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py 2SCL lecture</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py BIA lecture</code></pre></div>
+</div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Des tableaux successifs <code class="i">Batch: 0</code>, <code class="i">Batch: 1</code>… avec les colonnes <code class="i">partition</code>, <code class="i">offset</code> et les champs de l'événement. Le premier lot est le plus gros. Arrêtez avec <code class="i">Ctrl + C</code> après quelques lots.</span></div>
+<p>Ouvrez <code class="i">alertes_lab6.py</code> (explorateur du Codespace : <code class="i">assets/lab6/</code>) et repérez : <code class="i">readStream.format("kafka")</code>, l'option <code class="i">startingOffsets</code>, le schéma <code class="i">SCHEMA</code> de votre filière et <code class="i">from_json</code>.</p>
+<div class="reflect"><label for="r6"><span class="rn">R6</span>Pourquoi le premier micro-lot contient-il beaucoup plus de lignes que les suivants (regardez <code class="i">startingOffsets</code>) ? À quoi sert le schéma passé à <code class="i">from_json</code> : que deviendrait un champ mal nommé dans le schéma ?</label><textarea id="r6" data-label="R6 — Lecture du flux"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q4" data-answer="a"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Que contient la colonne <code class="i">value</code> renvoyée par Kafka à Spark, avant <code class="i">from_json</code> ?</p><button class="opt" type="button" data-v="a">Des octets : le JSON de l'événement, à convertir en texte puis à décoder</button><button class="opt" type="button" data-v="b">Un DataFrame déjà structuré</button><button class="opt" type="button" data-v="c">Le nom du topic</button><div class="fb" data-ok="Exact : pour Kafka, clé et valeur sont des tableaux d'octets (chapitre 6, 3.1)." data-ko="Kafka ne connaît que des octets (chapitre 6, 3.1) : <code class="i">cast("string")</code> puis <code class="i">from_json</code> avec un schéma."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5 ============ -->
+  <section class="section" data-sec="5">
+    <button class="sec-head" type="button"><span class="sec-num">5</span><span class="sec-title">À vous de jouer : la règle d'alerte de votre filière</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>20 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>Dans <code class="i">assets/lab6/alertes_lab6.py</code>, complétez les <code class="i">___</code> de la fonction de <strong>votre</strong> filière (bloc « À VOUS DE JOUER »). Ne modifiez rien d'autre.</p>
+<div data-fil="IDF"><p><strong>Règle de votre filière (sans état)</strong> : une transaction est une <em>fraude probable</em> si son montant dépasse <strong>20 000</strong> <em>et</em> si son score de risque vaut au moins <strong>80</strong>. Chaque événement est évalué seul.</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-file-code" aria-hidden="true"></i>alertes_lab6.py (extrait)</span></div><pre><code>def regle_idf(ev):
+    alertes = ev.filter((F.col(&#x27;amount&#x27;) &gt; ___) &amp; (F.col(&#x27;risk_score&#x27;) &gt;= ___))</code></pre></div>
+</div>
+<div data-fil="2SCL"><p><strong>Règle de votre filière (avec état)</strong> : un colis est en <em>retard</em> s'il a au moins <strong>2</strong> scans <code class="i">échec livraison</code> dans une même fenêtre d'une minute. Spark garde un compteur par colis et par fenêtre ; le <em>watermark</em> de 30 s dit quand une fenêtre est close.</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-file-code" aria-hidden="true"></i>alertes_lab6.py (extrait)</span></div><pre><code>def regle_scl(ev):
+    echecs = ev.filter(F.col(&#x27;etape&#x27;) == ___)
+    ...
+    alertes = fen.filter(F.col(&#x27;nb_echecs&#x27;) &gt;= ___)</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><p><strong>Règle de votre filière (avec état)</strong> : un magasin est en <em>baisse de CA</em> si son chiffre d'affaires sur une fenêtre d'une minute est inférieur à <strong>2 000</strong>. Spark somme les montants par magasin et par fenêtre ; le <em>watermark</em> de 30 s dit quand une fenêtre est close.</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-file-code" aria-hidden="true"></i>alertes_lab6.py (extrait)</span></div><pre><code>def regle_bia(ev):
+    fen = (ev.withWatermark(&#x27;ts&#x27;, &#x27;30 seconds&#x27;)
+           .groupBy(F.window(&#x27;ts&#x27;, &#x27;1 minute&#x27;), &#x27;store&#x27;)
+           .agg(F.sum(___).alias(&#x27;ca&#x27;), F.count(&#x27;*&#x27;).alias(&#x27;nb_ventes&#x27;)))
+    alertes = fen.filter(F.col(&#x27;ca&#x27;) &lt; ___)</code></pre></div>
+</div>
+<p>Testez votre règle en affichant les alertes dans la console :</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py IDF alertes</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py 2SCL alertes</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py BIA alertes</code></pre></div>
+</div>
+<div data-fil="IDF"><div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Dès le premier lot, des lignes <code class="i">fraude_probable</code> : client, horodatage, score (risque / 100), identifiant de la transaction et détail. Environ 3 % des transactions.</span></div>
+</div>
+<div data-fil="2SCL"><div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Le premier lot est vide ; les alertes <code class="i">retard</code> arrivent environ une minute et demie après le début des événements : colis, fin de fenêtre, score, nombre d'échecs.</span></div>
+</div>
+<div data-fil="BI&amp;A"><div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les premiers lots sont vides. Le simulateur fait chuter les ventes d'un magasin après 2 minutes : les alertes <code class="i">baisse_ca</code> apparaissent ensuite, une par fenêtre close.</span></div>
+</div>
+<div class="reflect"><label for="r7"><span class="rn">R7</span><span data-fil="IDF">Combien d'alertes dans le premier lot, pour combien de transactions lues (section 4) ? Le simulateur produit aussi des gros montants à faible risque et des petits montants à risque élevé : que se passerait-il avec une seule des deux conditions ? Que gagne-t-on, et que risque-t-on, à abaisser le seuil de montant ?</span><span data-fil="2SCL">Combien d'alertes, et après combien de temps ? Pourquoi les alertes arrivent-elles avec un délai d'au moins une fenêtre plus le watermark ? Un colis dont les deux échecs tombent de part et d'autre d'une fin de minute est-il détecté ? Proposez une correction.</span><span data-fil="BI&amp;A">Quel magasin déclenche les alertes, et à partir de quelle fenêtre ? Pourquoi les alertes arrivent-elles avec un délai d'au moins une fenêtre plus le watermark ? Un magasin sans aucune vente dans une fenêtre déclenche-t-il une alerte ? Pourquoi ?</span></label><textarea id="r7" data-label="R7 — Votre règle"></textarea><div class="saved"></div></div>
+<div class="reflect"><label for="r8"><span class="rn">R8</span>Votre règle est-elle sans état ou avec état ? Qu'est-ce que Spark doit mémoriser entre deux micro-lots dans votre cas, et à quoi sert le dossier de <code class="i">checkpointLocation</code> si le job redémarre ?</label><textarea id="r8" data-label="R8 — État et reprise"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q5" data-answer="b"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">À quoi sert <code class="i">withWatermark('ts', '30 seconds')</code> ?</p><button class="opt" type="button" data-v="a">À n'accepter que les événements des 30 dernières secondes</button><button class="opt" type="button" data-v="b">À décider quand une fenêtre est close, en tolérant 30 s de retard des événements</button><button class="opt" type="button" data-v="c">À déclencher un micro-lot toutes les 30 s</button><div class="fb" data-ok="Exact : au-delà de la fin de fenêtre plus 30 s, la fenêtre est close et son résultat est émis ; son état peut être oublié." data-ko="Le watermark borne le retard toléré : une fenêtre est close quand le temps des événements dépasse sa fin plus 30 s."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6 ============ -->
+  <section class="section" data-sec="6">
+    <button class="sec-head" type="button"><span class="sec-num">6</span><span class="sec-title">Écrire les alertes dans MongoDB</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>15 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<p>L'étape <code class="i">mongo</code> remplace la console par <code class="i">foreachBatch</code> : pour chaque micro-lot, la fonction <code class="i">ecrire_mongo</code> écrit les alertes avec PyMongo. Elle utilise <code class="i">replace_one(..., upsert=True)</code> sur un <code class="i">_id</code> calculé (<div data-fil="IDF">identifiant de la transaction</div>
+<div data-fil="2SCL">colis et début de fenêtre</div>
+<div data-fil="BI&amp;A">magasin et début de fenêtre</div>
+) : réécrire une alerte ne crée pas de doublon.</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py IDF mongo</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py 2SCL mongo</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$SUBMIT alertes_lab6.py BIA mongo</code></pre></div>
+</div>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Des lignes <code class="i">micro-lot N : k alerte(s) écrite(s) dans lab6.alertes</code>.</span></div>
+<p>Après deux ou trois lots, dans le terminal 1 (arrêtez le simulateur s'il tourne encore), comptez les alertes :</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 1</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>python3 init_alertes.py --compter</code></pre></div>
+<p>Vérifiez aussi dans Atlas : <em>Browse Collections</em> → base <code class="i">lab6</code> → <code class="i">alertes</code>.</p>
+<h3>Rejouer tout le flux</h3>
+<p>Arrêtez le job (Ctrl + C), supprimez son point de reprise, relancez-le jusqu'à ce qu'il ait relu tout le topic, puis recomptez :</p>
+<div data-fil="IDF"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>rm -rf /tmp/lab6-chk-IDF-mongo
+$SUBMIT alertes_lab6.py IDF mongo</code></pre></div>
+</div>
+<div data-fil="2SCL"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>rm -rf /tmp/lab6-chk-2SCL-mongo
+$SUBMIT alertes_lab6.py 2SCL mongo</code></pre></div>
+</div>
+<div data-fil="BI&amp;A"><div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>rm -rf /tmp/lab6-chk-BIA-mongo
+$SUBMIT alertes_lab6.py BIA mongo</code></pre></div>
+</div>
+<div class="reflect"><label for="r9"><span class="rn">R9</span>Combien d'alertes avant et après avoir rejoué tout le flux ? Expliquez le résultat par le <code class="i">_id</code> et l'upsert. Que se serait-il passé avec <code class="i">insert_one</code> ? Reliez à la section 3.</label><textarea id="r9" data-label="R9 — Idempotence"></textarea><div class="saved"></div></div>
+<div class="reflect"><label for="r10"><span class="rn">R10</span>Ouvrez une alerte dans Atlas : ses champs respectent-ils le validateur de la section 0 ? Quel index ajouteriez-vous pour afficher en temps réel les alertes « nouvelles » d'une entité, les plus récentes d'abord (chapitre 5) ?</label><textarea id="r10" data-label="R10 — Document et index"></textarea><div class="saved"></div></div>
+<div class="quiz" data-q="q6" data-answer="a"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">On supprime le dossier de checkpoint et on relance le job. Que relit Spark ?</p><button class="opt" type="button" data-v="a">Tout le topic depuis le début (<code class="i">startingOffsets = earliest</code>)</button><button class="opt" type="button" data-v="b">Seulement les nouveaux événements</button><button class="opt" type="button" data-v="c">Rien : MongoDB a déjà les alertes</button><div class="fb" data-ok="Exact : sans checkpoint, Spark ne sait plus où il en était et applique <code class="i">startingOffsets</code>." data-ko="Le checkpoint mémorise les offsets lus. Sans lui, Spark repart de <code class="i">startingOffsets</code>, ici le début du topic."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 7 ============ -->
+  <section class="section" data-sec="7">
+    <button class="sec-head" type="button"><span class="sec-num">7</span><span class="sec-title">Synthèse, rendu et arrêt</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>5 min</span><span class="sec-status">À faire</span></button>
+    <div class="sec-body">
+<div class="reflect"><label for="r11"><span class="rn">R11</span>En 5 lignes au plus : dessinez en mots la chaîne de ce lab (source, Kafka, Spark, MongoDB). Est-ce une architecture Lambda ou Kappa (chapitre 6, 1.5 à 1.9) ? Pour le projet, que faudrait-il ajouter pour l'exploiter en continu (supervision, tableau de bord, orchestration au chapitre 7) ?</label><textarea id="r11" data-label="R11 — Synthèse : vers le projet"></textarea><div class="saved"></div></div>
+<p>Envoyez vos réponses avec le bouton ci-dessous <strong>avant la fin de la séance</strong>. Puis :</p>
+<ol><li>Arrêtez les programmes en cours (<code class="i">Ctrl + C</code>) et quittez le conteneur (<code class="i">exit</code>).</li><li>Arrêtez le cluster : <code class="i">docker compose stop</code> (terminal Codespace), et non <code class="i">down</code>, qui supprime les conteneurs et vos installations.</li><li>Dans Atlas, <em>Network Access</em> : supprimez l'entrée <code class="i">0.0.0.0/0</code>. Gardez la base <code class="i">lab6</code> pour le projet.</li><li>Arrêtez le Codespace : <a href="https://github.com/codespaces" target="_blank" rel="noopener">github.com/codespaces</a> → <strong>…</strong> → <em>Stop codespace</em>.</li></ol>
+<div class="quiz" data-q="q7" data-answer="c"><div class="quiz-tag"><i class="ti ti-help-circle" aria-hidden="true"></i>Question de validation</div><p class="q">Dans cette chaîne, quel composant garde les événements bruts et permet de rejouer le traitement ?</p><button class="opt" type="button" data-v="a">MongoDB</button><button class="opt" type="button" data-v="b">Le checkpoint de Spark</button><button class="opt" type="button" data-v="c">Le topic Kafka, grâce à la rétention</button><div class="fb" data-ok="Exact : le journal de Kafka conserve les événements (7 jours par défaut) ; on peut relancer un traitement depuis le début." data-ko="MongoDB garde les alertes, le checkpoint garde des positions : seul le topic Kafka conserve les événements bruts (rétention)."></div></div>
+<button class="done-btn" type="button" disabled><i class="ti ti-check" aria-hidden="true"></i>Section terminée</button>
+<div class="done-hint">Répondez à la question de validation pour débloquer ce bouton.</div>
+    </div>
+  </section>
+
+  <!-- ============ BONUS ============ -->
+  <section class="section bonus" data-sec="bonus">
+    <button class="sec-head" type="button"><span class="sec-num"><i class="ti ti-star" aria-hidden="true"></i></span><span class="sec-title">Aller plus loin (facultatif) : Kafka Streams, Kafka Connect, Java</span><span class="sec-time"><i class="ti ti-clock" aria-hidden="true"></i>30 min</span><span class="sec-status">Bonus</span></button>
+    <div class="sec-body">
+      <p>Ces exercices reprennent les annexes A à C du chapitre 6. Ils ne sont pas notés.</p>
+      <h3>1. Kafka Connect : d'un fichier à un autre (annexe A)</h3>
+      <p>Les connecteurs FileStream ne sont pas chargés par défaut : déclarez leur dossier, créez un fichier source, puis lancez deux connecteurs en mode autonome.</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 1</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>cd $KAFKA_HOME
+echo &quot;plugin.path=$KAFKA_HOME/libs&quot; &gt;&gt; config/connect-standalone.properties
+echo &quot;Bonjour Kafka&quot; &gt; test.txt
+bin/connect-standalone.sh config/connect-standalone.properties \
+  config/connect-file-source.properties config/connect-file-sink.properties</code></pre></div>
+      <p>Le connecteur source lit <code class="i">test.txt</code> et publie chaque ligne dans le topic <code class="i">connect-test</code> ; le connecteur sink recopie ce topic dans <code class="i">test.sink.txt</code> (voir les deux fichiers <code class="i">config/connect-file-*.properties</code>). Dans l'autre terminal :</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>echo &quot;Bienvenue dans le monde du streaming&quot; &gt;&gt; $KAFKA_HOME/test.txt
+cat $KAFKA_HOME/test.sink.txt</code></pre></div>
+      <p>Les deux lignes apparaissent dans <code class="i">test.sink.txt</code> quelques secondes plus tard.</p>
+      <h3>2. Kafka Streams : WordCount (annexe B)</h3>
+      <p>Construisez le projet Maven de l'annexe C (<code class="i">mvn clean package</code> dans le Codespace ; si la commande <code class="i">mvn</code> est absente, installez-la d'abord avec <code class="i">sudo apt-get update && sudo apt-get install -y maven</code>), copiez le jar dans <code class="i">assets/</code>, créez les topics <code class="i">input-topic</code> et <code class="i">output-topic</code>, puis :</p>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>java -cp /shared_volume/kafka-lab-jar-with-dependencies.jar \
+  edu.ensias.kafka.KafkaStreamWC input-topic output-topic</code></pre></div>
+      <p>Saisissez des phrases avec <code class="i">kafka-console-producer.sh</code> dans <code class="i">input-topic</code> et lisez <code class="i">output-topic</code> avec <code class="i">--property print.key=true</code> : chaque nouvelle occurrence d'un mot met à jour son compte.</p>
+      <h3>3. Producteur et consommateur Java (annexe C)</h3>
+<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>java -cp /shared_volume/kafka-lab-jar-with-dependencies.jar \
+  edu.ensias.kafka.EventProducer demo
+java -cp /shared_volume/kafka-lab-jar-with-dependencies.jar \
+  edu.ensias.kafka.EventConsumer demo</code></pre></div>
+      <p>Comparez avec <code class="i">simulateur_lab6.py</code> : mêmes paramètres (<code class="i">bootstrap.servers</code>, sérialiseurs, <code class="i">acks</code>), même logique.</p>
+    </div>
+  </section>
+
+  <!-- ============ RENDU ============ -->
+  <div class="final">
+    <h2>Rendre votre travail</h2>
+    <p>Cliquez sur <strong>Envoyer à l'enseignant</strong> : vos réponses R1 à R11 et vos résultats aux questions de validation sont transmis directement. Vous pouvez renvoyer plusieurs fois, seul le dernier envoi est pris en compte. Envoyez <strong>avant la fin de la séance</strong>.</p>
+    <p style="font-size:12.5px;color:var(--muted)">Vos réponses sont enregistrées dans ce navigateur uniquement. Si vous changez de poste ou videz les données du navigateur, elles seront perdues : envoyez avant de fermer.</p>
+    <div class="btn-row">
+      <button class="btn primary" type="button" id="send"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à l'enseignant</button>
+      <button class="btn ghost" type="button" id="export"><i class="ti ti-download" aria-hidden="true"></i>Télécharger une copie</button>
+      <button class="btn danger" type="button" id="reset"><i class="ti ti-trash" aria-hidden="true"></i>Effacer mes réponses</button>
+    </div>
+    <div class="export-msg" id="exportmsg" role="status"></div>
+  </div>
+
+
+  <div class="note info" style="margin-top:1.25rem"><i class="ti ti-lifebuoy" aria-hidden="true"></i><div style="min-width:0;flex:1">
+    <strong>En cas de problème</strong>
+    <p style="margin:8px 0 2px"><strong>Kafka</strong></p>
+    <ul style="margin:6px 0 0 18px">
+      <li><code class="i">jps</code> n'affiche pas <code class="i">Kafka</code> après le démarrage, et le journal mentionne <code class="i">NodeExistsException</code> : ZooKeeper garde l'enregistrement du broker de la session précédente. Attendez 20 secondes, puis relancez le broker seul :<div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>$KAFKA_HOME/bin/kafka-server-start.sh -daemon $KAFKA_HOME/config/server.properties
+jps</code></pre></div>
+</li>
+      <li><code class="i">Topic … already exists</code> : le topic a été créé lors d'une séance précédente ; continuez.</li>
+      <li><code class="i">NoBrokersAvailable</code> (Python) ou <code class="i">Connection refused</code> : Kafka n'est pas démarré (voir ci-dessus).</li>
+      <li>Le simulateur ne publie rien pendant au plus une minute : c'est normal, il attend le début de la minute suivante.</li>
+    </ul>
+    <p style="margin:8px 0 2px"><strong>Python et MongoDB</strong></p>
+    <ul style="margin:6px 0 0 18px">
+      <li><code class="i">No module named pip</code> ou <code class="i">kafka</code> : refaites l'installation de la section 0 dans ce conteneur (elle est perdue si le conteneur est recréé).</li>
+      <li><code class="i">Définissez d'abord MONGO_URI</code> : la variable n'existe que dans le terminal où vous avez fait l'<code class="i">export</code> ; refaites-le.</li>
+      <li><code class="i">ServerSelectionTimeoutError</code> : l'adresse <code class="i">0.0.0.0/0</code> manque dans <em>Network Access</em>, ou le cluster Atlas est en pause (reprenez-le dans Atlas).</li>
+      <li><code class="i">Document failed validation</code> : un champ ne respecte pas le validateur ; vérifiez que vous n'avez modifié que les <code class="i">___</code>.</li>
+    </ul>
+    <p style="margin:8px 0 2px"><strong>Spark</strong></p>
+    <ul style="margin:6px 0 0 18px">
+      <li><code class="i">$SUBMIT</code> vide (<code class="i">alertes_lab6.py: command not found</code>) : refaites l'<code class="i">export SUBMIT=…</code> de la section 4 dans ce terminal.</li>
+      <li>Échec du téléchargement du connecteur (<code class="i">unresolved dependency</code>) : vérifiez l'accès Internet du Codespace et relancez ; les jars sont ensuite gardés dans <code class="i">/root/.ivy2</code>.</li>
+      <li><code class="i">NameError</code> ou <code class="i">SyntaxError</code> sur <code class="i">___</code> : il reste un trou dans votre règle.</li>
+      <li>Aucune alerte (2SCL, BI&amp;A) : le simulateur doit tourner, car une fenêtre n'est close que lorsque des événements plus récents arrivent (watermark).</li>
+      <li>Après une modification de la règle, Spark refuse de repartir du point de reprise (<code class="i">checkpoint</code>) : supprimez le dossier <code class="i">/tmp/lab6-chk-…</code> de l'étape concernée.</li>
+    </ul>
+  </div></div>
+
+  <footer>ENSIAS · Big Data &amp; Applications · 2SCL, IDF &amp; BI&amp;A · 2026-2027</footer>
+</main>
+
+<script>
+(function(){
+  // Adresse du script Google fournie par l'enseignant (voir le guide enseignant)
+  var ENDPOINT = 'COLLER_ICI_L_URL_DU_SCRIPT_GOOGLE';
+  var TP = 'LAB6';
+  var KEY = 'ensias-bd-lab6-v1';
+  var TOTAL = 8;
+  var state = {done:[], quiz:{}, text:{}, nom:'', filiere:''};
+
+  function load(){ try{ var s = localStorage.getItem(KEY); if(s){ var p = JSON.parse(s); state = Object.assign(state, p); } }catch(e){} }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
+  load();
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section:not(.bonus)'));
+  var bonus = document.querySelector('.section.bonus');
+
+  function isDone(i){ return state.done.indexOf(i) !== -1; }
+  function unlocked(i){ return i === 0 || isDone(i-1); }
+
+  function refresh(){
+    sections.forEach(function(sec, i){
+      sec.classList.toggle('done', isDone(i));
+      sec.classList.toggle('locked', !unlocked(i));
+      var st = sec.querySelector('.sec-status');
+      st.textContent = isDone(i) ? 'Terminée' : (unlocked(i) ? 'À faire' : 'Verrouillée');
+      sec.querySelector('.sec-head').setAttribute('aria-expanded', sec.classList.contains('open') ? 'true' : 'false');
+      var btn = sec.querySelector('.done-btn');
+      var quizzes = sec.querySelectorAll('.quiz');
+      var allAnswered = Array.prototype.every.call(quizzes, function(q){ return state.quiz[q.dataset.q]; });
+      if(btn){
+        btn.disabled = !allAnswered || isDone(i);
+        btn.innerHTML = isDone(i) ? '<i class="ti ti-circle-check" aria-hidden="true"></i>Section terminée' : '<i class="ti ti-check" aria-hidden="true"></i>Section terminée';
+        var hint = sec.querySelector('.done-hint');
+        if(hint) hint.style.display = (allAnswered || isDone(i)) ? 'none' : 'block';
+      }
+    });
+    var n = state.done.length;
+    document.getElementById('pfill').style.width = Math.round(n / TOTAL * 100) + '%';
+    document.getElementById('plabel').textContent = n + ' / ' + TOTAL + ' sections terminées';
+  }
+
+  function openSection(sec){
+    sections.concat([bonus]).forEach(function(s){ if(s !== sec) s.classList.remove('open'); });
+    sec.classList.add('open');
+    refresh();
+  }
+
+  sections.forEach(function(sec, i){
+    sec.querySelector('.sec-head').addEventListener('click', function(){
+      if(!unlocked(i)) return;
+      if(sec.classList.contains('open')){ sec.classList.remove('open'); refresh(); }
+      else { openSection(sec); }
+    });
+    var btn = sec.querySelector('.done-btn');
+    if(btn) btn.addEventListener('click', function(){
+      if(!isDone(i)) state.done.push(i);
+      save();
+      sec.classList.remove('open');
+      if(sections[i+1]){ openSection(sections[i+1]); sections[i+1].scrollIntoView({behavior:'smooth', block:'start'}); }
+      refresh();
+    });
+  });
+  bonus.querySelector('.sec-head').addEventListener('click', function(){
+    if(bonus.classList.contains('open')) bonus.classList.remove('open'); else openSection(bonus);
+  });
+
+  // Questions de validation (réponse révélée après 3 s)
+  document.querySelectorAll('.quiz').forEach(function(q){
+    var id = q.dataset.q, answer = q.dataset.answer, fb = q.querySelector('.fb');
+    var opts = q.querySelectorAll('.opt');
+    function reveal(choice, instant){
+      opts.forEach(function(o){ o.disabled = true; if(o.dataset.v === choice) o.classList.add('chosen'); });
+      function show(){
+        opts.forEach(function(o){ if(o.dataset.v === answer) o.classList.add('right'); else if(o.dataset.v === choice) o.classList.add('wrong'); });
+        var ok = choice === answer;
+        fb.className = 'fb ' + (ok ? 'ok' : 'ko');
+        fb.textContent = ok ? fb.dataset.ok : fb.dataset.ko;
+        refresh();
+      }
+      if(instant) show();
+      else { fb.className = 'fb wait'; fb.textContent = 'Réponse enregistrée. Correction dans 3 secondes…'; setTimeout(show, 3000); }
+    }
+    opts.forEach(function(o){
+      o.addEventListener('click', function(){
+        if(state.quiz[id]) return;
+        state.quiz[id] = {choice:o.dataset.v, correct:o.dataset.v === answer};
+        save();
+        reveal(o.dataset.v, false);
+      });
+    });
+    if(state.quiz[id]) reveal(state.quiz[id].choice, true);
+  });
+
+  // Réponses écrites
+  document.querySelectorAll('.reflect textarea').forEach(function(t){
+    var info = t.parentNode.querySelector('.saved');
+    t.value = state.text[t.id] || '';
+    var timer;
+    t.addEventListener('input', function(){
+      state.text[t.id] = t.value;
+      clearTimeout(timer);
+      timer = setTimeout(function(){ info.textContent = save() ? 'Enregistré dans ce navigateur' : 'Enregistrement impossible : pensez à exporter vos réponses'; }, 400);
+    });
+  });
+
+  // Identité
+  var nom = document.getElementById('nom'), fil = document.getElementById('filiere');
+  nom.value = state.nom || ''; fil.value = state.filiere || '';
+  nom.addEventListener('input', function(){ state.nom = nom.value; save(); });
+  fil.addEventListener('change', function(){ state.filiere = fil.value; save(); });
+
+  // Boutons Copier
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click', function(){
+      var text = b.closest('.cmd').querySelector('pre').innerText.trim();
+      function done(){ b.classList.add('ok'); b.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>Copié'; setTimeout(function(){ b.classList.remove('ok'); b.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i>Copier'; }, 1600); }
+      if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+      function fallback(){ var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){} document.body.removeChild(ta); }
+    });
+  });
+
+  // Envoi direct à l'enseignant (Google Sheets via Apps Script)
+  document.getElementById('send').addEventListener('click', function(){
+    var msg = document.getElementById('exportmsg');
+    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'envoyer.'; nom.focus(); return; }
+    if(ENDPOINT.indexOf('http') !== 0){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Envoi non configuré par l\'enseignant : utilisez « Télécharger une copie ».'; return; }
+    var qs = Object.keys(state.quiz);
+    var data = {tp:TP, date:new Date().toLocaleString('fr-FR'), nom:state.nom.trim(), filiere:state.filiere || '',
+      sections:state.done.length + ' / ' + TOTAL,
+      score:qs.filter(function(k){ return state.quiz[k].correct; }).length + ' / ' + qs.length};
+    document.querySelectorAll('.reflect textarea').forEach(function(t){ data[t.id.toUpperCase()] = (state.text[t.id] || '').trim(); });
+    var btn = this; btn.disabled = true;
+    msg.style.color = 'var(--muted)'; msg.textContent = 'Envoi en cours…';
+    fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)})
+      .then(function(){ msg.style.color = 'var(--success-text)'; msg.textContent = 'Réponses envoyées le ' + data.date + '. Vous pouvez fermer la page.'; })
+      .catch(function(){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Échec de l\'envoi (connexion ?). Réessayez, ou téléchargez une copie et remettez-la à l\'enseignant.'; })
+      .then(function(){ btn.disabled = false; });
+  });
+
+  // Export
+  document.getElementById('export').addEventListener('click', function(){
+    var msg = document.getElementById('exportmsg');
+    if(!state.nom.trim()){ msg.style.color = 'var(--danger-text)'; msg.textContent = 'Indiquez votre nom en haut de la page avant d\'exporter.'; nom.focus(); return; }
+    var qs = Object.keys(state.quiz).sort();
+    var score = qs.filter(function(k){ return state.quiz[k].correct; }).length;
+    var lines = ['# Lab 6 — Kafka, Structured Streaming, MongoDB', '',
+      '- **Nom(s)** : ' + state.nom, '- **Filière** : ' + (state.filiere || 'non précisée'),
+      '- **Export** : ' + new Date().toLocaleString('fr-FR'),
+      '- **Sections terminées** : ' + state.done.length + ' / ' + TOTAL,
+      '- **Questions de validation** : ' + score + ' bonne(s) réponse(s) sur ' + qs.length + ' répondue(s)', '', '---', ''];
+    document.querySelectorAll('.reflect textarea').forEach(function(t){
+      lines.push('## ' + t.dataset.label, '', (state.text[t.id] || '').trim() || '_(pas de réponse)_', '');
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Lab6_reponses_' + state.nom.trim().replace(/[^A-Za-z0-9À-ÿ]+/g, '_') + '.md';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    msg.style.color = 'var(--success-text)';
+    msg.textContent = 'Copie téléchargée sur votre ordinateur.';
+  });
+
+  document.getElementById('reset').addEventListener('click', function(){
+    if(!confirm('Effacer toutes vos réponses et votre progression ? Cette action est définitive.')) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    location.reload();
+  });
+
+  // Ouvrir la première section non terminée
+  var first = sections.find(function(s, i){ return !isDone(i) && unlocked(i); });
+  if(first) first.classList.add('open');
+  refresh();
+})();
+</script>
+<script>
+(function(){
+  var sel = document.getElementById('filiere');
+  function apply(){
+    var v = sel.value;
+    document.querySelectorAll('[data-fil]').forEach(function(e){ e.hidden = !(v && e.getAttribute('data-fil') === v); });
+    document.getElementById('filwarn').hidden = !!v;
+  }
+  sel.addEventListener('change', apply);
+  apply();
+})();
+</script>
+</body>
+</html>
