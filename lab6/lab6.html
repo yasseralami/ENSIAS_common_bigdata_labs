@@ -264,6 +264,13 @@ kafka-topics.sh --describe --topic bia-ventes \
 <div class="cmd"><div class="cmd-head"><span class="term cm"><i class="ti ti-server" aria-hidden="true"></i>cluster-master · terminal 2</span><button class="copy" type="button"><i class="ti ti-copy" aria-hidden="true"></i>Copier</button></div><pre><code>kafka-consumer-groups.sh --describe --group console-test \
   --bootstrap-server localhost:9092</code></pre></div>
 <div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Une ligne par partition : <code class="i">CURRENT-OFFSET</code>, <code class="i">LOG-END-OFFSET</code>, <code class="i">LAG</code>. <code class="i">CONSUMER-ID</code> est vide : le consommateur est arrêté.</span></div>
+<h3>Vue d'ensemble dans Kafka UI</h3>
+<p>Kafka UI est déjà lancée par <code class="i">docker compose up -d</code> (conteneur <code class="i">kafka-ui</code>). Dans l'onglet <em>Ports</em> du Codespace, ouvrez le port <strong>8081</strong> dans le navigateur (et non 8080, qui est celui de Spark). Puis :</p>
+<ol><li><em>Topics</em> → <div data-fil="IDF"><code class="i">idf-transactions</code></div>
+<div data-fil="2SCL"><code class="i">scl-scans</code></div>
+<div data-fil="BI&amp;A"><code class="i">bia-ventes</code></div>
+ → onglet <em>Overview</em> : le tableau des partitions donne le nombre de messages de chacune (<em>Message Count</em>).</li><li>Onglet <em>Messages</em> : chaque ligne montre l'offset, la partition, la clé (<em>Key</em>) et la valeur JSON.</li><li><em>Consumers</em> → <code class="i">console-test</code> : le retard du groupe (<em>Consumer Lag</em>, <em>Total lag</em>).</li></ol>
+<div class="expect"><i class="ti ti-eye" aria-hidden="true"></i><span>Les trois partitions ont des nombres de messages du même ordre, et ces nombres augmentent quand vous rechargez la page, car le simulateur publie toujours. Le <em>Total lag</em> de <code class="i">console-test</code> correspond à la somme des <code class="i">LAG</code> de <code class="i">--describe</code>, à quelques messages près.</span></div>
 <div class="reflect"><label for="r2"><span class="rn">R2</span>Relevez dans la sortie du consommateur deux événements de même clé : sont-ils dans la même partition ? Pourquoi est-ce garanti (chapitre 6, 3.3) ? Quel intérêt pour le traitement de <div data-fil="IDF">la fraude d'un client</div>
 <div data-fil="2SCL">l'historique d'un colis</div>
 <div data-fil="BI&amp;A">l'activité d'un magasin</div>
@@ -488,6 +495,7 @@ jps</code></pre></div>
     </ul>
     <p style="margin:8px 0 2px"><strong>Python et MongoDB</strong></p>
     <ul style="margin:6px 0 0 18px">
+      <li>Kafka UI affiche le cluster hors ligne ou aucun topic : vérifiez que Kafka tourne (<code class="i">jps</code>, section 0), puis rechargez la page. Le port 8080 ouvre l'interface de Spark, pas Kafka UI (port 8081).</li>
       <li><code class="i">No module named pip</code> ou <code class="i">kafka</code> : refaites l'installation de la section 0 dans ce conteneur (elle est perdue si le conteneur est recréé).</li>
       <li><code class="i">Définissez d'abord MONGO_URI</code> : la variable n'existe que dans le terminal où vous avez fait l'<code class="i">export</code> ; refaites-le.</li>
       <li><code class="i">ServerSelectionTimeoutError</code> : l'adresse <code class="i">0.0.0.0/0</code> manque dans <em>Network Access</em>, ou le cluster Atlas est en pause (reprenez-le dans Atlas).</li>
